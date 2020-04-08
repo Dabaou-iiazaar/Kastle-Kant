@@ -12,9 +12,9 @@ public class KGame extends JFrame{//Main, public class.
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setSize(800,625);
+    setSize(800,600);
     
-    myTimer = new Timer(10, new TickListener());
+    myTimer = new Timer(20, new TickListener());
     myTimer.start();
     
     game = new GamePanel(this);
@@ -45,6 +45,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
  private boolean [] keys;
  public Image[] kantMoves=new Image[12];
  private Image background;
+ private Image castle;
  private Kant kant=new Kant(0,0);
  private int picInd=1;
  
@@ -59,6 +60,8 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   for(int k=0;k<12;k++){
     kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
   }
+  background=new ImageIcon("background.png").getImage();
+  castle=new ImageIcon("castle.png").getImage();
  }
  
     public void addNotify() {//Method for notifying, seeing if the graphics are ready.
@@ -69,19 +72,21 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
     
  public void move(){
    if (keys[KeyEvent.VK_W]){
-     picInd=kant.move(kant.x,kant.y-1,picInd);
+     picInd=kant.move(kant.x,kant.y-3,picInd);
    }
    else if (keys[KeyEvent.VK_A]){
-     picInd=kant.move(kant.x-1,kant.y,picInd);
+     picInd=kant.move(kant.x-3,kant.y,picInd);
    }
    else if (keys[KeyEvent.VK_S]){
-     picInd=kant.move(kant.x,kant.y+1,picInd);
+     picInd=kant.move(kant.x,kant.y+3,picInd);
    }
    else if (keys[KeyEvent.VK_D]){
-     picInd=kant.move(kant.x+1,kant.y,picInd);
+     picInd=kant.move(kant.x+3,kant.y,picInd);
    }
  }
     public void paintComponent(Graphics g){//Method for actually drawing all the needed graphics onto the screen.
+      g.drawImage(background,0,0,null);
+      g.drawImage(castle,0,0,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
     }
         public void keyTyped(KeyEvent e) {
@@ -111,15 +116,21 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
 class Kant{
   public int x;
   public int y;
+  public int picCount;
   public Kant(int placex,int placey){
     x=placex;
     y=placey;
+    picCount=0;
   }
   public int move(int mx,int my,int ind){
     if(mx>x){
       x=mx;
       if (ind>6 && ind<9){
-        ind++;
+        picCount++;
+        if(picCount==3){
+          ind++;
+          picCount=0;
+        }
       }
       else{
         ind=7;
@@ -129,7 +140,11 @@ class Kant{
     else if(mx<x){
       x=mx;
       if (ind>3 && ind<6){
-        ind++;
+        picCount++;
+        if(picCount==3){
+          ind++;
+          picCount=0;
+        }
       }
       else{
         ind=4;
@@ -139,7 +154,11 @@ class Kant{
     else if(my>y){
       y=my;
       if (ind>0 && ind<3){
-        ind++;
+        picCount++;
+        if(picCount==3){
+          ind++;
+          picCount=0;
+        }
       }
       else{
         ind=1;
@@ -149,7 +168,11 @@ class Kant{
     else if(my<y){
       y=my;
       if (ind>9 && ind<12){
-        ind++;
+        picCount++;
+        if(picCount==3){
+          ind++;
+          picCount=0;
+        }
       }
       else{
         ind=10;
