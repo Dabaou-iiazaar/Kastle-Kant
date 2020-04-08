@@ -44,10 +44,13 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
  public boolean ready=false;
  private boolean [] keys;
  public Image[] kantMoves=new Image[12];
+ public Image[] turretI=new Image[4];
+ public ArrayList<Tower> turrets=new ArrayList<Tower>();
  private Image background;
  private Image castle;
- private Kant kant=new Kant(0,0);
- private int picInd=1;
+ private Kant kant=new Kant(40,160);
+ private int picInd=2;
+ private int walkSpeed=4;
  
  public GamePanel(KGame m){//Constructor.
   mainFrame=m;
@@ -59,6 +62,9 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   addKeyListener(this);
   for(int k=0;k<12;k++){
     kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
+  }
+  for(int k=0;k<4;k++){
+    turretI[k]=new ImageIcon("turret "+(k+1)+".png").getImage();
   }
   background=new ImageIcon("background.png").getImage();
   castle=new ImageIcon("castle.png").getImage();
@@ -72,22 +78,44 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
     
  public void move(){
    if (keys[KeyEvent.VK_W]){
-     picInd=kant.move(kant.x,kant.y-3,picInd);
+     picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
    }
    else if (keys[KeyEvent.VK_A]){
-     picInd=kant.move(kant.x-3,kant.y,picInd);
+     picInd=kant.move(kant.x-walkSpeed,kant.y,picInd);
    }
    else if (keys[KeyEvent.VK_S]){
-     picInd=kant.move(kant.x,kant.y+3,picInd);
+     picInd=kant.move(kant.x,kant.y+walkSpeed,picInd);
    }
    else if (keys[KeyEvent.VK_D]){
-     picInd=kant.move(kant.x+3,kant.y,picInd);
+     picInd=kant.move(kant.x+walkSpeed,kant.y,picInd);
+   }
+   else{
+     picInd=kant.move(kant.x,kant.y,picInd);
+   }
+   if (keys[KeyEvent.VK_SPACE]){
+     turrets.add(new Tower(kant.x,kant.y,"Good",40));
    }
  }
     public void paintComponent(Graphics g){//Method for actually drawing all the needed graphics onto the screen.
-      g.drawImage(background,0,0,null);
-      g.drawImage(castle,0,0,null);
+      g.drawImage(background,0,0,800,600,null);
+      g.drawImage(castle,40,0,720,600,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
+      for(int t=0;t<turrets.size();t++){
+        int indy=0;
+        if(turrets.get(t).type.equals("Basic")){
+          indy=0;
+        }
+        else if(turrets.get(t).type.equals("Normal")){
+          indy=1;
+        }
+        else if(turrets.get(t).type.equals("Good")){
+          indy=2;
+        }
+        else{
+          indy=3;
+        }
+        g.drawImage(turretI[indy],turrets.get(t).x,turrets.get(t).y,40,40,null);
+      }
     }
         public void keyTyped(KeyEvent e) {
  }
@@ -180,8 +208,44 @@ class Kant{
       return ind;
     }
     else{
-      ind=1;
+      ind=2;
       return ind;
+    }
+  }
+}
+class Tower{
+  int x;
+  int y;
+  String type;
+  int level;
+  int cooldown;
+  int max;
+  public Tower(int xx,int yy, String kind, int time){
+    x=xx;
+    y=yy;
+    type=kind;
+    cooldown=time;
+    max=time;
+  }
+  public int shoot(int targx,int targy){
+    if(cooldown<=0){
+      cooldown=max;
+      if(type.equals("Basic")){
+        return 10;
+      }
+      else if(type.equals("Normal")){
+        return 20;
+      }
+      else if(type.equals("Good")){
+        return 50;
+      }
+      else{
+        return 100;
+      }
+    }
+    else{
+      cooldown-=10;
+      return 0;
     }
   }
 }
