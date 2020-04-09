@@ -12,7 +12,7 @@ public class KGame extends JFrame{//Main, public class.
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setSize(800,600);
+    setSize(1000,700);
     
     myTimer = new Timer(20, new TickListener());
     myTimer.start();
@@ -46,9 +46,10 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
  public Image[] kantMoves=new Image[12];
  public Image[] turretI=new Image[4];
  public ArrayList<Tower> turrets=new ArrayList<Tower>();
+ public String turretType = "Basic";
  private Image background;
  private Image castle;
- private Kant kant=new Kant(40,160);
+ private Kant kant=new Kant(70,130);
  private int picInd=2;
  private int walkSpeed=4;
  
@@ -70,7 +71,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   castle=new ImageIcon("castle.png").getImage();
  }
  
-    public void addNotify() {//Method for notifying, seeing if the graphics are ready.
+    public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
         super.addNotify();
         requestFocus();
         ready = true;
@@ -78,13 +79,13 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
     
  public void move(){
    if (keys[KeyEvent.VK_W]){
-     picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
+   //  picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
    }
    else if (keys[KeyEvent.VK_A]){
      picInd=kant.move(kant.x-walkSpeed,kant.y,picInd);
    }
    else if (keys[KeyEvent.VK_S]){
-     picInd=kant.move(kant.x,kant.y+walkSpeed,picInd);
+   //  picInd=kant.move(kant.x,kant.y+walkSpeed,picInd);
    }
    else if (keys[KeyEvent.VK_D]){
      picInd=kant.move(kant.x+walkSpeed,kant.y,picInd);
@@ -93,13 +94,25 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
      picInd=kant.move(kant.x,kant.y,picInd);
    }
    if (keys[KeyEvent.VK_SPACE]){
-     turrets.add(new Tower(kant.x,kant.y,"Good",40));
+     boolean overlay=false;
+     for(Tower t:turrets){
+       if(t.x-40<kant.x && kant.x<t.x+40 && kant.y+30==t.y){
+         overlay=true;
+         break;
+       }
+     }
+     if(!overlay){
+       turrets.add(new Tower(kant.x,kant.y+30,turretType,40));
+     }
    }
  }
-    public void paintComponent(Graphics g){//Method for actually drawing all the needed graphics onto the screen.
-      g.drawImage(background,0,0,800,600,null);
+    public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+      g.drawImage(background,0,0,1000,700,null);
       g.drawImage(castle,40,0,720,600,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
+      for(int i=0; i<4; i++){
+        g.drawImage(turretI[i],100+(i*80),620,40,40,null);
+      }
       for(int t=0;t<turrets.size();t++){
         int indy=0;
         if(turrets.get(t).type.equals("Basic")){
@@ -127,17 +140,23 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
  public void keyReleased(KeyEvent e) {
    keys[e.getKeyCode()] = false;
  }
-    class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
-     public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
-     public void mouseExited(MouseEvent e) {}
-     public void mouseReleased(MouseEvent e) {}    
-     public void mouseClicked(MouseEvent e){}  
-       
-     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
-   destx = e.getX();
-   desty = e.getY(); 
-  }
-    }    
+ class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
+   public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+   public void mouseExited(MouseEvent e) {}
+   public void mouseReleased(MouseEvent e) {}    
+   public void mouseClicked(MouseEvent e){}  
+   
+   public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
+     destx = e.getX();
+     desty = e.getY();
+     if(620<desty && desty<660){
+       if(100<destx && destx<140){turretType="Basic";}
+       else if(180<destx && destx<220){turretType="Normal";}
+       else if(260<destx && destx<300){turretType="Good";}
+       else if(340<destx && destx<380){turretType="Super";}
+     }
+   }
+ }    
 }
 
 
@@ -151,7 +170,25 @@ class Kant{
     picCount=0;
   }
   public int move(int mx,int my,int ind){
-    if(mx>x){
+    if(695<mx && mx<705){
+      if(my==130 | my==260 | my==390){
+        y+=130;
+        x=70;
+        System.out.println(".");
+      }
+      ind=2;
+      return ind;
+    }
+    else if(55<mx && mx<65){
+      if(my==260 | my==390 | my==520){
+        y-=130;
+        x=690;
+        System.out.println(".");
+      }
+      ind=2;
+      return ind;
+    }
+    else if(mx>x){
       x=mx;
       if (ind>6 && ind<9){
         picCount++;
