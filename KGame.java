@@ -7,8 +7,11 @@ import java.awt.image.*;
 import javax.imageio.*; 
 import javax.swing.Timer;//Specifying which Timer since there would be a conflict with util otherwise.
 public class KGame extends JFrame{//Main, public class.
+  public String kind="Menu";
+  public boolean change=false;
   Timer myTimer;//Timer to keep the graphics at a good pace.  
   GamePanel game;
+  Menu menu;
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -16,9 +19,9 @@ public class KGame extends JFrame{//Main, public class.
     
     myTimer = new Timer(20, new TickListener());
     myTimer.start();
-    
+    menu=new Menu(this);
     game = new GamePanel(this);
-    add(game);
+    add(menu);
     
     setResizable(false);
     setVisible(true);
@@ -26,10 +29,23 @@ public class KGame extends JFrame{//Main, public class.
     
  class TickListener implements ActionListener{//Class and its one method to update the graphics on screen every time the Timer tells them to.
   public void actionPerformed(ActionEvent evt){
-   if(game!= null && game.ready){
+    if(change==true && kind.equals("Game")){
+      change=false;
+      remove(menu);
+      add(game);
+    }
+    if(change==true && kind.equals("Menu")){
+      change=false;
+      remove(game);
+      add(menu);
+    }
+   if(kind.equals("Game") && game!= null && game.ready){
     game.move();
     game.repaint();
-   }   
+   }
+   else if(kind.equals("Menu") && menu!=null && menu.ready){
+     menu.repaint();
+   }
   }
  }
   public static void main(String[] args){//Main method.
@@ -59,7 +75,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   addMouseListener(new clickListener());
   destx=-20;//Default values for the mouse's position is off screen.
   desty=-20;
-  setSize(800,600);
+  setSize(1000,700);
   addKeyListener(this);
   for(int k=0;k<12;k++){
     kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
@@ -78,6 +94,11 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
     }
     
  public void move(){
+   if (keys[KeyEvent.VK_BACK_SPACE]){
+     mainFrame.kind="Menu";
+     mainFrame.change=true;
+     keys[KeyEvent.VK_BACK_SPACE]=false;
+   }
    if (keys[KeyEvent.VK_W]){
    //  picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
    }
@@ -284,5 +305,47 @@ class Tower{
       cooldown-=10;
       return 0;
     }
+  }
+}
+class Menu extends JPanel{
+  private int destx,desty;//Variables for keeping track of the mouse's position.
+  private Image screen;
+  private KGame mainFrame;
+  public boolean ready=false;
+  public Menu(KGame m){
+    mainFrame=m;
+    addMouseListener(new clickListener());
+    destx=-20;//Default values for the mouse's position is off screen.
+    desty=-20;
+    setSize(800,600);
+    screen=new ImageIcon("KantScreen.jpg").getImage();
+  }
+  public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
+        super.addNotify();
+        requestFocus();
+        ready = true;
+    }
+  
+  public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+      g.drawImage(screen,0,0,1000,700,null);
+  }
+  
+  class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
+   public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+   public void mouseExited(MouseEvent e) {}
+   public void mouseReleased(MouseEvent e) {}    
+   public void mouseClicked(MouseEvent e){}  
+   
+   public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
+     destx = e.getX();
+     desty = e.getY();
+     if(400<destx && destx<600){
+       if(300<desty && desty<500){
+         mainFrame.kind="Game";
+         mainFrame.change=true;
+         System.out.println("yo");
+       }
+     }
+   }
   }
 }
