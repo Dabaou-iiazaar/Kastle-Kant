@@ -1,3 +1,4 @@
+//Adam Gaisinsky and Yang Li. FSE Progress. Kant's Kastle, a tower-defense style game with a unique twist.
 import java.util.*;//Importing for graphics and other helpful additions.
 import java.io.*;
 import java.awt.*;
@@ -12,6 +13,7 @@ public class KGame extends JFrame{//Main, public class.
   Timer myTimer;//Timer to keep the graphics at a good pace.  
   GamePanel game;
   Menu menu;
+  Level level;
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -21,6 +23,7 @@ public class KGame extends JFrame{//Main, public class.
     myTimer.start();
     menu=new Menu(this);
     game = new GamePanel(this);
+    level=new Level(this);
     add(menu);
     
     setResizable(false);
@@ -31,7 +34,7 @@ public class KGame extends JFrame{//Main, public class.
   public void actionPerformed(ActionEvent evt){
     if(change==true && kind.equals("Game")){
       change=false;
-      remove(menu);
+      remove(level);
       add(game);
     }
     if(change==true && kind.equals("Menu")){
@@ -39,12 +42,20 @@ public class KGame extends JFrame{//Main, public class.
       remove(game);
       add(menu);
     }
+    if(change==true && kind.equals("Level")){
+      change=false;
+      remove(menu);
+      add(level);
+    }
    if(kind.equals("Game") && game!= null && game.ready){
     game.move();
     game.repaint();
    }
    else if(kind.equals("Menu") && menu!=null && menu.ready){
      menu.repaint();
+   }
+   else if(kind.equals("Level") && level!=null && level.ready){
+     level.repaint();
    }
   }
  }
@@ -55,12 +66,14 @@ public class KGame extends JFrame{//Main, public class.
 
 
 class GamePanel extends JPanel implements KeyListener{//Class for drawing and managing the graphics.
+ private int money=100;
  private int destx,desty;//Variables for keeping track of the mouse's position.
  private KGame mainFrame;
  public boolean ready=false;
  private boolean [] keys;
  public Image[] kantMoves=new Image[12];
  public Image[] turretI=new Image[4];
+ public int[] costs={5,10,25,50};
  public ArrayList<Tower> turrets=new ArrayList<Tower>();
  public String turretType = "Basic";
  private Image background;
@@ -123,7 +136,23 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
        }
      }
      if(!overlay){
-       turrets.add(new Tower(kant.x,kant.y+30,turretType,40));
+        int indy=0;
+        if(turretType.equals("Basic")){
+          indy=0;
+        }
+        else if(turretType.equals("Normal")){
+          indy=1;
+        }
+        else if(turretType.equals("Good")){
+          indy=2;
+        }
+        else{
+          indy=3;
+        }
+       if (money-costs[indy]>=0){
+         money-=costs[indy];
+         turrets.add(new Tower(kant.x,kant.y+30,turretType,40));
+       }
      }
    }
  }
@@ -131,6 +160,12 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
       g.drawImage(background,0,0,1000,700,null);
       g.drawImage(castle,40,0,720,600,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
+      
+      Font font = new Font("Verdana", Font.BOLD, 14);
+      g.setFont(font);//Creating the font and setting its colour.
+      g.setColor(Color.white);
+      g.drawString("Coins: "+money, 50, 25);
+      
       for(int i=0; i<4; i++){
         g.drawImage(turretI[i],100+(i*80),620,40,40,null);
       }
@@ -195,7 +230,6 @@ class Kant{
       if(my==130 | my==260 | my==390){
         y+=130;
         x=70;
-        System.out.println(".");
       }
       ind=2;
       return ind;
@@ -204,7 +238,6 @@ class Kant{
       if(my==260 | my==390 | my==520){
         y-=130;
         x=690;
-        System.out.println(".");
       }
       ind=2;
       return ind;
@@ -307,6 +340,9 @@ class Tower{
     }
   }
 }
+
+
+
 class Menu extends JPanel{
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private Image screen;
@@ -341,9 +377,56 @@ class Menu extends JPanel{
      desty = e.getY();
      if(400<destx && destx<600){
        if(300<desty && desty<500){
-         mainFrame.kind="Game";
+         mainFrame.kind="Level";
          mainFrame.change=true;
          System.out.println("yo");
+       }
+     }
+   }
+  }
+}
+
+
+class Level extends JPanel{
+  private int destx,desty;//Variables for keeping track of the mouse's position.
+  //private Image screen;
+  private KGame mainFrame;
+  public boolean ready=false;
+  public Level(KGame m){
+    mainFrame=m;
+    addMouseListener(new clickListener());
+    destx=-20;//Default values for the mouse's position is off screen.
+    desty=-20;
+    setSize(1000,700);
+    //screen=new ImageIcon("KantScreen.jpg").getImage();
+  }
+  public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
+        super.addNotify();
+        requestFocus();
+        ready = true;
+    }
+  
+  public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+      //g.drawImage(screen,0,0,1000,700,null);
+      g.setColor(Color.white);
+      g.fillRect(0,0,1000,700);
+      g.setColor(Color.red);
+      g.fillRect(10,10,100,100);
+  }
+  
+  class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
+   public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+   public void mouseExited(MouseEvent e) {}
+   public void mouseReleased(MouseEvent e) {}    
+   public void mouseClicked(MouseEvent e){}  
+   
+   public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
+     destx = e.getX();
+     desty = e.getY();
+     if(10<destx && destx<110){
+       if(10<desty && desty<110){
+         mainFrame.kind="Game";
+         mainFrame.change=true;
        }
      }
    }
