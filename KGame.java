@@ -186,18 +186,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
       }
       g.drawImage(turretI[indy],turrets.get(t).x,turrets.get(t).y,40,40,null);
     }
-    monster.floorUp();
-    g.drawImage(monster.mPic()[monster.picCount/5],monster.x,monster.y,40,50,null);
-    monster.picCount+=1;
-    if(monster.picCount/5==3){
-      monster.picCount=0;
-    }
-    if(monster.direction.equals("L")){
-      monster.x-=monster.speed;
-    }
-    else{
-      monster.x+=monster.speed;
-    }
+    monster.monsterDraw(g);
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -493,6 +482,20 @@ class Monster{
     }
     else{
       return mPicL;
+    }
+  }
+  public void monsterDraw(Graphics g){
+    floorUp();
+    g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+    picCount+=1;
+    if(picCount/5==3){
+      picCount=0;
+    }
+    if(direction.equals("L")){
+      x-=speed;
+    }
+    else{
+      x+=speed;
     }
   }
 }
