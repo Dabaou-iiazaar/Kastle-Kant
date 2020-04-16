@@ -75,13 +75,15 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   public Image[] turretI=new Image[4];
   public int[] costs={5,10,25,50};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
+  public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public String turretType = "Basic";
   private Image background;
   private Image castle;
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
-  private Monster monster=new Monster(800,535,"zombie");
+  public int timer=100;
+  public int oldTimer=timer;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -171,6 +173,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
     for(int t=0;t<turrets.size();t++){
+      turrets.get(t).shoot(monsters);
       int indy=0;
       if(turrets.get(t).type.equals("Basic")){
         indy=0;
@@ -186,7 +189,16 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
       }
       g.drawImage(turretI[indy],turrets.get(t).x,turrets.get(t).y,40,40,null);
     }
-    monster.monsterDraw(g);
+    for (Monster ms: monsters){
+      ms.monsterDraw(g,turrets);
+    }
+    if (timer==oldTimer){
+      timer=0;
+      monsters.add(new Monster(800,535,"zombie"));
+    }
+    else{
+      timer+=1;
+    }
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -307,37 +319,67 @@ class Kant{
   }
 }
 class Tower{
-  int x;
-  int y;
-  String type;
-  int cooldown;
-  int max;
+  public int x;
+  public int y;
+  public String type;
+  public int cooldown;
+  public int max;
+  public int health;
   public Tower(int xx,int yy, String kind, int time){
     x=xx;
     y=yy;
     type=kind;
     cooldown=time;
     max=time;
+    health=100;
   }
-  public int shoot(int targx,int targy){
+  public void shoot(ArrayList<Monster> ms){
+    Monster target=null;
+    int close=999;
+    for(Monster monster: ms){
+      if(monster.y+15==y){
+        if((monster.x-x)>0 && (monster.x-x)<close){
+          close=x-monster.x;
+          target=monster;
+        }
+      }
+    }
     if(cooldown<=0){
       cooldown=max;
-      if(type.equals("Basic")){
-        return 10;
+      if(type.equals("Basic") && target!=null){
+        if(target.damage(10)){
+          ms.remove(target);
+        }
       }
-      else if(type.equals("Normal")){
-        return 20;
+      else if(type.equals("Normal") && target!=null){
+        if(target.damage(20)){
+          ms.remove(target);
+        }
       }
-      else if(type.equals("Good")){
-        return 50;
+      else if(type.equals("Good") && target!=null){
+        if(target.damage(50)){
+          ms.remove(target);
+        }
       }
       else{
-        return 100;
+        if(target!=null){
+          if(target.damage(100)){
+            ms.remove(target);
+          }
+        }
       }
     }
     else{
       cooldown-=10;
-      return 0;
+    }
+  }
+  public boolean damage(int hurt){
+    health-=hurt;
+    if (health<=0){
+      return true;
+    }
+    else{
+      return false;
     }
   }
 }
@@ -451,6 +493,7 @@ class Monster{
     y=placey;
     picCount=0;
     type=mtype;
+    hp=100;
     direction="L";
     speed=1.5;
     for(int i=1; i<4; i++){
@@ -484,19 +527,39 @@ class Monster{
       return mPicL;
     }
   }
-  public void monsterDraw(Graphics g){
+  public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
     floorUp();
     g.drawImage(mPic()[picCount/5],x,y,40,50,null);
     picCount+=1;
     if(picCount/5==3){
       picCount=0;
     }
-    if(direction.equals("L")){
-      x-=speed;
+    boolean overlay=false;
+    for(Tower t:turrets){
+      if(t.x-40<x && x<t.x+40 && y+15==t.y){
+        overlay=true;
+        if(t.damage(1)){
+          turrets.remove(t);
+        }
+        break;
+      }
     }
-    else{
-      x+=speed;
+    if(!overlay){
+      if(direction.equals("L")){
+        x-=speed;
+      }
+      else{
+        x+=speed;
+      }
     }
   }
+  public boolean damage(int hurt){
+    hp-=hurt;
+    if (hp<=0){
+      return true;
+    }
+    else{
+      return false;
+    }
+  } 
 }
-    
