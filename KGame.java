@@ -1,4 +1,4 @@
-//Adam Gaisinsky and Yang Li. FSE Progress. Kant's Kastle, a tower-defense style game with a unique twist.
+ //Adam Gaisinsky and Yang Li. FSE Progress. Kant's Kastle, a tower-defense style game with a unique twist.
 import java.util.*;//Importing for graphics and other helpful additions.
 import java.io.*;
 import java.awt.*;
@@ -65,7 +65,7 @@ public class KGame extends JFrame{//Main, public class.
 }
 
 
-class GamePanel extends JPanel implements KeyListener{//Class for drawing and managing the graphics.
+class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics.
   private int money=100;
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private KGame mainFrame;
@@ -73,7 +73,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
   public Image[] turretI=new Image[4];
-  public int[] costs={5,10,25,50};
+  public int[] costs={25,50,100,200};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public String turretType = "Basic";
@@ -82,7 +82,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
-  public int timer=100;
+  public int timer=50;
   public int oldTimer=timer;
   
   public GamePanel(KGame m){     //Constructor.
@@ -154,7 +154,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,40));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,125));
         }
       }
     }
@@ -173,7 +173,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
     for(int t=0;t<turrets.size();t++){
-      turrets.get(t).shoot(monsters);
+      money+=turrets.get(t).shoot(monsters);
       int indy=0;
       if(turrets.get(t).type.equals("Basic")){
         indy=0;
@@ -219,6 +219,7 @@ class GamePanel extends JPanel implements KeyListener{//Class for drawing and ma
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
+      System.out.println(destx);
       if(620<desty && desty<660){
         if(100<destx && destx<140){turretType="Basic";}
         else if(180<destx && destx<220){turretType="Normal";}
@@ -333,13 +334,13 @@ class Tower{
     max=time;
     health=100;
   }
-  public void shoot(ArrayList<Monster> ms){
+  public int shoot(ArrayList<Monster> ms){
     Monster target=null;
-    int close=999;
+    int close=180;
     for(Monster monster: ms){
       if(monster.y+15==y){
         if((monster.x-x)>0 && (monster.x-x)<close){
-          close=x-monster.x;
+          close=monster.x-x;
           target=monster;
         }
       }
@@ -347,31 +348,37 @@ class Tower{
     if(cooldown<=0){
       cooldown=max;
       if(type.equals("Basic") && target!=null){
-        if(target.damage(10)){
+        if(target.damage(25)){
           ms.remove(target);
+          return 5;
         }
       }
       else if(type.equals("Normal") && target!=null){
-        if(target.damage(20)){
+        if(target.damage(50)){
           ms.remove(target);
+          return 5;
         }
       }
       else if(type.equals("Good") && target!=null){
-        if(target.damage(50)){
+        if(target.damage(100)){
           ms.remove(target);
+          return 5;
         }
       }
       else{
         if(target!=null){
-          if(target.damage(100)){
+          if(target.damage(200)){
             ms.remove(target);
+            return 5;
           }
         }
       }
     }
     else{
       cooldown-=10;
+      return 0;
     }
+    return 0;
   }
   public boolean damage(int hurt){
     health-=hurt;
@@ -500,6 +507,7 @@ class Monster{
       mPicL[i-1]=new ImageIcon(type+i+"L.png").getImage();
       mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
+    power=1;
   }
   public void floorUp(){
     if(695<x && x<705){
@@ -538,7 +546,7 @@ class Monster{
     for(Tower t:turrets){
       if(t.x-40<x && x<t.x+40 && y+15==t.y){
         overlay=true;
-        if(t.damage(1)){
+        if(t.damage(power)){
           turrets.remove(t);
         }
         break;
