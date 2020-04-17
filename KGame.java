@@ -174,6 +174,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     for(int t=0;t<turrets.size();t++){
       money+=turrets.get(t).shoot(monsters);
+      turrets.get(t).towerDraw(g);
       int indy=0;
       if(turrets.get(t).type.equals("Basic")){
         indy=0;
@@ -326,58 +327,72 @@ class Tower{
   public int cooldown;
   public int max;
   public int health;
+  public Image bulletPic;
+  public int bx;
   public Tower(int xx,int yy, String kind, int time){
     x=xx;
+    bx=x;
     y=yy;
     type=kind;
     cooldown=time;
     max=time;
     health=100;
+    bulletPic=new ImageIcon("bullet.png").getImage();
   }
   public int shoot(ArrayList<Monster> ms){
     Monster target=null;
+    boolean hit=false;
     int close=180;
     for(Monster monster: ms){
       if(monster.y+15==y){
         if((monster.x-x)>0 && (monster.x-x)<close){
           close=monster.x-x;
+          bx+=13;
+          if(bx>=monster.x){
+            bx=x-(180-close);
+            hit=true;
+          }
           target=monster;
         }
       }
     }
-    if(cooldown<=0){
-      cooldown=max;
-      if(type.equals("Basic") && target!=null){
+//    if(cooldown<=0){
+//         cooldown=max;
+      if(type.equals("Basic") && target!=null && hit==true){
         if(target.damage(25)){
-          ms.remove(target);
+          ms.remove(target);          
+          hit=false;
           return 5;
         }
       }
-      else if(type.equals("Normal") && target!=null){
+      else if(type.equals("Normal") && target!=null && hit==true){
         if(target.damage(50)){
           ms.remove(target);
+          hit=false;
           return 5;
         }
       }
-      else if(type.equals("Good") && target!=null){
+      else if(type.equals("Good") && target!=null && hit==true){
         if(target.damage(100)){
           ms.remove(target);
+          hit=false;
           return 5;
         }
       }
       else{
-        if(target!=null){
+        if(target!=null && hit==true){
           if(target.damage(200)){
             ms.remove(target);
+            hit=false;
             return 5;
           }
         }
       }
-    }
-    else{
-      cooldown-=10;
-      return 0;
-    }
+//    }
+//    else{
+//      cooldown-=10;
+//      return 0;
+//    }
     return 0;
   }
   public boolean damage(int hurt){
@@ -387,6 +402,11 @@ class Tower{
     }
     else{
       return false;
+    }
+  }
+  public void towerDraw(Graphics g){
+    if(bx>=x){
+      g.drawImage(bulletPic,bx,y,30,30,null);
     }
   }
 }
