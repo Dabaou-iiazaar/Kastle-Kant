@@ -1,4 +1,4 @@
- //Adam Gaisinsky and Yang Li. FSE Progress. Kant's Kastle, a tower-defense style game with a unique twist.
+//Adam Gaisinsky and Yang Li. FSE Progress. Kant's Kastle, a tower-defense style game with a unique twist.
 import java.util.*;//Importing for graphics and other helpful additions.
 import java.io.*;
 import java.awt.*;
@@ -76,6 +76,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int[] costs={25,50,100,200};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
+  public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
+  public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
+  public ArrayList<Monster> trashM=new ArrayList<Monster>();
   public String turretType = "Basic";
   private Image background;
   private Image castle;
@@ -154,7 +157,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,125));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,200));
         }
       }
     }
@@ -172,23 +175,25 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     for(int i=0; i<4; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
-    for(int t=0;t<turrets.size();t++){
-      money+=turrets.get(t).shoot(monsters);
-      turrets.get(t).towerDraw(g);
+    for(Tower turr:turrets){
+      turr.shoot(bullets,monsters);
       int indy=0;
-      if(turrets.get(t).type.equals("Basic")){
+      if(turr.type.equals("Basic")){
         indy=0;
       }
-      else if(turrets.get(t).type.equals("Normal")){
+      else if(turr.type.equals("Normal")){
         indy=1;
       }
-      else if(turrets.get(t).type.equals("Good")){
+      else if(turr.type.equals("Good")){
         indy=2;
       }
       else{
         indy=3;
       }
-      g.drawImage(turretI[indy],turrets.get(t).x,turrets.get(t).y,40,40,null);
+      g.drawImage(turretI[indy],turr.x,turr.y,40,40,null);
+    }
+    for(Bullet bull:bullets){
+      money=bull.move(monsters,g,trashB,trashM,money);
     }
     for (Monster ms: monsters){
       ms.monsterDraw(g,turrets);
@@ -200,6 +205,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     else{
       timer+=1;
     }
+    monsters.removeAll(trashM);
+    bullets.removeAll(trashB);
+    trashB.clear();
+    trashM.clear();
+    
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -327,73 +337,45 @@ class Tower{
   public int cooldown;
   public int max;
   public int health;
-  public Image bulletPic;
-  public int bx;
   public Tower(int xx,int yy, String kind, int time){
     x=xx;
-    bx=x;
     y=yy;
     type=kind;
     cooldown=time;
     max=time;
     health=100;
-    bulletPic=new ImageIcon("bullet.png").getImage();
   }
-  public int shoot(ArrayList<Monster> ms){
-    Monster target=null;
-    boolean hit=false;
-    int close=180;
-    for(Monster monster: ms){
-      if(monster.y+15==y){
-        if((monster.x-x)>0 && (monster.x-x)<close){
-          close=monster.x-x;
-          bx+=13;
-          if(bx>=monster.x){
-            bx=x-(180-close);
-            hit=true;
-          }
-          target=monster;
-        }
+  public void shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
+    if(cooldown<=0){
+      for(Monster mons: ms){
+        if(mons.y+15==y){
+         cooldown=max;
+         int damage;
+         int speed;
+         if(type.equals("Basic")){
+           damage=10;
+           speed=5;
+         }
+         else if(type.equals("Normal")){
+           damage=20;
+           speed=5;
+         }
+         else if(type.equals("Good")){
+           damage=20;
+           speed=10;
+         }
+         else{
+           damage=50;
+           speed=15;
+         }
+         bs.add(new Bullet(x,y,type,speed,damage));
+         break;
       }
     }
-//    if(cooldown<=0){
-//         cooldown=max;
-      if(type.equals("Basic") && target!=null && hit==true){
-        if(target.damage(25)){
-          ms.remove(target);          
-          hit=false;
-          return 5;
-        }
-      }
-      else if(type.equals("Normal") && target!=null && hit==true){
-        if(target.damage(50)){
-          ms.remove(target);
-          hit=false;
-          return 5;
-        }
-      }
-      else if(type.equals("Good") && target!=null && hit==true){
-        if(target.damage(100)){
-          ms.remove(target);
-          hit=false;
-          return 5;
-        }
-      }
-      else{
-        if(target!=null && hit==true){
-          if(target.damage(200)){
-            ms.remove(target);
-            hit=false;
-            return 5;
-          }
-        }
-      }
-//    }
-//    else{
-//      cooldown-=10;
-//      return 0;
-//    }
-    return 0;
+    }
+    else{
+      cooldown-=5;
+    }
   }
   public boolean damage(int hurt){
     health-=hurt;
@@ -404,13 +386,56 @@ class Tower{
       return false;
     }
   }
-  public void towerDraw(Graphics g){
-    if(bx>=x){
-      g.drawImage(bulletPic,bx,y,30,30,null);
+}
+class Bullet{
+  int x;
+  int y;
+  String type;
+  int speed;
+  int damage;
+  private Image[] types=new Image[4];
+  public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){
+    x=xx;
+    y=yy;
+    type=ttype;
+    speed=sspeed;
+    damage=ddamage;
+    for(int k=0;k<4;k++){
+      types[k]=new ImageIcon("Bullet "+(k+1)+".png").getImage();
     }
   }
+  public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb ,ArrayList<Monster> tm,int money){
+    int ind=0;
+    if(type.equals("Basic")){
+       ind=0;
+    }
+    else if(type.equals("Normal")){
+       ind=1;
+    }
+    else if(type.equals("Good")){
+       ind=2;
+    }
+    else{
+       ind=3;
+    }
+    g.drawImage(types[ind],x,y,40,10,null);
+    for(Monster mons:ms){
+      if((x+40)>mons.x && (x+40)<mons.x+40 && y==mons.y+15){
+        if(mons.damage(damage)){
+          mons.x=-1000;
+          mons.speed=0;
+          tm.add(mons);
+          money+=10;
+        }
+        x=-1000;
+        speed=0;
+        tb.add(this);
+      }
+    }
+    x+=speed;
+    return money;
+  }
 }
-
 
 
 class Menu extends JPanel{
