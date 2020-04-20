@@ -85,8 +85,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
-  public int timer=50;
-  public int oldTimer=timer;
+  public int timer1=0;
+  public int timer2=0;
+  public int zTimer=65;
+  public int sTimer=100;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -157,7 +159,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,200));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,80));
         }
       }
     }
@@ -198,18 +200,22 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     for (Monster ms: monsters){
       ms.monsterDraw(g,turrets);
     }
-    if (timer==oldTimer){
-      timer=0;
+    if (timer1==zTimer){
       monsters.add(new Monster(800,535,"zombie"));
+      timer1=0;
+    }
+    else if(timer2==sTimer){
+      monsters.add(new Monster(800,535,"spider"));
+      timer2=0;
     }
     else{
-      timer+=1;
+      timer1+=1;
+      timer2+=1;
     }
     monsters.removeAll(trashM);
     bullets.removeAll(trashB);
     trashB.clear();
-    trashM.clear();
-    
+    trashM.clear();   
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -353,19 +359,19 @@ class Tower{
          int damage;
          int speed;
          if(type.equals("Basic")){
-           damage=10;
-           speed=5;
-         }
-         else if(type.equals("Normal")){
-           damage=20;
-           speed=5;
-         }
-         else if(type.equals("Good")){
            damage=20;
            speed=10;
          }
-         else{
+         else if(type.equals("Normal")){
+           damage=35;
+           speed=10;
+         }
+         else if(type.equals("Good")){
            damage=50;
+           speed=13;
+         }
+         else{
+           damage=100;
            speed=15;
          }
          bs.add(new Bullet(x,y,type,speed,damage));
@@ -547,12 +553,22 @@ class Monster{
     type=mtype;
     hp=100;
     direction="L";
-    speed=1.5;
+    if(type.equals("spider")){
+      speed=4;
+    }
+    else{
+      speed=1.5;
+    }
     for(int i=1; i<4; i++){
       mPicL[i-1]=new ImageIcon(type+i+"L.png").getImage();
-      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
+//      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
-    power=1;
+    if(type=="zombie"){
+      power=1;
+    }
+    else if(type=="spider"){
+       power=2;
+    }
   }
   public void floorUp(){
     if(695<x && x<705){
@@ -582,7 +598,12 @@ class Monster{
   }
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
     floorUp();
-    g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+    if(type.equals("spider")){
+      g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
+    }
+    else{
+      g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+    }
     picCount+=1;
     if(picCount/5==3){
       picCount=0;
