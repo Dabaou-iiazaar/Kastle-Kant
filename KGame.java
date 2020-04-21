@@ -87,8 +87,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private int walkSpeed=4;
   public int timer1=0;
   public int timer2=0;
-  public int zTimer=65;
-  public int sTimer=100;
+  public int timer3=0;
+  public int zTimer=100;
+  public int swTimer=400;
+  public int dTimer=1000;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -159,7 +161,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,80));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,100));
         }
       }
     }
@@ -201,16 +203,23 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       ms.monsterDraw(g,turrets);
     }
     if (timer1==zTimer){
-      monsters.add(new Monster(800,535,"zombie"));
+      monsters.add(new Monster(760,535,"zombie"));
       timer1=0;
     }
-    else if(timer2==sTimer){
+    else if(timer2==swTimer){
       monsters.add(new Monster(800,535,"spider"));
+      monsters.add(new Monster(800,535,"werewolf"));
+      monsters.add(new Monster(800,405,"vampire"));
       timer2=0;
+    }
+    else if(timer3==dTimer){
+      monsters.add(new Monster(800,535,"devil"));
+      timer3=0;
     }
     else{
       timer1+=1;
       timer2+=1;
+      timer3+=1;
     }
     monsters.removeAll(trashM);
     bullets.removeAll(trashB);
@@ -354,7 +363,7 @@ class Tower{
   public void shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
     if(cooldown<=0){
       for(Monster mons: ms){
-        if(mons.y+15==y){
+        if(mons.y+15==y && mons.x<=x+300 && mons.x>x){
          cooldown=max;
          int damage;
          int speed;
@@ -482,7 +491,6 @@ class Menu extends JPanel{
         if(300<desty && desty<500){
           mainFrame.kind="Level";
           mainFrame.change=true;
-          System.out.println("yo");
         }
       }
     }
@@ -551,35 +559,49 @@ class Monster{
     y=placey;
     picCount=0;
     type=mtype;
-    hp=100;
+    if(type.equals("werewolf") | type.equals("vampire")){
+      hp=150;
+    }
+    else if(type.equals("devil")){
+      hp=300;
+    }
+    else{
+      hp=100;
+    }
     direction="L";
     if(type.equals("spider")){
       speed=4;
     }
+    else if(type.equals("werewolf") | type.equals("vampire")){
+      speed=2;
+    }
     else{
-      speed=1.5;
+      speed=1;
     }
     for(int i=1; i<4; i++){
       mPicL[i-1]=new ImageIcon(type+i+"L.png").getImage();
 //      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
-    if(type=="zombie"){
+    if(type.equals("zombie") | type.equals("vampire")){
       power=1;
     }
-    else if(type=="spider"){
+    else if(type.equals("spider") | type.equals("devil")){
        power=2;
+    }
+    else if(type=="werewolf"){
+      power=5;
     }
   }
   public void floorUp(){
-    if(695<x && x<705){
+/*    if(695<x && x<705){
       if(y==145 | y==275 | y==405){
         y+=130;
         x=70;       
         picCount=0;
         direction="R";
       }
-    }
-    else if(55<x && x<65){
+    } */
+    if(55<x && x<65){
       if(y==275 | y==405 | y==535){
         y-=130;
         x=690;
@@ -600,6 +622,9 @@ class Monster{
     floorUp();
     if(type.equals("spider")){
       g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
+    }
+    else if(type.equals("vampire")){
+      g.drawImage(mPic()[picCount/5],x,y,50,40,null);
     }
     else{
       g.drawImage(mPic()[picCount/5],x,y,40,50,null);
