@@ -80,6 +80,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
   public ArrayList<Monster> trashM=new ArrayList<Monster>();
   public String turretType = "Basic";
+  public int tBox=100;
   private Image background;
   private Image castle;
   private Kant kant=new Kant(70,130);
@@ -175,6 +176,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     g.setFont(font);//Creating the font and setting its colour.
     g.setColor(Color.white);
     g.drawString("Coins: "+money, 50, 25);
+    g.fillRect(790,90,180,350);
+    g.setColor(Color.red);
+    g.drawRect(tBox,620,40,40);
+    g.drawString("Power Levels",830,110);
     
     for(int i=0; i<4; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
@@ -247,10 +252,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       desty = e.getY();
       System.out.println(destx);
       if(620<desty && desty<660){
-        if(100<destx && destx<140){turretType="Basic";}
-        else if(180<destx && destx<220){turretType="Normal";}
-        else if(260<destx && destx<300){turretType="Good";}
-        else if(340<destx && destx<380){turretType="Super";}
+        if(100<destx && destx<140){turretType="Basic"; tBox=100;}
+        else if(180<destx && destx<220){turretType="Normal"; tBox=180;}
+        else if(260<destx && destx<300){turretType="Good"; tBox=260;}
+        else if(340<destx && destx<380){turretType="Super"; tBox=340;}
       }
     }
   }    
