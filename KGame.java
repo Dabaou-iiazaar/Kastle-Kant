@@ -162,7 +162,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,100));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,indy,100));
         }
       }
     }
@@ -176,6 +176,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     g.setFont(font);//Creating the font and setting its colour.
     g.setColor(Color.white);
     g.drawString("Coins: "+money, 50, 25);
+    g.setColor(new Color(230,230,230));
     g.fillRect(790,90,180,350);
     g.setColor(Color.red);
     g.drawRect(tBox,620,40,40);
@@ -186,20 +187,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     for(Tower turr:turrets){
       turr.shoot(bullets,monsters);
-      int indy=0;
-      if(turr.type.equals("Basic")){
-        indy=0;
+      if(turr.x<=destx && destx<=turr.x+40){
+        if(turr.y<=desty && desty<=turr.y+40){
+          g.drawRect(turr.x,turr.y,40,40);
+          g.drawImage(turretI[turr.indy],800,120,40,40,null);
+        }
       }
-      else if(turr.type.equals("Normal")){
-        indy=1;
-      }
-      else if(turr.type.equals("Good")){
-        indy=2;
-      }
-      else{
-        indy=3;
-      }
-      g.drawImage(turretI[indy],turr.x,turr.y,40,40,null);
+      g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
     }
     for(Bullet bull:bullets){
       money=bull.move(monsters,g,trashB,trashM,money);
@@ -250,7 +244,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
-      System.out.println(destx);
       if(620<desty && desty<660){
         if(100<destx && destx<140){turretType="Basic"; tBox=100;}
         else if(180<destx && destx<220){turretType="Normal"; tBox=180;}
@@ -354,13 +347,15 @@ class Tower{
   public int x;
   public int y;
   public String type;
+  public int indy;
   public int cooldown;
   public int max;
   public int health;
-  public Tower(int xx,int yy, String kind, int time){
+  public Tower(int xx,int yy, String kind, int img, int time){
     x=xx;
     y=yy;
     type=kind;
+    indy=img;
     cooldown=time;
     max=time;
     health=100;
