@@ -114,6 +114,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int dTimer=1000;
   public boolean breakIn=false;
   public double volume=0;
+  private Monster tmpMon;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -123,6 +124,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     desty=-20;
     setSize(1000,700);
     addKeyListener(this);
+    tmpMon=null;
     for(int k=0;k<12;k++){
       kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
     }
@@ -228,6 +230,20 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     for (Monster ms: monsters){
       ms.monsterDraw(g,turrets);
+      if(ms.x<=destx && destx<=ms.x+50){
+        if(ms.y<=desty && desty<=ms.y+50){
+          ms.select=true;
+          if(tmpMon!=null){
+            tmpMon.select=false;
+          }
+          tmpMon=ms;
+          destx=-1;
+        }
+      }
+    }
+    if(destx!=-1 && tmpMon!=null){
+      tmpMon.select=false;
+      tmpMon=null;
     }
     if (timer1==zTimer){
       monsters.add(new Monster(760,535,"zombie",mainFrame));
@@ -589,10 +605,12 @@ class Monster{
   public int y;
   public int picCount;
   public int hp;
+  private int maxhp;
   public int power;
   public String type;
   public String direction;
   public double speed;
+  public boolean select=false;
   private Image[] mPicL=new Image[3];
   private Image[] mPicR=new Image[3];
   public Monster(int placex, int placey, String mtype,KGame m){
@@ -610,6 +628,7 @@ class Monster{
     else{
       hp=100;
     }
+    maxhp=hp;
     direction="L";
     if(type.equals("spider")){
       speed=4;
@@ -664,12 +683,26 @@ class Monster{
     floorUp();
     if(type.equals("spider")){
       g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
+      if(select){
+        g.drawRect(x,y+10,50,40);
+      }
     }
     else if(type.equals("vampire")){
       g.drawImage(mPic()[picCount/5],x,y,50,40,null);
+      if(select){
+        g.drawRect(x,y,50,40);
+      }
     }
     else{
       g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+      if(select){
+        g.drawRect(x,y,40,50);
+      }
+    }
+    if(select){
+      g.drawImage(mPic()[picCount/5],800,120,40,40,null);
+      g.drawRect(795,165,maxhp/2,10);
+      g.fillRect(795,165,hp/2,10);
     }
     picCount+=1;
     if(picCount/5==3){
