@@ -213,6 +213,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         if(turr.y<=desty && desty<=turr.y+40){
           g.drawRect(turr.x,turr.y,40,40);
           g.drawImage(turretI[turr.indy],800,120,40,40,null);
+          g.drawRect(795,165,50,10);
+          g.fillRect(795,165,turr.health/2,10);
         }
       }
       g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
@@ -254,7 +256,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     if(volume>1){
       volume=1;
     }
-    System.out.println(volume);
   }
   public void keyTyped(KeyEvent e) {
   }
