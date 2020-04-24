@@ -6,6 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.image.*;  
 import javax.imageio.*; 
+import javax.sound.midi.*;
 import javax.swing.Timer;//Specifying which Timer since there would be a conflict with util otherwise.
 public class KGame extends JFrame{//Main, public class.
   public String kind="Menu";
@@ -14,11 +15,11 @@ public class KGame extends JFrame{//Main, public class.
   GamePanel game;
   Menu menu;
   Level level;
+  private static Sequencer midiPlayer;
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1000,700);
-    
     myTimer = new Timer(30, new TickListener());
     myTimer.start();
     menu=new Menu(this);
@@ -36,6 +37,7 @@ public class KGame extends JFrame{//Main, public class.
         change=false;
         remove(level);
         add(game);
+        midiPlayer.stop();
       }
       if(change==true && kind.equals("Menu")){
         change=false;
@@ -46,6 +48,7 @@ public class KGame extends JFrame{//Main, public class.
         change=false;
         remove(menu);
         add(level);
+        startMidi("Moz2.mid",-1);
       }
       if(kind.equals("Game") && game!= null && game.ready){
         game.move();
@@ -59,6 +62,23 @@ public class KGame extends JFrame{//Main, public class.
       }
     }
   }
+  public static void startMidi(String midFilename,int len) {//Method for playing the music and loading it up.
+      try {//Midi music player function taken from Mr. Mckenzie.
+         File midiFile = new File(midFilename);//Getting the music to be loaded in the following lines.
+         Sequence song = MidiSystem.getSequence(midiFile);
+         midiPlayer = MidiSystem.getSequencer();
+         midiPlayer.open();
+         midiPlayer.setSequence(song);
+         midiPlayer.setLoopCount(len);//In effect the music lasts forever.
+         midiPlayer.start();
+      } catch (MidiUnavailableException e) {//Below is all for catching potential errors when loading the music.
+         e.printStackTrace();
+      } catch (InvalidMidiDataException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
   public static void main(String[] args){//Main method.
     KGame frame = new KGame();//Launching the graphics.
   }
@@ -92,6 +112,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int zTimer=100;
   public int swTimer=400;
   public int dTimer=1000;
+  public boolean breakIn=false;
+  public double volume=0;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -162,7 +184,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,indy,100));
+          turrets.add(new Tower(kant.x,kant.y+30,turretType,indy,100,mainFrame));
         }
       }
     }
@@ -204,6 +226,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     if (timer1==zTimer){
       monsters.add(new Monster(760,535,"zombie"));
       timer1=0;
+      if(!breakIn){
+        breakIn=true;
+        mainFrame.startMidi("breakIn.mid",0);
+      }
     }
     else if(timer2==swTimer){
       monsters.add(new Monster(800,535,"spider"));
@@ -223,7 +249,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     monsters.removeAll(trashM);
     bullets.removeAll(trashB);
     trashB.clear();
-    trashM.clear();   
+    trashM.clear();
+    volume=(double)((double)monsters.size()/(double)15);
+    if(volume>1){
+      volume=1;
+    }
+    System.out.println(volume);
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -351,7 +382,8 @@ class Tower{
   public int cooldown;
   public int max;
   public int health;
-  public Tower(int xx,int yy, String kind, int img, int time){
+  public KGame mainFrame;
+  public Tower(int xx,int yy, String kind, int img, int time,KGame m){
     x=xx;
     y=yy;
     type=kind;
@@ -359,6 +391,7 @@ class Tower{
     cooldown=time;
     max=time;
     health=100;
+    mainFrame=m;
   }
   public void shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
     if(cooldown<=0){
@@ -384,6 +417,7 @@ class Tower{
            speed=15;
          }
          bs.add(new Bullet(x,y,type,speed,damage));
+         mainFrame.startMidi("shot.mid",0);
          break;
       }
     }
