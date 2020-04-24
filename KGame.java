@@ -207,8 +207,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     for(int i=0; i<4; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
+    int shotC=1;
     for(Tower turr:turrets){
-      turr.shoot(bullets,monsters);
+      if(turr.shoot(bullets,monsters) && shotC>0){
+        mainFrame.startMidi("shot.mid",0);
+        shotC-=1;
+      }
       if(turr.x<=destx && destx<=turr.x+40){
         if(turr.y<=desty && desty<=turr.y+40){
           g.drawRect(turr.x,turr.y,40,40);
@@ -226,7 +230,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       ms.monsterDraw(g,turrets);
     }
     if (timer1==zTimer){
-      monsters.add(new Monster(760,535,"zombie"));
+      monsters.add(new Monster(760,535,"zombie",mainFrame));
       timer1=0;
       if(!breakIn){
         breakIn=true;
@@ -234,13 +238,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
     }
     else if(timer2==swTimer){
-      monsters.add(new Monster(800,535,"spider"));
-      monsters.add(new Monster(800,535,"werewolf"));
-      monsters.add(new Monster(800,405,"vampire"));
+      monsters.add(new Monster(800,535,"spider",mainFrame));
+      monsters.add(new Monster(800,535,"werewolf",mainFrame));
+      monsters.add(new Monster(800,405,"vampire",mainFrame));
       timer2=0;
     }
     else if(timer3==dTimer){
-      monsters.add(new Monster(800,535,"devil"));
+      monsters.add(new Monster(800,535,"devil",mainFrame));
       timer3=0;
     }
     else{
@@ -394,7 +398,7 @@ class Tower{
     health=100;
     mainFrame=m;
   }
-  public void shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
+  public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
     if(cooldown<=0){
       for(Monster mons: ms){
         if(mons.y+15==y && mons.x<=x+300 && mons.x>x){
@@ -418,13 +422,14 @@ class Tower{
            speed=15;
          }
          bs.add(new Bullet(x,y,type,speed,damage));
-         mainFrame.startMidi("shot.mid",0);
-         break;
+         return true;
       }
     }
+      return false;
     }
     else{
       cooldown-=5;
+      return false;
     }
   }
   public boolean damage(int hurt){
@@ -579,6 +584,7 @@ class Level extends JPanel{
   }
 }
 class Monster{
+  public KGame mainFrame;
   public int x;
   public int y;
   public int picCount;
@@ -589,7 +595,8 @@ class Monster{
   public double speed;
   private Image[] mPicL=new Image[3];
   private Image[] mPicR=new Image[3];
-  public Monster(int placex, int placey, String mtype){
+  public Monster(int placex, int placey, String mtype,KGame m){
+    mainFrame=m;
     x=placex;
     y=placey;
     picCount=0;
@@ -674,6 +681,7 @@ class Monster{
         overlay=true;
         if(t.damage(power)){
           turrets.remove(t);
+          mainFrame.startMidi("breaking.mid",0);
         }
         break;
       }
