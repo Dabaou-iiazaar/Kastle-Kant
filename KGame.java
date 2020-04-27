@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.image.*;  
 import javax.imageio.*; 
 import javax.sound.midi.*;
+import java.applet.*;
 import javax.swing.Timer;//Specifying which Timer since there would be a conflict with util otherwise.
 public class KGame extends JFrame{//Main, public class.
   public String kind="Menu";
@@ -115,6 +116,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean breakIn=false;
   public double volume=0;
   private Monster tmpMon;
+  public Sound[] canS=new Sound[4];
+  public Sound[] monS=new Sound[4];
+  private double soundC=-1;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -130,6 +134,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     for(int k=0;k<4;k++){
       turretI[k]=new ImageIcon("turret "+(k+1)+".png").getImage();
+      canS[k]=new Sound("cannon"+(k+1)+".wav");
+      monS[k]=new Sound("monsterS"+(k+1)+".wav");
     }
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
@@ -212,7 +218,18 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     int shotC=1;
     for(Tower turr:turrets){
       if(turr.shoot(bullets,monsters) && shotC>0){
-        mainFrame.startMidi("shot.mid",0);
+        if(turr.type.equals("Basic")){
+          canS[0].play();
+        }
+        else if(turr.type.equals("Normal")){
+          canS[1].play();
+        }
+        else if(turr.type.equals("Good")){
+          canS[2].play();
+        }
+        else{
+          canS[3].play();
+        }
         shotC-=1;
       }
       if(turr.x<=destx && destx<=turr.x+40){
@@ -250,7 +267,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       timer1=0;
       if(!breakIn){
         breakIn=true;
-        mainFrame.startMidi("breakIn.mid",0);
       }
     }
     else if(timer2==swTimer){
@@ -275,7 +291,28 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     volume=(double)((double)monsters.size()/(double)15);
     if(volume>1){
       volume=1;
+    }  
+    if(volume<1 && volume>0.75 && soundC!=0.75){
+      monS[3].play();
+      soundC=0.75;
+      return;
     }
+    else if(volume<0.75 && volume>0.5 && soundC!=0.5){
+      monS[2].play();
+      soundC=0.5;
+      return;
+    }
+    else if(volume<0.5 && volume>0.25 && soundC!=0.25){
+      monS[1].play();
+      soundC=0.25;
+      return;
+    }
+    else if(volume<0.25 && volume>0 && soundC!=0){
+      monS[0].play();
+      soundC=0;
+      return;
+    }
+    System.out.println(volume);
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -714,7 +751,6 @@ class Monster{
         overlay=true;
         if(t.damage(power)){
           turrets.remove(t);
-          mainFrame.startMidi("breaking.mid",0);
         }
         break;
       }
@@ -737,4 +773,18 @@ class Monster{
       return false;
     }
   } 
+}
+class Sound
+{
+  File wavFile;
+  AudioClip sound;
+  public Sound(String name)
+  {
+    wavFile = new File(name);
+    try{sound = Applet.newAudioClip(wavFile.toURL());}
+    catch(Exception e){e.printStackTrace();}
+  }
+  public void play(){
+    sound.play();
+  }
 }
