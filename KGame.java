@@ -107,18 +107,15 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
-  public int timer1=0;
-  public int timer2=0;
-  public int timer3=0;
-  public int zTimer=100;
-  public int swTimer=400;
-  public int dTimer=1000;
+  public int timer=0;
+  public int monSpawn=80;
   public boolean breakIn=false;
   public double volume=0;
   private Monster tmpMon;
   public Sound[] canS=new Sound[4];
   public Sound[] monS=new Sound[4];
   private double soundC=-1;
+  public GameMaker game;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -139,6 +136,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
+    
+    String[]gameMons={"z","z","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","z","z","z","z","s","w","v","s","w","v","-500","z","z","z","d","w","s","v","s","z","z","d","w","s","v"};
+    game=new GameMaker(gameMons,mainFrame);
   }
   
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
@@ -262,28 +262,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       tmpMon.select=false;
       tmpMon=null;
     }
-    if (timer1==zTimer){
-      monsters.add(new Monster(760,535,"zombie",mainFrame));
-      timer1=0;
-      if(!breakIn){
-        breakIn=true;
-      }
+    
+    timer+=game.time();
+    if(timer>monSpawn){
+      monsters=game.loadLevel(monsters);
+      timer-=monSpawn;
     }
-    else if(timer2==swTimer){
-      monsters.add(new Monster(800,535,"spider",mainFrame));
-      monsters.add(new Monster(800,535,"werewolf",mainFrame));
-      monsters.add(new Monster(800,405,"vampire",mainFrame));
-      timer2=0;
-    }
-    else if(timer3==dTimer){
-      monsters.add(new Monster(800,535,"devil",mainFrame));
-      timer3=0;
-    }
-    else{
-      timer1+=1;
-      timer2+=1;
-      timer3+=1;
-    }
+    
     monsters.removeAll(trashM);
     bullets.removeAll(trashB);
     trashB.clear();
@@ -786,5 +771,49 @@ class Sound
   }
   public void play(){
     sound.play();
+  }
+}
+class GameMaker{
+  public KGame mainFrame;
+  public String[] spawn;
+  public int len;
+  public int spot=0;
+  public int waitTime=1;
+  public GameMaker(String[] level, KGame game){
+    spawn=level;
+    mainFrame=game;
+    len=spawn.length;
+  }
+  public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
+    if(spawn[spot].equals("z")){
+      monsters.add(new Monster(800,535,"zombie",mainFrame));
+    }
+    else if(spawn[spot].equals("s")){
+      monsters.add(new Monster(800,535,"spider",mainFrame));
+    }
+    else if(spawn[spot].equals("w")){
+      monsters.add(new Monster(800,535,"werewolf",mainFrame));
+    }
+    else if(spawn[spot].equals("v")){
+      monsters.add(new Monster(800,405,"vampire",mainFrame));
+    }
+    else if(spawn[spot].equals("d")){
+      monsters.add(new Monster(800,535,"devil",mainFrame));
+    }
+    else{
+      waitTime=Integer.parseInt(spawn[spot]);
+    }
+    if(spot!=len){
+      spot+=1;
+    }
+    return monsters;
+  }
+  public int time(){
+    if(waitTime<1){
+      int tmp=waitTime;
+      waitTime=1;
+      return tmp;
+    }
+    return waitTime;
   }
 }
