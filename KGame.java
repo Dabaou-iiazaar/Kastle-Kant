@@ -116,6 +116,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Sound[] monS=new Sound[4];
   private double soundC=-1;
   public GameMaker game;
+  public int soundCount=40;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -287,26 +288,22 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     if(volume>1){
       volume=1;
     }  
-    if(volume<1 && volume>0.75 && soundC!=0.75){
+    if(soundCount<=1){
+    if(volume<1.5 && volume>0.75){
       monS[3].play();
-      soundC=0.75;
-      return;
     }
-    else if(volume<0.75 && volume>0.5 && soundC!=0.5){
+    else if(volume<0.75 && volume>0.5){
       monS[2].play();
-      soundC=0.5;
-      return;
     }
-    else if(volume<0.5 && volume>0.25 && soundC!=0.25){
+    else if(volume<0.5 && volume>0.25){
       monS[1].play();
-      soundC=0.25;
-      return;
     }
-    else if(volume<0.25 && volume>0 && soundC!=0){
+    else if(volume<0.25 && volume>0){
       monS[0].play();
-      soundC=0;
-      return;
     }
+    soundCount=40;
+    }
+    soundCount-=1;
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -793,9 +790,9 @@ class GameMaker{
     len=spawn.length;
   }
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
-    if(spot>len){
-      return null;
+    if(spot>=len){
       spot=0;
+      return null;
     }
     if(spawn[spot].equals("z")){
       monsters.add(new Monster(800,535,"zombie",mainFrame));
