@@ -93,8 +93,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
-  public Image[] turretI=new Image[4];
-  public int[] costs={25,50,100,200};
+  public Image[] turretI=new Image[5];
+  public int[] costs={25,50,100,200,75};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
@@ -134,6 +134,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       canS[k]=new Sound("cannon"+(k+1)+".wav");
       monS[k]=new Sound("monsterS"+(k+1)+".wav");
     }
+    turretI[4]=new ImageIcon("barricade.png").getImage();
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
     
@@ -187,8 +188,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else if(turretType.equals("Good")){
           indy=2;
         }
-        else{
+        else if(turretType.equals("Great")){
           indy=3;
+        }
+        else{
+          indy=4;
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
@@ -212,11 +216,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     g.drawRect(tBox,620,40,40);
     g.drawString("Power Levels",830,110);
     
-    for(int i=0; i<4; i++){
+    for(int i=0; i<5; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
     int shotC=1;
-    for(Tower turr:turrets){
+    for(Tower turr:turrets){                        //Turret Drawing
       if(turr.shoot(bullets,monsters) && shotC>0){
         if(turr.type.equals("Basic")){
           canS[0].play();
@@ -227,7 +231,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else if(turr.type.equals("Good")){
           canS[2].play();
         }
-        else{
+        else if(turr.type.equals("Great")){
           canS[3].play();
         }
         shotC-=1;
@@ -236,8 +240,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         if(turr.y<=desty && desty<=turr.y+40){
           g.drawRect(turr.x,turr.y,40,40);
           g.drawImage(turretI[turr.indy],800,120,40,40,null);
-          g.drawRect(795,165,50,10);
-          g.fillRect(795,165,turr.health/2,10);
+          if(turr.type.equals("Wall")){
+            g.drawRect(795,165,100,10);
+            g.fillRect(795,165,turr.health/10,10);
+          }
+          else{
+            g.drawRect(795,165,50,10);
+            g.fillRect(795,165,turr.health/2,10);
+          }        
         }
       }
       g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
@@ -297,7 +307,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       soundC=0;
       return;
     }
-    System.out.println(volume);
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -322,7 +331,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         if(100<destx && destx<140){turretType="Basic"; tBox=100;}
         else if(180<destx && destx<220){turretType="Normal"; tBox=180;}
         else if(260<destx && destx<300){turretType="Good"; tBox=260;}
-        else if(340<destx && destx<380){turretType="Super"; tBox=340;}
+        else if(340<destx && destx<380){turretType="Great"; tBox=340;}
+        else if(420<destx && destx<460){turretType="Wall"; tBox=420;}
       }
     }
   }    
@@ -433,7 +443,12 @@ class Tower{
     indy=img;
     cooldown=time;
     max=time;
-    health=100;
+    if(type.equals("Wall")){
+      health=1000;
+    }
+    else{
+      health=100;
+    }
     mainFrame=m;
   }
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
@@ -441,25 +456,18 @@ class Tower{
       for(Monster mons: ms){
         if(mons.y+15==y && mons.x<=x+300 && mons.x>x){
          cooldown=max;
-         int damage;
-         int speed;
          if(type.equals("Basic")){
-           damage=20;
-           speed=10;
+           bs.add(new Bullet(x,y,type,10,20));
          }
          else if(type.equals("Normal")){
-           damage=35;
-           speed=10;
+           bs.add(new Bullet(x,y,type,10,35));
          }
          else if(type.equals("Good")){
-           damage=50;
-           speed=13;
+           bs.add(new Bullet(x,y,type,13,50));
          }
-         else{
-           damage=100;
-           speed=15;
+         else if(type.equals("Great")){
+           bs.add(new Bullet(x,y,type,15,100));
          }
-         bs.add(new Bullet(x,y,type,speed,damage));
          return true;
       }
     }
@@ -785,6 +793,10 @@ class GameMaker{
     len=spawn.length;
   }
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
+    if(spot>len){
+      return null;
+      spot=0;
+    }
     if(spawn[spot].equals("z")){
       monsters.add(new Monster(800,535,"zombie",mainFrame));
     }
@@ -803,9 +815,7 @@ class GameMaker{
     else{
       waitTime=Integer.parseInt(spawn[spot]);
     }
-    if(spot!=len){
-      spot+=1;
-    }
+    spot+=1;
     return monsters;
   }
   public int time(){
