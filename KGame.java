@@ -17,6 +17,7 @@ public class KGame extends JFrame{//Main, public class.
   Menu menu;
   Level level;
   private static Sequencer midiPlayer;
+  public int healthG=5;
   public KGame() {//Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,6 +37,7 @@ public class KGame extends JFrame{//Main, public class.
     public void actionPerformed(ActionEvent evt){
       if(change==true && kind.equals("Game")){
         change=false;
+        game=new GamePanel(level.mainFrame);
         remove(level);
         add(game);
         midiPlayer.stop();
@@ -257,7 +259,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       money=bull.move(monsters,g,trashB,trashM,money);
     }
     for (Monster ms: monsters){
-      ms.monsterDraw(g,turrets);
+      ms.monsterDraw(g,turrets,trashM);
+      if(mainFrame.healthG<=0){
+        mainFrame.kind="Menu";
+        mainFrame.change=true;
+        mainFrame.healthG=5;
+      }
       if(ms.x<=destx && destx<=ms.x+50){
         if(ms.y<=desty && desty<=ms.y+50){
           ms.select=true;
@@ -531,6 +538,11 @@ class Bullet{
       }
     }
     x+=speed;
+    if(x>700){
+      x=-1000;
+      speed=0;
+      tb.add(this);
+    }
     return money;
   }
 }
@@ -584,7 +596,7 @@ class Menu extends JPanel{
 class Level extends JPanel{
   private int destx,desty;//Variables for keeping track of the mouse's position.
   //private Image screen;
-  private KGame mainFrame;
+  public KGame mainFrame;
   public boolean ready=false;
   public Level(KGame m){
     mainFrame=m;
@@ -664,7 +676,7 @@ class Monster{
       speed=2;
     }
     else{
-      speed=1;
+      speed=11;
     }
     for(int i=1; i<4; i++){
       mPicL[i-1]=new ImageIcon(type+i+"L.png").getImage();
@@ -680,7 +692,7 @@ class Monster{
       power=5;
     }
   }
-  public void floorUp(){
+  public void floorUp(ArrayList<Monster> tm){
 /*    if(695<x && x<705){
       if(y==145 | y==275 | y==405){
         y+=130;
@@ -697,6 +709,12 @@ class Monster{
         direction="L";
       }
     }
+    if(x<65 && y==145){
+      speed=0;
+      x=-1000;
+      tm.add(this);
+      mainFrame.healthG-=1;
+    }
   }
   public Image[] mPic(){
     if(direction.equals("R")){
@@ -706,8 +724,8 @@ class Monster{
       return mPicL;
     }
   }
-  public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
-    floorUp();
+  public void monsterDraw(Graphics g,ArrayList<Tower> turrets,ArrayList<Monster> tm){
+    floorUp(tm);
     if(type.equals("spider")){
       g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
       if(select){
