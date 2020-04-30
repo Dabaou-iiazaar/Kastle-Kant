@@ -114,6 +114,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean breakIn=false;
   public double volume=0;
   private Monster tmpMon;
+  private Tower tmpTurret;
   public Sound[] canS=new Sound[4];
   public Sound[] monS=new Sound[4];
   private double soundC=-1;
@@ -129,6 +130,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     setSize(1000,700);
     addKeyListener(this);
     tmpMon=null;
+    tmpTurret=null;
     for(int k=0;k<12;k++){
       kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
     }
@@ -241,10 +243,18 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       if(turr.x<=destx && destx<=turr.x+40){
         if(turr.y<=desty && desty<=turr.y+40){
+          tmpTurret=turr;
           g.drawRect(turr.x,turr.y,40,40);
           g.drawImage(turretI[turr.indy],800,120,40,40,null);
+          if(turr.level<4){
+            g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
+          }
+          else{
+            g.drawString("Max Level",800,200);
+          }
+          g.drawString("Cost: "+turr.ucost*turr.level,800,225);
           if(turr.type.equals("Wall")){
-            g.drawRect(795,165,100,10);
+            g.drawRect(795,165,turr.health/10,10);
             g.fillRect(795,165,turr.health/10,10);
           }
           else{
@@ -280,7 +290,22 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       tmpMon.select=false;
       tmpMon=null;
     }
-    
+
+    if(tmpTurret!=null){
+      if(800<destx && destx<950){
+        if(180<desty && desty<205){
+          for(Tower t:turrets){
+            if(t==tmpTurret){
+              if(money>tmpTurret.ucost*tmpTurret.level){
+                money-=tmpTurret.ucost*tmpTurret.level;
+                t.levelUp();
+              }
+            }
+          }
+          tmpTurret=null;
+        }
+      }
+    }
     timer+=game.time();
     if(timer>monSpawn){
       monsters=game.loadLevel(monsters);
@@ -439,6 +464,10 @@ class Tower{
   public int cooldown;
   public int max;
   public int health;
+  public int damage;
+  private int bspeed;
+  public int ucost;
+  public int level=1;;
   public KGame mainFrame;
   public Tower(int xx,int yy, String kind, int img, int time,KGame m){
     x=xx;
@@ -447,34 +476,47 @@ class Tower{
     indy=img;
     cooldown=time;
     max=time;
-    if(type.equals("Wall")){
-      health=1000;
+    health=100;
+    if(type.equals("Basic")){
+      damage=20;
+      bspeed=10;
+      ucost=25;
+    }
+    else if(type.equals("Normal")){
+      damage=35;
+      bspeed=10;
+      ucost=40;
+    }
+    else if(type.equals("Good")){
+      damage=50;
+      bspeed=13;
+      ucost=75;
+    }
+    else if(type.equals("Great")){
+      damage=100;
+      bspeed=15;
+      ucost=100;
     }
     else{
-      health=100;
+      health=1000;
+      damage=0;
+      bspeed=0;
+      ucost=50;
     }
+    
     mainFrame=m;
   }
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
     if(cooldown<=0){
       for(Monster mons: ms){
         if(mons.y+15==y && mons.x<=x+300 && mons.x>x){
-         cooldown=max;
-         if(type.equals("Basic")){
-           bs.add(new Bullet(x,y,type,10,20));
-         }
-         else if(type.equals("Normal")){
-           bs.add(new Bullet(x,y,type,10,35));
-         }
-         else if(type.equals("Good")){
-           bs.add(new Bullet(x,y,type,13,50));
-         }
-         else if(type.equals("Great")){
-           bs.add(new Bullet(x,y,type,15,100));
-         }
-         return true;
+          cooldown=max;
+          if(!type.equals("Wall")){
+            bs.add(new Bullet(x,y,type,bspeed,damage));
+          }
+          return true;
+        }
       }
-    }
       return false;
     }
     else{
@@ -489,6 +531,13 @@ class Tower{
     }
     else{
       return false;
+    }
+  }
+  public void levelUp(){
+    if(level<4){
+      health+=health/2;
+      damage+=damage/2;
+      level+=1;
     }
   }
 }
