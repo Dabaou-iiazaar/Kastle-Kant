@@ -101,7 +101,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
-  public ArrayList<Monster> trashM=new ArrayList<Monster>();
   public String turretType = "Basic";
   public int tBox=100;
   private Image background;
@@ -143,7 +142,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
     
-    String[]gameMons={"z","z","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","z","z","z","z","s","w","v","s","w","v","-500","z","z","z","d","w","s","v","s","z","z","d","w","s","v"};
+    String[]gameMons={"z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","z","z","z","z","s","w","v","s","w","v","-500","z","z","z","d","w","s","v","s","z","z","d","w","s","v"};
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -254,11 +253,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           }
           g.drawString("Cost: "+turr.ucost*turr.level,800,225);
           if(turr.type.equals("Wall")){
-            g.drawRect(795,165,turr.health/10,10);
+            g.drawRect(795,165,turr.maxhealth/10,10);
             g.fillRect(795,165,turr.health/10,10);
           }
           else{
-            g.drawRect(795,165,50,10);
+            g.drawRect(795,165,turr.maxhealth/2,10);
             g.fillRect(795,165,turr.health/2,10);
           }        
         }
@@ -266,10 +265,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
     }
     for(Bullet bull:bullets){
-      money=bull.move(monsters,g,trashB,trashM,money);
+      money=bull.move(monsters,g,trashB,money);
     }
+    ArrayList<Monster>endMons= new ArrayList<Monster>();
     for (Monster ms: monsters){
-      ms.monsterDraw(g,turrets,trashM);
+      if(ms.x>1000){
+        endMons.add(ms);
+      }
+      ms.monsterDraw(g,turrets);
       if(mainFrame.healthG<=0){
         mainFrame.kind="Menu";
         mainFrame.change=true;
@@ -312,10 +315,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       timer-=monSpawn;
     }
     
-    monsters.removeAll(trashM);
     bullets.removeAll(trashB);
+    monsters.removeAll(endMons);
     trashB.clear();
-    trashM.clear();
     volume=(double)((double)monsters.size()/(double)15);
     if(volume>1){
       volume=1;
@@ -464,6 +466,7 @@ class Tower{
   public int cooldown;
   public int max;
   public int health;
+  public int maxhealth;
   public int damage;
   private int bspeed;
   public int ucost;
@@ -503,7 +506,7 @@ class Tower{
       bspeed=0;
       ucost=50;
     }
-    
+    maxhealth=health;
     mainFrame=m;
   }
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
@@ -535,7 +538,8 @@ class Tower{
   }
   public void levelUp(){
     if(level<4){
-      health+=health/2;
+      maxhealth+=maxhealth/2;
+      health=maxhealth;
       damage+=damage/2;
       level+=1;
     }
@@ -558,7 +562,7 @@ class Bullet{
       types[k]=new ImageIcon("Bullet "+(k+1)+".png").getImage();
     }
   }
-  public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb ,ArrayList<Monster> tm,int money){
+  public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb,int money){
     int ind=0;
     if(type.equals("Basic")){
        ind=0;
@@ -576,9 +580,8 @@ class Bullet{
     for(Monster mons:ms){
       if((x+40)>mons.x && (x+40)<mons.x+40 && y==mons.y+15){
         if(mons.damage(damage)){
-          mons.x=-1000;
+          mons.x=10000;
           mons.speed=0;
-          tm.add(mons);
           money+=10;
         }
         x=-1000;
@@ -699,12 +702,14 @@ class Monster{
   public String direction;
   public double speed;
   public boolean select=false;
+  public int level;
   private Image[] mPicL=new Image[3];
   private Image[] mPicR=new Image[3];
-  public Monster(int placex, int placey, String mtype,KGame m){
+  public Monster(int placex, int placey, String mtype,int monlevel, KGame m){
     mainFrame=m;
     x=placex;
     y=placey;
+    level=monlevel;
     picCount=0;
     type=mtype;
     if(type.equals("werewolf") | type.equals("vampire")){
@@ -740,8 +745,10 @@ class Monster{
     else if(type=="werewolf"){
       power=5;
     }
+    hp=hp*level;
+    power=power*level;
   }
-  public void floorUp(ArrayList<Monster> tm){
+  public void floorUp(){
 /*    if(695<x && x<705){
       if(y==145 | y==275 | y==405){
         y+=130;
@@ -760,8 +767,7 @@ class Monster{
     }
     if(x<65 && y==145){
       speed=0;
-      x=-1000;
-      tm.add(this);
+      x=10000;
       mainFrame.healthG-=1;
     }
   }
@@ -773,8 +779,8 @@ class Monster{
       return mPicL;
     }
   }
-  public void monsterDraw(Graphics g,ArrayList<Tower> turrets,ArrayList<Monster> tm){
-    floorUp(tm);
+  public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
+    floorUp();
     if(type.equals("spider")){
       g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
       if(select){
@@ -851,6 +857,7 @@ class GameMaker{
   public int len;
   public int spot=0;
   public int waitTime=1;
+  public int monsterLvl=1;
   public GameMaker(String[] level, KGame game){
     spawn=level;
     mainFrame=game;
@@ -862,22 +869,28 @@ class GameMaker{
       return null;
     }
     if(spawn[spot].equals("z")){
-      monsters.add(new Monster(800,535,"zombie",mainFrame));
+      monsters.add(new Monster(800,535,"zombie",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("s")){
-      monsters.add(new Monster(800,535,"spider",mainFrame));
+      monsters.add(new Monster(800,535,"spider",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("w")){
-      monsters.add(new Monster(800,535,"werewolf",mainFrame));
+      monsters.add(new Monster(800,535,"werewolf",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("v")){
-      monsters.add(new Monster(800,405,"vampire",mainFrame));
+      monsters.add(new Monster(800,405,"vampire",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("d")){
-      monsters.add(new Monster(800,535,"devil",mainFrame));
+      monsters.add(new Monster(800,535,"devil",monsterLvl,mainFrame));
     }
     else{
-      waitTime=Integer.parseInt(spawn[spot]);
+      int num=Integer.parseInt(spawn[spot]);
+      if(num>0){
+        monsterLvl=num;
+      }
+      else{
+        waitTime=num;
+      }
     }
     spot+=1;
     return monsters;
@@ -890,4 +903,5 @@ class GameMaker{
     }
     return waitTime;
   }
+  
 }
