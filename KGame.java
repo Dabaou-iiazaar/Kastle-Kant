@@ -36,6 +36,7 @@ public class KGame extends JFrame{//Main, public class.
   class TickListener implements ActionListener{//Class and its one method to update the graphics on screen every time the Timer tells them to.
     public void actionPerformed(ActionEvent evt){
       if(change==true && kind.equals("Game")){
+        System.out.println("Yo");
         change=false;
         game=new GamePanel(level.mainFrame);
         remove(level);
@@ -54,14 +55,20 @@ public class KGame extends JFrame{//Main, public class.
         startMidi("Moz2.mid",-1);
       }
       if(kind.equals("Game") && game!= null && game.ready){
+        if(!game.lost){
         game.move();
         game.repaint();
+        }
+        else{
+          game.repaint();
+        }
       }
       else if(kind.equals("Menu") && menu!=null && menu.ready){
         menu.repaint();
       }
       else if(kind.equals("Level") && level!=null && level.ready){
         level.repaint();
+        System.out.println("H");
       }
     }
   }
@@ -105,6 +112,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int tBox=100;
   private Image background;
   private Image castle;
+  private Image loser;
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
@@ -119,6 +127,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private double soundC=-1;
   public GameMaker game;
   public int soundCount=40;
+  public boolean lost=false;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -141,6 +150,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[4]=new ImageIcon("barricade.png").getImage();
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
+    loser=new ImageIcon("loser.png").getImage();
     
     String[]gameMons={"z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","z","z","z","z","s","w","v","s","w","v","-500","z","z","z","d","w","s","v","s","z","z","d","w","s","v"};
     game=new GameMaker(gameMons,mainFrame);
@@ -206,6 +216,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+    if(!lost){
     g.drawImage(background,0,0,1000,700,null);
     g.drawImage(castle,40,0,720,600,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
@@ -274,8 +285,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       ms.monsterDraw(g,turrets);
       if(mainFrame.healthG<=0){
-        mainFrame.kind="Menu";
-        mainFrame.change=true;
+        lost=true;
         mainFrame.healthG=5;
       }
       if(ms.x<=destx && destx<=ms.x+50){
@@ -338,6 +348,16 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     soundCount=40;
     }
     soundCount-=1;
+    }
+  else{
+      g.drawImage(loser,0,0,1000,700,null);
+      if (keys[KeyEvent.VK_ENTER]){
+      mainFrame.kind="Level";
+      mainFrame.change=true;
+      lost=false;
+      keys[KeyEvent.VK_ENTER]=false;
+    }
+  }
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -679,10 +699,12 @@ class Level extends JPanel{
     public void mouseClicked(MouseEvent e){}  
     
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
+      System.out.println("YYYY");
       destx = e.getX();
       desty = e.getY();
       if(10<destx && destx<110){
         if(10<desty && desty<110){
+          System.out.println("Here we go.");
           mainFrame.kind="Game";
           mainFrame.change=true;
         }
