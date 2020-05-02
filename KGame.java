@@ -36,7 +36,6 @@ public class KGame extends JFrame{//Main, public class.
   class TickListener implements ActionListener{//Class and its one method to update the graphics on screen every time the Timer tells them to.
     public void actionPerformed(ActionEvent evt){
       if(change==true && kind.equals("Game")){
-        System.out.println("Yo");
         change=false;
         game=new GamePanel(level.mainFrame);
         remove(level);
@@ -55,20 +54,14 @@ public class KGame extends JFrame{//Main, public class.
         startMidi("Moz2.mid",-1);
       }
       if(kind.equals("Game") && game!= null && game.ready){
-        if(!game.lost){
         game.move();
         game.repaint();
-        }
-        else{
-          game.repaint();
-        }
       }
       else if(kind.equals("Menu") && menu!=null && menu.ready){
         menu.repaint();
       }
       else if(kind.equals("Level") && level!=null && level.ready){
         level.repaint();
-        System.out.println("H");
       }
     }
   }
@@ -112,7 +105,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int tBox=100;
   private Image background;
   private Image castle;
-  private Image loser;
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
@@ -127,7 +119,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private double soundC=-1;
   public GameMaker game;
   public int soundCount=40;
-  public boolean lost=false;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -150,9 +141,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[4]=new ImageIcon("barricade.png").getImage();
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
-    loser=new ImageIcon("loser.png").getImage();
     
-    String[]gameMons={"z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","z","z","z","z","s","w","v","s","w","v","-500","z","z","z","d","w","s","v","s","z","z","d","w","s","v"};
+    String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -216,7 +206,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
-    if(!lost){
     g.drawImage(background,0,0,1000,700,null);
     g.drawImage(castle,40,0,720,600,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
@@ -285,7 +274,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       ms.monsterDraw(g,turrets);
       if(mainFrame.healthG<=0){
-        lost=true;
+        mainFrame.kind="Menu";
+        mainFrame.change=true;
         mainFrame.healthG=5;
       }
       if(ms.x<=destx && destx<=ms.x+50){
@@ -348,16 +338,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     soundCount=40;
     }
     soundCount-=1;
-    }
-  else{
-      g.drawImage(loser,0,0,1000,700,null);
-      if (keys[KeyEvent.VK_ENTER]){
-      mainFrame.kind="Level";
-      mainFrame.change=true;
-      lost=false;
-      keys[KeyEvent.VK_ENTER]=false;
-    }
-  }
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -596,7 +576,7 @@ class Bullet{
     else{
        ind=3;
     }
-    g.drawImage(types[ind],x,y,40,10,null);
+    g.drawImage(types[ind],x,y+10,40,10,null);
     for(Monster mons:ms){
       if((x+40)>mons.x && (x+40)<mons.x+40 && y==mons.y+15){
         if(mons.damage(damage)){
@@ -699,12 +679,10 @@ class Level extends JPanel{
     public void mouseClicked(MouseEvent e){}  
     
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
-      System.out.println("YYYY");
       destx = e.getX();
       desty = e.getY();
       if(10<destx && destx<110){
         if(10<desty && desty<110){
-          System.out.println("Here we go.");
           mainFrame.kind="Game";
           mainFrame.change=true;
         }
@@ -726,7 +704,9 @@ class Monster{
   public boolean select=false;
   public int level;
   private Image[] mPicL=new Image[3];
-  private Image[] mPicR=new Image[3];
+  private Image attack;
+  private Image arrow;
+  public int ax=-1;
   public Monster(int placex, int placey, String mtype,int monlevel, KGame m){
     mainFrame=m;
     x=placex;
@@ -752,23 +732,27 @@ class Monster{
       speed=2;
     }
     else{
-      speed=11;
+      speed=1;
     }
     for(int i=1; i<4; i++){
-      mPicL[i-1]=new ImageIcon(type+i+"L.png").getImage();
+      mPicL[i-1]=new ImageIcon(type+i+".png").getImage();
 //      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
-    if(type.equals("zombie") | type.equals("vampire")){
-      power=1;
-    }
-    else if(type.equals("spider") | type.equals("devil")){
-       power=2;
+    if(type.equals("spider") | type.equals("devil")){
+       power=10;
     }
     else if(type=="werewolf"){
+      power=25;
+    }
+    else{
       power=5;
     }
     hp=hp*level;
     power=power*level;
+    if(type.equals("skeleton")){
+      attack=new ImageIcon("skeleshoot.png").getImage();
+      arrow=new ImageIcon("arrow.png").getImage();
+    }
   }
   public void floorUp(){
 /*    if(695<x && x<705){
@@ -794,15 +778,43 @@ class Monster{
     }
   }
   public Image[] mPic(){
-    if(direction.equals("R")){
-      return mPicR;
-    }
-    else{
-      return mPicL;
-    }
+    return mPicL;
   }
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
     floorUp();
+    boolean overlay=false;
+    if(type.equals("skeleton")){
+      for(Tower t:turrets){
+        if(t.x-40<x && x<t.x+100 && y+15==t.y){
+          overlay=true;
+          g.drawImage(attack,x,y,40,60,null);
+          if(ax==-1){
+            ax=x;
+          }
+          g.drawImage(arrow,ax,y+20,10,15,null);
+          ax-=5;
+          if(ax<t.x && y+15==t.y){
+            ax=-1;
+            if(t.damage(power)){
+              turrets.remove(t);
+            }
+          }
+          break;
+        }
+      }
+    }
+    else{
+      for(Tower t:turrets){
+        if(t.x-40<x && x<t.x+40 && y+15==t.y){
+          overlay=true;
+          if(t.damage(power)){
+            turrets.remove(t);
+          }
+          x+=5;          
+          break;
+        }
+      }
+    }
     if(type.equals("spider")){
       g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
       if(select){
@@ -815,6 +827,11 @@ class Monster{
         g.drawRect(x,y,50,40);
       }
     }
+    else if(type.equals("skeleton")){
+      if(!overlay){
+        g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+      }
+    }
     else{
       g.drawImage(mPic()[picCount/5],x,y,40,50,null);
       if(select){
@@ -825,28 +842,14 @@ class Monster{
       g.drawImage(mPic()[picCount/5],800,120,40,40,null);
       g.drawRect(795,165,maxhp/2,10);
       g.fillRect(795,165,hp/2,10);
+      g.drawString("Level "+level,795,190);
     }
     picCount+=1;
     if(picCount/5==3){
       picCount=0;
     }
-    boolean overlay=false;
-    for(Tower t:turrets){
-      if(t.x-40<x && x<t.x+40 && y+15==t.y){
-        overlay=true;
-        if(t.damage(power)){
-          turrets.remove(t);
-        }
-        break;
-      }
-    }
     if(!overlay){
-      if(direction.equals("L")){
-        x-=speed;
-      }
-      else{
-        x+=speed;
-      }
+      x-=speed;
     }
   }
   public boolean damage(int hurt){
@@ -857,7 +860,7 @@ class Monster{
     else{
       return false;
     }
-  } 
+  }
 }
 class Sound
 {
@@ -895,6 +898,9 @@ class GameMaker{
     }
     else if(spawn[spot].equals("s")){
       monsters.add(new Monster(800,535,"spider",monsterLvl,mainFrame));
+    }
+    else if(spawn[spot].equals("k")){
+      monsters.add(new Monster(800,535,"skeleton",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("w")){
       monsters.add(new Monster(800,535,"werewolf",monsterLvl,mainFrame));
