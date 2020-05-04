@@ -213,7 +213,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     Font font = new Font("Verdana", Font.BOLD, 14);
     g.setFont(font);//Creating the font and setting its colour.
     g.setColor(Color.white);
-    g.drawString("Coins: "+money, 50, 25);
+    g.drawString("Coins: "+money,50,25);
+    g.drawString("Wave "+game.wave,50,50);
     g.setColor(new Color(230,230,230));
     g.fillRect(790,90,180,350);
     g.setColor(Color.red);
@@ -487,13 +488,13 @@ class Tower{
     }
     else if(type.equals("Normal")){
       damage=35;
-      bspeed=10;
+      bspeed=11;
       ucost=40;
     }
     else if(type.equals("Good")){
-      damage=50;
-      bspeed=13;
-      ucost=75;
+      damage=30;
+      bspeed=12;
+      ucost=70;
     }
     else if(type.equals("Great")){
       damage=100;
@@ -578,11 +579,24 @@ class Bullet{
     }
     g.drawImage(types[ind],x,y+10,40,10,null);
     for(Monster mons:ms){
-      if((x+40)>mons.x && (x+40)<mons.x+40 && y==mons.y+15){
-        if(mons.damage(damage)){
-          mons.x=10000;
-          mons.speed=0;
-          money+=10;
+      if(mons.x<x+40 && x+40>mons.x && y==mons.y+15){
+        if(type.equals("Good")){
+          for(Monster tmpmons:ms){
+            if(tmpmons.x<x+100 && y==mons.y+15){
+              if(tmpmons.damage(damage)){
+                tmpmons.x=10000;
+                tmpmons.speed=0;
+                money+=10;
+              }
+            }
+          }
+        }
+        else{
+          if(mons.damage(damage)){
+            mons.x=10000;
+            mons.speed=0;
+            money+=10;
+          }
         }
         x=-1000;
         speed=0;
@@ -723,7 +737,6 @@ class Monster{
     else{
       hp=100;
     }
-    maxhp=hp;
     direction="L";
     if(type.equals("spider")){
       speed=4;
@@ -748,6 +761,7 @@ class Monster{
       power=5;
     }
     hp=hp*level;
+    maxhp=hp;
     power=power*level;
     if(type.equals("skeleton")){
       attack=new ImageIcon("skeleshoot.png").getImage();
@@ -827,11 +841,6 @@ class Monster{
         g.drawRect(x,y,50,40);
       }
     }
-    else if(type.equals("skeleton")){
-      if(!overlay){
-        g.drawImage(mPic()[picCount/5],x,y,40,50,null);
-      }
-    }
     else{
       g.drawImage(mPic()[picCount/5],x,y,40,50,null);
       if(select){
@@ -839,7 +848,7 @@ class Monster{
       }
     }
     if(select){
-      g.drawImage(mPic()[picCount/5],800,120,40,40,null);
+      g.drawImage(mPic()[picCount/5],800,120,40,40,null);      // Fix the bar going off the screen with a method
       g.drawRect(795,165,maxhp/2,10);
       g.fillRect(795,165,hp/2,10);
       g.drawString("Level "+level,795,190);
@@ -883,6 +892,7 @@ class GameMaker{
   public int spot=0;
   public int waitTime=1;
   public int monsterLvl=1;
+  public int wave=1;
   public GameMaker(String[] level, KGame game){
     spawn=level;
     mainFrame=game;
@@ -927,9 +937,9 @@ class GameMaker{
     if(waitTime<1){
       int tmp=waitTime;
       waitTime=1;
+      wave+=1;
       return tmp;
     }
     return waitTime;
-  }
-  
+  } 
 }
