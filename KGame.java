@@ -50,6 +50,7 @@ public class KGame extends JFrame{//Main, public class.
       if(change==true && kind.equals("Level")){
         change=false;
         remove(menu);
+        remove(game);
         add(level);
         startMidi("Moz2.mid",-1);
       }
@@ -119,6 +120,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private double soundC=-1;
   public GameMaker game;
   public int soundCount=40;
+  private Image lost;
+  private Image won;
+  public boolean ends=false;
+  public boolean didWon=false;
   
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
@@ -141,8 +146,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[4]=new ImageIcon("barricade.png").getImage();
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
-    
-    String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
+    lost=new ImageIcon("loser.png").getImage();
+    won=new ImageIcon("winner.png").getImage();
+    //String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
+    String[]gameMons={"k","k","z"};
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -206,11 +213,32 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+    if(ends){
+      if(didWon){
+        g.drawImage(won,0,0,1000,700,null);
+      }
+      else{
+        g.drawImage(lost,0,0,1000,700,null);
+      }
+      if(keys[KeyEvent.VK_ENTER]){
+        mainFrame.kind="Level";
+        mainFrame.change=true;
+        ends=false;
+        didWon=false;
+      }
+      return;
+    }
     g.drawImage(background,0,0,1000,700,null);
     g.drawImage(castle,40,0,720,600,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
     
     Font font = new Font("Verdana", Font.BOLD, 14);
+    if(game.spot==-1 && monsters.size()==0){
+      mainFrame.healthG=5;
+      ends=true;
+      didWon=true;
+      return;
+    }
     g.setFont(font);//Creating the font and setting its colour.
     g.setColor(Color.white);
     g.drawString("Coins: "+money,50,25);
@@ -269,15 +297,16 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       money=bull.move(monsters,g,trashB,money);
     }
     ArrayList<Monster>endMons= new ArrayList<Monster>();
+    if(monsters!=null){
     for (Monster ms: monsters){
       if(ms.x>1000){
         endMons.add(ms);
       }
       ms.monsterDraw(g,turrets);
       if(mainFrame.healthG<=0){
-        mainFrame.kind="Menu";
-        mainFrame.change=true;
         mainFrame.healthG=5;
+        ends=true;
+        return;
       }
       if(ms.x<=destx && destx<=ms.x+50){
         if(ms.y<=desty && desty<=ms.y+50){
@@ -289,6 +318,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           destx=-1;
         }
       }
+    }
     }
     if(destx!=-1 && tmpMon!=null){
       tmpMon.select=false;
@@ -315,7 +345,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       monsters=game.loadLevel(monsters);
       timer-=monSpawn;
     }
-    
     bullets.removeAll(trashB);
     monsters.removeAll(endMons);
     trashB.clear();
@@ -598,14 +627,14 @@ class Bullet{
             money+=10;
           }
         }
-        x=-1000;
+        x=10000;
         speed=0;
         tb.add(this);
       }
     }
     x+=speed;
     if(x>700){
-      x=-1000;
+      x=10000;
       speed=0;
       tb.add(this);
     }
@@ -745,7 +774,7 @@ class Monster{
       speed=2;
     }
     else{
-      speed=1;
+      speed=7;
     }
     for(int i=1; i<4; i++){
       mPicL[i-1]=new ImageIcon(type+i+".png").getImage();
@@ -900,9 +929,10 @@ class GameMaker{
   }
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
     if(spot>=len){
-      spot=0;
-      return null;
+      spot=-1;
+      return monsters;
     }
+    if(spot>=0){
     if(spawn[spot].equals("z")){
       monsters.add(new Monster(800,535,"zombie",monsterLvl,mainFrame));
     }
@@ -931,6 +961,7 @@ class GameMaker{
       }
     }
     spot+=1;
+    }
     return monsters;
   }
   public int time(){
