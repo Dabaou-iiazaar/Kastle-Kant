@@ -90,7 +90,7 @@ public class KGame extends JFrame{//Main, public class.
 
 
 class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics.
-  private int money=100;
+  private int money=1000;
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private KGame mainFrame;
   public boolean ready=false;
@@ -148,8 +148,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("castle.png").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
-    //String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
-    String[]gameMons={"k","k","z"};
+    String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -276,14 +275,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           g.drawImage(turretI[turr.indy],800,120,40,40,null);
           if(turr.level<4){
             g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
+            g.drawString("Cost: "+turr.ucost*turr.level,800,225);
           }
           else{
             g.drawString("Max Level",800,200);
           }
-          g.drawString("Cost: "+turr.ucost*turr.level,800,225);
           if(turr.type.equals("Wall")){
-            g.drawRect(795,165,turr.maxhealth/10,10);
-            g.fillRect(795,165,turr.health/10,10);
+            g.drawRect(795,165,turr.maxhealth/20,10);
+            g.fillRect(795,165,turr.health/20,10);
           }
           else{
             g.drawRect(795,165,turr.maxhealth/2,10);
@@ -877,10 +876,26 @@ class Monster{
       }
     }
     if(select){
-      g.drawImage(mPic()[picCount/5],800,120,40,40,null);      // Fix the bar going off the screen with a method
-      g.drawRect(795,165,maxhp/2,10);
-      g.fillRect(795,165,hp/2,10);
-      g.drawString("Level "+level,795,190);
+      g.drawImage(mPic()[picCount/5],800,120,40,40,null);
+      int barNum=(maxhp/2)/300+1;
+      for(int i=0; i<barNum; i++){
+        if(i+1==barNum){
+          g.drawRect(795,185+(20*i),(maxhp/2)%300,10);
+        }
+        else{
+          g.drawRect(795,185+(20*i),300,10);
+        }
+      }
+      barNum=(hp/2)/300+1;
+      for(int i=0; i<barNum; i++){
+        if(i+1==barNum){
+          g.fillRect(795,185+(20*i),(hp/2)%300,10);
+        }
+        else{
+          g.fillRect(795,185+(20*i),300,10);
+        }
+      }
+      g.drawString("Level "+level,795,175);
     }
     picCount+=1;
     if(picCount/5==3){
