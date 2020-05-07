@@ -148,7 +148,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("castle.png").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
-    String[]gameMons={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};;
+    String[]gameMons={"z","z","z","z","z","z","z","z","w","w","w","w","w","w","z","z","z","z","z","-500","2","w","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","z","z","z","z","z","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
     game=new GameMaker(gameMons,mainFrame);
   }
   
