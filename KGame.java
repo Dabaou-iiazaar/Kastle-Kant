@@ -520,7 +520,7 @@ class Tower{
       ucost=40;
     }
     else if(type.equals("Good")){
-      damage=30;
+      damage=3;
       bspeed=12;
       ucost=70;
     }
@@ -580,6 +580,7 @@ class Bullet{
   String type;
   int speed;
   int damage;
+  int contact=-1;
   private Image[] types=new Image[4];
   public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){
     x=xx;
@@ -607,28 +608,29 @@ class Bullet{
     }
     g.drawImage(types[ind],x,y+10,40,10,null);
     for(Monster mons:ms){
-      if(mons.x<x+40 && x+40>mons.x && y==mons.y+15){
-        if(type.equals("Good")){
-          for(Monster tmpmons:ms){
-            if(tmpmons.x<x+100 && y==mons.y+15){
-              if(tmpmons.damage(damage)){
-                tmpmons.x=10000;
-                tmpmons.speed=0;
-                money+=10;
-              }
-            }
-          }
+      if(mons.x<x+40 && y==mons.y+15){
+        if(contact<0){
+          contact=mons.x;
         }
-        else{
           if(mons.damage(damage)){
             mons.x=10000;
             mons.speed=0;
             money+=10;
           }
-        }
-        x=10000;
-        speed=0;
-        tb.add(this);
+          if(type.equals("Good") && contact+100<x){
+            x=10000;
+            speed=0;
+            tb.add(this);
+            break;
+          }
+          else{
+            if(!type.equals("Good")){
+            x=10000;
+            speed=0;
+            tb.add(this);
+            break;
+            }
+          }
       }
     }
     x+=speed;
@@ -825,10 +827,12 @@ class Monster{
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
     floorUp();
     boolean overlay=false;
+    boolean shooting=false;
     if(type.equals("skeleton")){
       for(Tower t:turrets){
         if(t.x-40<x && x<t.x+100 && y+15==t.y){
           overlay=true;
+          shooting=true;
           g.drawImage(attack,x,y,40,60,null);
           if(ax==-1){
             ax=x;
@@ -870,7 +874,9 @@ class Monster{
       }
     }
     else{
-      g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+      if(!shooting){
+        g.drawImage(mPic()[picCount/5],x,y,40,50,null);
+      }
       if(select){
         g.drawRect(x,y,40,50);
       }
