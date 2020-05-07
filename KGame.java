@@ -90,14 +90,14 @@ public class KGame extends JFrame{//Main, public class.
 
 
 class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics.
-  private int money=1000;
+  private int money=100;
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private KGame mainFrame;
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
   public Image[] turretI=new Image[5];
-  public int[] costs={25,50,100,200,75};
+  public int[] costs={25,50,100,175,75};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
@@ -148,7 +148,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("castle.png").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
-    String[]gameMons={"k","k","k","z","z","z","z","z","z","z","z","z","z","-500","2","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
+    String[]gameMons={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};;
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -510,23 +510,23 @@ class Tower{
     max=time;
     health=100;
     if(type.equals("Basic")){
-      damage=20;
-      bspeed=10;
+      damage=15;
+      bspeed=8;
       ucost=25;
     }
     else if(type.equals("Normal")){
-      damage=35;
-      bspeed=11;
+      damage=25;
+      bspeed=10;
       ucost=40;
     }
     else if(type.equals("Good")){
-      damage=3;
+      damage=2;
       bspeed=12;
       ucost=70;
     }
     else if(type.equals("Great")){
-      damage=100;
-      bspeed=15;
+      damage=75;
+      bspeed=12;
       ucost=100;
     }
     else{
@@ -769,13 +769,13 @@ class Monster{
     }
     direction="L";
     if(type.equals("spider")){
-      speed=4;
+      speed=3;
     }
     else if(type.equals("werewolf") | type.equals("vampire")){
       speed=2;
     }
     else{
-      speed=7;
+      speed=1;
     }
     for(int i=1; i<4; i++){
       mPicL[i-1]=new ImageIcon(type+i+".png").getImage();
@@ -883,22 +883,22 @@ class Monster{
     }
     if(select){
       g.drawImage(mPic()[picCount/5],800,120,40,40,null);
-      int barNum=(maxhp/2)/300+1;
+      int barNum=(maxhp/2)/150+1;
       for(int i=0; i<barNum; i++){
         if(i+1==barNum){
-          g.drawRect(795,185+(20*i),(maxhp/2)%300,10);
+          g.drawRect(795,185+(20*i),(maxhp/2)%150,10);
         }
         else{
-          g.drawRect(795,185+(20*i),300,10);
+          g.drawRect(795,185+(20*i),150,10);
         }
       }
-      barNum=(hp/2)/300+1;
+      barNum=(hp/2)/150+1;
       for(int i=0; i<barNum; i++){
         if(i+1==barNum){
-          g.fillRect(795,185+(20*i),(hp/2)%300,10);
+          g.fillRect(795,185+(20*i),(hp/2)%150,10);
         }
         else{
-          g.fillRect(795,185+(20*i),300,10);
+          g.fillRect(795,185+(20*i),150,10);
         }
       }
       g.drawString("Level "+level,795,175);
