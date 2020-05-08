@@ -16,6 +16,7 @@ public class KGame extends JFrame{//Main, public class.
   GamePanel game;
   Menu menu;
   Level level;
+  public String[] gameLevel={""};
   private static Sequencer midiPlayer;
   public int healthG=5;
   public KGame() {//Constructor.
@@ -148,7 +149,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("castle.png").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
-    String[]gameMons={"z","z","z","z","z","z","z","z","w","w","w","w","w","w","z","z","z","z","z","-500","2","w","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","z","z","z","z","z","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
+    String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame);
   }
   
@@ -665,8 +666,6 @@ class Menu extends JPanel{
   
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);
-    g.setColor(Color.red);
-    g.fillRect(400,300,200,200);
   }
   
   class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
@@ -678,8 +677,8 @@ class Menu extends JPanel{
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
-      if(400<destx && destx<600){
-        if(300<desty && desty<500){
+      if(410<destx && destx<610){
+        if(210<desty && desty<350){
           mainFrame.kind="Level";
           mainFrame.change=true;
         }
@@ -690,17 +689,21 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
+  public String[] level1={"z","z","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","k","k","w","s","s","2","z","z","z","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","w","3","d","k","k","w","w"};
+  public String[] level3={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level4={"z","z","z","z","z","z","z","z","w","w","w","w","s","v","v","w","w","w","s","v","v","z","z","z","z","z","-500","2","w","w","w","w","w","s","s","w","w","v","v","s,","w","w","v","v","s","z","z","z","z","z","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
-  //private Image screen;
   public KGame mainFrame;
   public boolean ready=false;
+  private Image levelSelect;
   public Level(KGame m){
     mainFrame=m;
     addMouseListener(new clickListener());
     destx=-20;//Default values for the mouse's position is off screen.
     desty=-20;
     setSize(1000,700);
-    //screen=new ImageIcon("KantScreen.jpg").getImage();
+    levelSelect=new ImageIcon("LevelSelect.png").getImage();
   }
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
@@ -709,11 +712,7 @@ class Level extends JPanel{
   }
   
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
-    //g.drawImage(screen,0,0,1000,700,null);
-    g.setColor(Color.white);
-    g.fillRect(0,0,1000,700);
-    g.setColor(Color.red);
-    g.fillRect(10,10,100,100);
+    g.drawImage(levelSelect,0,0,1000,700,null);
   }
   
   class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
@@ -725,8 +724,20 @@ class Level extends JPanel{
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
-      if(10<destx && destx<110){
-        if(10<desty && desty<110){
+      if(95<desty && desty<315){
+        if(110<destx && destx<195){
+          mainFrame.gameLevel=level1;
+        }
+        else if(195<destx && destx<280){
+          mainFrame.gameLevel=level2;
+        }
+        else if(280<destx && destx<365){
+          mainFrame.gameLevel=level3;
+        }
+        else if(365<destx && destx<450){
+          mainFrame.gameLevel=level4;
+        }
+        if(110<destx && destx<450){
           mainFrame.kind="Game";
           mainFrame.change=true;
         }
