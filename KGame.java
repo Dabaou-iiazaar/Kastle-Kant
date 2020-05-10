@@ -98,7 +98,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
   public Image[] turretI=new Image[5];
-  public int[] costs={25,50,100,175,75};
+  public int[] costs={25,50,100,175,70};
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
@@ -274,6 +274,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           tmpTurret=turr;
           g.drawRect(turr.x,turr.y,40,40);
           g.drawImage(turretI[turr.indy],800,120,40,40,null);
+          g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),800,250);
           if(turr.level<4){
             g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
             g.drawString("Cost: "+turr.ucost*turr.level,800,225);
@@ -282,8 +283,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             g.drawString("Max Level",800,200);
           }
           if(turr.type.equals("Wall")){
-            g.drawRect(795,165,turr.maxhealth/20,10);
-            g.fillRect(795,165,turr.health/20,10);
+            g.drawRect(795,165,turr.maxhealth/40,10);
+            g.fillRect(795,165,turr.health/40,10);
           }
           else{
             g.drawRect(795,165,turr.maxhealth/2,10);
@@ -336,6 +337,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               }
             }
           }
+          tmpTurret=null;
+        }
+      }
+      if(800<destx && destx<860){
+        if(240<desty && desty<265){
+          turrets.remove(tmpTurret);
+          money+=(costs[tmpTurret.indy]+(tmpTurret.ucost*tmpTurret.level))/3;
           tmpTurret=null;
         }
       }
@@ -531,7 +539,7 @@ class Tower{
       ucost=100;
     }
     else{
-      health=1000;
+      health=2000;
       damage=0;
       bspeed=0;
       ucost=50;
@@ -692,7 +700,7 @@ class Level extends JPanel{
   public String[] level1={"z","z","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
   public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","k","k","w","s","s","2","z","z","z","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","w","3","d","k","k","w","w"};
   public String[] level3={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level4={"z","z","z","z","z","z","z","z","w","w","w","w","s","v","v","w","w","w","s","v","v","z","z","z","z","z","-500","2","w","w","w","w","w","s","s","w","w","v","v","s,","w","w","v","v","s","z","z","z","z","z","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
+  public String[] level4={"z","z","z","z","z","z","w","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","z","z","z","w","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
@@ -793,17 +801,17 @@ class Monster{
 //      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
     if(type.equals("spider") | type.equals("devil")){
-       power=10;
+       power=7;
     }
     else if(type=="werewolf"){
-      power=25;
+      power=14;
     }
     else{
       power=5;
     }
     hp=hp*level;
     maxhp=hp;
-    power=power*level;
+    power+=level*3;
     if(type.equals("skeleton")){
       attack=new ImageIcon("skeleshoot.png").getImage();
       arrow=new ImageIcon("arrow.png").getImage();
