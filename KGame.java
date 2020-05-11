@@ -697,7 +697,7 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"z","z","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level1={"v","k","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
   public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","k","k","w","s","s","2","z","z","z","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","w","3","d","k","k","w","w"};
   public String[] level3={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
   public String[] level4={"z","z","z","z","z","z","w","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","z","z","z","w","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
@@ -766,10 +766,11 @@ class Monster{
   public double speed;
   public boolean select=false;
   public int level;
-  private Image[] mPicL=new Image[3];
+  private Image[] mPicL;
   private Image attack;
   private Image arrow;
   public int ax=-1;
+  private int listLen;
   public Monster(int placex, int placey, String mtype,int monlevel, KGame m){
     mainFrame=m;
     x=placex;
@@ -777,10 +778,46 @@ class Monster{
     level=monlevel;
     picCount=0;
     type=mtype;
+    
+    
+    if(type.equals("werewolf")){
+      listLen=10;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("demon")){
+      listLen=15;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("zombie")){
+      listLen=15;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("nymph")){
+      listLen=14;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("spider")){
+      listLen=5;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("skeleton")){
+      listLen=13;
+      mPicL=new Image[listLen];
+    }
+    else if(type.equals("vampire")){
+      listLen=4;
+      mPicL=new Image[listLen];
+    }
+    else{
+      listLen=3;
+      mPicL=new Image[listLen];
+    }
+    
+    
     if(type.equals("werewolf") | type.equals("vampire")){
       hp=150;
     }
-    else if(type.equals("devil")){
+    else if(type.equals("demon")){
       hp=300;
     }
     else{
@@ -796,11 +833,11 @@ class Monster{
     else{
       speed=1;
     }
-    for(int i=1; i<4; i++){
+    for(int i=1; i<listLen+1; i++){
       mPicL[i-1]=new ImageIcon(type+i+".png").getImage();
 //      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
-    if(type.equals("spider") | type.equals("devil")){
+    if(type.equals("spider") | type.equals("demon")){
        power=7;
     }
     else if(type=="werewolf"){
@@ -923,7 +960,7 @@ class Monster{
       g.drawString("Level "+level,795,175);
     }
     picCount+=1;
-    if(picCount/5==3){
+    if(picCount/5==listLen){
       picCount=0;
     }
     if(!overlay){
@@ -989,7 +1026,7 @@ class GameMaker{
       monsters.add(new Monster(800,405,"vampire",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("d")){
-      monsters.add(new Monster(800,535,"devil",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,535,"demon",monsterLvl,mainFrame));
     }
     else{
       int num=Integer.parseInt(spawn[spot]);
