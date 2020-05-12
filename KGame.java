@@ -298,34 +298,41 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       money=bull.move(monsters,g,trashB,money);
     }
     ArrayList<Monster>endMons= new ArrayList<Monster>();
+    Monster wid=null;
     if(monsters!=null){
-    for (Monster ms: monsters){
-      if(ms.x>1000){
-        endMons.add(ms);
-      }
-      ms.monsterDraw(g,turrets);
-      if(mainFrame.healthG<=0){
-        mainFrame.healthG=5;
-        ends=true;
-        return;
-      }
-      if(ms.x<=destx && destx<=ms.x+50){
-        if(ms.y<=desty && desty<=ms.y+50){
-          ms.select=true;
-          if(tmpMon!=null){
-            tmpMon.select=false;
+      for (Monster ms: monsters){
+        if(ms.x>1000){
+          if(ms.type.equals("widow")){
+            wid=ms;
           }
-          tmpMon=ms;
-          destx=-1;
+          endMons.add(ms);
+        }
+        ms.monsterDraw(g,turrets);
+        if(mainFrame.healthG<=0){
+          mainFrame.healthG=5;
+          ends=true;
+          return;
+        }
+        if(ms.x<=destx && destx<=ms.x+50){
+          if(ms.y<=desty && desty<=ms.y+50){
+            ms.select=true;
+            if(tmpMon!=null){
+              tmpMon.select=false;
+            }
+            tmpMon=ms;
+            destx=-1;
+          }
         }
       }
-    }
+      if(wid!=null){
+        monsters.add(new Monster(wid.x-1030,wid.y,"spider",wid.level,mainFrame));
+        monsters.add(new Monster(wid.x-1050,wid.y,"spider",wid.level,mainFrame));
+      }
     }
     if(destx!=-1 && tmpMon!=null){
       tmpMon.select=false;
       tmpMon=null;
     }
-
     if(tmpTurret!=null){
       if(800<destx && destx<950){
         if(180<desty && desty<205){
@@ -622,7 +629,7 @@ class Bullet{
           contact=mons.x;
         }
         if(mons.damage(damage,type)){
-          mons.x=10000;
+          mons.x+=1000;
           mons.speed=0;
           money+=10;
         }
@@ -697,10 +704,10 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"s2","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","n","k","k","w","s","s","2","z","z","z","n","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","n","w","3","d","k","k","w","w"};
-  public String[] level3={"n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level4={"z","z","z","z","z","z","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
+  public String[] level1={"z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","n","k","k","w","s","s","2","z","z","z","n","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","k","w","w"};
+  public String[] level3={"n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level4={"z","z","z","z","z","z","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
