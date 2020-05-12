@@ -621,7 +621,7 @@ class Bullet{
         if(contact<0){
           contact=mons.x;
         }
-          if(mons.damage(damage)){
+          if(mons.damage(damage,type)){
             mons.x=10000;
             mons.speed=0;
             money+=10;
@@ -771,6 +771,8 @@ class Monster{
   private Image arrow;
   public int ax=-1;
   private int listLen;
+  public int pushx=0;
+  public int pushy=0;
   public Monster(int placex, int placey, String mtype,int monlevel, KGame m){
     mainFrame=m;
     x=placex;
@@ -964,15 +966,25 @@ class Monster{
       picCount=0;
     }
     if(!overlay){
+      if(pushx<=0){
       x-=speed;
+      }
+      else{
+        x+=3;
+        pushx-=3;
+      }
     }
   }
-  public boolean damage(int hurt){
+  public boolean damage(int hurt,String typeT){
     hp-=hurt;
     if (hp<=0){
       return true;
     }
     else{
+      if(typeT.equals("Great") && (x+10)<=700){
+      pushx=10;
+      pushy=10;
+      }
       return false;
     }
   }
