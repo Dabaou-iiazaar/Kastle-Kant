@@ -539,7 +539,7 @@ class Tower{
       ucost=100;
     }
     else{
-      health=2000;
+      health=1250;
       damage=0;
       bspeed=0;
       ucost=50;
@@ -621,25 +621,25 @@ class Bullet{
         if(contact<0){
           contact=mons.x;
         }
-          if(mons.damage(damage,type)){
-            mons.x=10000;
-            mons.speed=0;
-            money+=10;
-          }
-          if(type.equals("Good") && contact+100<x){
+        if(mons.damage(damage,type)){
+          mons.x=10000;
+          mons.speed=0;
+          money+=10;
+        }
+        if(type.equals("Good") && contact+100<x){
+          x=10000;
+          speed=0;
+          tb.add(this);
+          break;
+        }
+        else{
+          if(!type.equals("Good")){
             x=10000;
             speed=0;
             tb.add(this);
             break;
           }
-          else{
-            if(!type.equals("Good")){
-            x=10000;
-            speed=0;
-            tb.add(this);
-            break;
-            }
-          }
+        }
       }
     }
     x+=speed;
@@ -697,10 +697,10 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"v","k","z","z","z","z","z","z","z","z","-500","z","z","z","z","z","z","k","k","z","z","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","k","k","w","s","s","2","z","z","z","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","w","3","d","k","k","w","w"};
-  public String[] level3={"v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level4={"z","z","z","z","z","z","w","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","z","z","z","w","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","-500","3","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
+  public String[] level1={"s2","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","n","k","k","w","s","s","2","z","z","z","n","v","v","w","z","z","z","z","w","s","s","v","-500","z","z","z","z","n","w","3","d","k","k","w","w"};
+  public String[] level3={"n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level4={"z","z","z","z","z","z","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
@@ -786,11 +786,7 @@ class Monster{
       listLen=10;
       mPicL=new Image[listLen];
     }
-    else if(type.equals("demon")){
-      listLen=15;
-      mPicL=new Image[listLen];
-    }
-    else if(type.equals("zombie")){
+    else if(type.equals("demon") | type.equals("zombie")){
       listLen=15;
       mPicL=new Image[listLen];
     }
@@ -798,7 +794,7 @@ class Monster{
       listLen=14;
       mPicL=new Image[listLen];
     }
-    else if(type.equals("spider")){
+    else if(type.equals("spider") | type.equals("widow")){
       listLen=5;
       mPicL=new Image[listLen];
     }
@@ -816,17 +812,26 @@ class Monster{
     }
     
     
-    if(type.equals("werewolf") | type.equals("vampire")){
+    if(type.equals("nymph") | type.equals("vampire")){
       hp=150;
     }
     else if(type.equals("demon")){
       hp=300;
     }
+    else if(type.equals("werewolf")){
+      hp=200;
+    }
+    else if(type.equals("widow")){
+      hp=50;
+    }
     else{
       hp=100;
     }
     direction="L";
-    if(type.equals("spider")){
+    if(type.equals("widow")){
+      speed=4;
+    }
+    else if(type.equals("spider")){
       speed=3;
     }
     else if(type.equals("werewolf") | type.equals("vampire")){
@@ -919,13 +924,13 @@ class Monster{
         }
       }
     }
-    if(type.equals("spider")){
-      g.drawImage(mPic()[picCount/5],x,y+10,50,40,null);
+    if(type.equals("spider") | type.equals("widow")){
+      g.drawImage(mPic()[picCount/5],x,y+10,55,35,null);
       if(select){
         g.drawRect(x,y+10,50,40);
       }
     }
-    else if(type.equals("vampire")){
+    else if(type.equals("vampire") | type.equals("werewolf")){
       g.drawImage(mPic()[picCount/5],x,y,50,40,null);
       if(select){
         g.drawRect(x,y,50,40);
@@ -1027,6 +1032,12 @@ class GameMaker{
     }
     else if(spawn[spot].equals("s")){
       monsters.add(new Monster(800,535,"spider",monsterLvl,mainFrame));
+    }
+    else if(spawn[spot].equals("s2")){
+      monsters.add(new Monster(800,535,"widow",monsterLvl,mainFrame));
+    }
+    else if(spawn[spot].equals("n")){
+      monsters.add(new Monster(800,535,"nymph",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("k")){
       monsters.add(new Monster(800,535,"skeleton",monsterLvl,mainFrame));
