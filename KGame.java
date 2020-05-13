@@ -306,7 +306,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     g.drawRect(tBox,620,40,40);
     g.drawString("Power Levels",830,110);
     if(isDown && mouseIndex>-1){
-      g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
+      if(mouseSelect.equals("Remove")){
+        g.drawRect(destx-20,desty-20,40,40);
+      }
+      else{
+        g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
+      }
     }
     for(int i=0; i<6; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
@@ -475,8 +480,19 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     public void mouseExited(MouseEvent e) {
     }
     public void mouseReleased(MouseEvent e) {
-      if(mouseIndex>-1){
+      if(mouseIndex>-1 && !mouseSelect.equals("Remove")){
         placeTurr=true;
+      }
+      else{
+        if(mouseSelect.equals("Remove")){
+        for(Tower t:turrets){
+          if(t.x-50<destx && t.x+50>destx && Math.abs(t.y-desty)<30){
+            turrets.remove(t);
+            money+=(costs[t.indy]+(t.ucost*t.level))/3;
+            break;
+          }
+        }
+        }
       }
       isDown=false;
       mouseSelect="None";
@@ -496,6 +512,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else if(340<selx && selx<380){turretType="Great"; tBox=340;mouseSelect="Great";mouseIndex=3;}
         else if(420<selx && selx<460){turretType="Wall"; tBox=420;mouseSelect="Wall";mouseIndex=4;}
         else if(500<selx && selx<540){turretType="Cannon"; tBox=500;mouseSelect="Cannon";mouseIndex=5;}
+        else if(900<selx && selx<920){turretType="None";mouseSelect="Remove";mouseIndex=0;}
       }
     }
   }    
