@@ -8,6 +8,7 @@ import java.awt.image.*;
 import javax.imageio.*; 
 import javax.sound.midi.*;
 import java.applet.*;
+import java.lang.Math;
 import javax.swing.Timer;//Specifying which Timer since there would be a conflict with util otherwise.
 public class KGame extends JFrame{//Main, public class.
   public String kind="Menu";
@@ -185,9 +186,22 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       picInd=kant.move(kant.x,kant.y,picInd);
     }
     if(placeTurr){
+      int temppx=destx;
+      int temppy=desty;
       boolean overlay=false;
+      if(temppy%100>49 && temppy<660){
+        temppy+=51;
+      }
+      temppy=temppy/100;
+      temppy=temppy*100;
+      if(temppx%100>49 && temppx<990){
+        temppx+=51;
+      }
+      temppx=temppx/100;
+      temppx=temppx*100;
+      
       for(Tower t:turrets){
-        if(t.x-40<destx && destx<t.x+40 && desty+30==t.y){
+        if(t.x-40<temppx && temppx<t.x+40 && temppy==t.y){
           overlay=true;
           break;
         }
@@ -214,7 +228,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(destx-20,desty-20,turretType,indy,mainFrame));
+          turrets.add(new Tower(temppx,temppy,turretType,indy,mainFrame));
         }
       }
       placeTurr=false;
@@ -255,6 +269,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+    System.out.println(desty);
     if(ends){
       if(didWon){
         g.drawImage(won,0,0,1000,700,null);
@@ -270,8 +285,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       return;
     }
-    g.drawImage(background,0,0,1000,700,null);
-    g.drawImage(castle,40,0,720,600,null);
+    g.drawImage(background,0,0,1000,680,null);
+    g.drawImage(castle,175,80,550,575,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
     
     Font font = new Font("Verdana", Font.BOLD, 14);
@@ -635,7 +650,7 @@ class Tower{
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
     if(cooldown<=0){
       for(Monster mons: ms){
-        if(mons.y+15==y && mons.x<=x+300 && mons.x>x){
+        if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
           cooldown=max;
           if(!type.equals("Wall")){
             bs.add(new Bullet(x,y,type,bspeed,damage));
@@ -705,7 +720,7 @@ class Bullet{
     }
     g.drawImage(types[ind],x,y+10,40,10,null);
     for(Monster mons:ms){
-      if(mons.x<x+40 && y==mons.y+15){
+      if(mons.x<x+40 && Math.abs(mons.y-y)<30){
         if(contact<0){
           contact=mons.x;
         }
@@ -960,8 +975,8 @@ class Monster{
       }
     } */
     if(55<x && x<65){
-      if(y==275 | y==405 | y==535){
-        y-=130;
+      if(y>300){
+        y-=100;
         x=690;
         picCount=0;
         direction="L";
@@ -982,7 +997,7 @@ class Monster{
     boolean shooting=false;
     if(type.equals("skeleton")){
       for(Tower t:turrets){
-        if(t.x-40<x && x<t.x+100 && y+15==t.y){
+        if(t.x-40<x && x<t.x+100 && Math.abs(y-t.y)<30){
           overlay=true;
           shooting=true;
           g.drawImage(attack,x,y,40,60,null);
@@ -991,7 +1006,7 @@ class Monster{
           }
           g.drawImage(arrow,ax,y+20,10,15,null);
           ax-=5;
-          if(ax<t.x && y+15==t.y){
+          if(ax<t.x && Math.abs(t.y-y)<30){
             ax=-1;
             if(t.damage(power)){
               turrets.remove(t);
@@ -1003,7 +1018,7 @@ class Monster{
     }
     else{
       for(Tower t:turrets){
-        if(t.x-40<x && x<t.x+40 && y+15==t.y){
+        if(t.x-40<x && x<t.x+40 && Math.abs(t.y-y)<30){
           overlay=true;
           if(t.damage(power)){
             turrets.remove(t);
@@ -1117,28 +1132,28 @@ class GameMaker{
     }
     if(spot>=0){
     if(spawn[spot].equals("z")){
-      monsters.add(new Monster(800,535,"zombie",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"zombie",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("s")){
-      monsters.add(new Monster(800,535,"spider",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"spider",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("s2")){
-      monsters.add(new Monster(800,535,"widow",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"widow",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("n")){
-      monsters.add(new Monster(800,535,"nymph",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"nymph",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("k")){
-      monsters.add(new Monster(800,535,"skeleton",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"skeleton",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("w")){
-      monsters.add(new Monster(800,535,"werewolf",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"werewolf",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("v")){
-      monsters.add(new Monster(800,405,"vampire",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,400,"vampire",monsterLvl,mainFrame));
     }
     else if(spawn[spot].equals("d")){
-      monsters.add(new Monster(800,535,"demon",monsterLvl,mainFrame));
+      monsters.add(new Monster(800,600,"demon",monsterLvl,mainFrame));
     }
     else{
       int num=Integer.parseInt(spawn[spot]);
