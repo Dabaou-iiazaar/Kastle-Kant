@@ -125,11 +125,15 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Image won;
   public boolean ends=false;
   public boolean didWon=false;
-  
+  public boolean isDown=false;
+  public String mouseSelect="None";
+  public int mouseIndex=-1;
+  public boolean placeTurr=false;
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
     keys = new boolean[KeyEvent.KEY_LAST+1];
     addMouseListener(new clickListener());
+    addMouseMotionListener(new Mouse());
     destx=-20;                    //Default values for the mouse's position is off screen.
     desty=-20;
     setSize(1000,700);
@@ -179,6 +183,38 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     else{
       picInd=kant.move(kant.x,kant.y,picInd);
+    }
+    if(placeTurr){
+      boolean overlay=false;
+      for(Tower t:turrets){
+        if(t.x-40<destx && destx<t.x+40 && desty+30==t.y){
+          overlay=true;
+          break;
+        }
+      }
+      if(!overlay){
+        int indy=0;
+        if(turretType.equals("Basic")){
+          indy=0;
+        }
+        else if(turretType.equals("Normal")){
+          indy=1;
+        }
+        else if(turretType.equals("Good")){
+          indy=2;
+        }
+        else if(turretType.equals("Great")){
+          indy=3;
+        }
+        else{
+          indy=4;
+        }
+        if (money-costs[indy]>=0){
+          money-=costs[indy];
+          turrets.add(new Tower(destx-20,desty-20,turretType,indy,100,mainFrame));
+        }
+      }
+      placeTurr=false;
     }
     if (keys[KeyEvent.VK_SPACE]){
       boolean overlay=false;
@@ -248,7 +284,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     g.setColor(Color.red);
     g.drawRect(tBox,620,40,40);
     g.drawString("Power Levels",830,110);
-    
+    if(isDown && mouseIndex>-1){
+      g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
+    }
     for(int i=0; i<5; i++){
       g.drawImage(turretI[i],100+(i*80),620,40,40,null);
     }
@@ -269,7 +307,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         shotC-=1;
       }
-      if(turr.x<=destx && destx<=turr.x+40){
+      if(turr.x<=destx && destx<=turr.x+40 && isDown){
         if(turr.y<=desty && desty<=turr.y+40){
           tmpTurret=turr;
           g.drawRect(turr.x,turr.y,40,40);
@@ -313,7 +351,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           ends=true;
           return;
         }
-        if(ms.x<=destx && destx<=ms.x+50){
+        if(ms.x<=destx && destx<=ms.x+50 && isDown){
           if(ms.y<=desty && desty<=ms.y+50){
             ms.select=true;
             if(tmpMon!=null){
@@ -383,6 +421,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     soundCount=40;
     }
     soundCount-=1;
+    System.out.println(isDown);
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -394,21 +433,43 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public void keyReleased(KeyEvent e) {
     keys[e.getKeyCode()] = false;
   }
+  class Mouse implements MouseMotionListener {
+    public void mouseDragged(MouseEvent e) 
+    { 
+      destx=e.getX();
+      desty=e.getY();
+    }
+    public void mouseMoved(MouseEvent e) 
+    { 
+      destx=e.getX();
+      desty=e.getY();
+    }
+  }
   class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
-    public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
-    public void mouseExited(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}    
-    public void mouseClicked(MouseEvent e){}  
+    public void mouseEntered(MouseEvent e) {
+    }//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+    public void mouseExited(MouseEvent e) {
+    }
+    public void mouseReleased(MouseEvent e) {
+      if(mouseIndex>-1){
+        placeTurr=true;
+      }
+      isDown=false;
+      mouseSelect="None";
+      mouseIndex=-1;
+    }    
+    public void mouseClicked(MouseEvent e){
+    }  
     
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
-      destx = e.getX();
-      desty = e.getY();
+      isDown=true;
+      System.out.println(destx);
       if(620<desty && desty<660){
-        if(100<destx && destx<140){turretType="Basic"; tBox=100;}
-        else if(180<destx && destx<220){turretType="Normal"; tBox=180;}
-        else if(260<destx && destx<300){turretType="Good"; tBox=260;}
-        else if(340<destx && destx<380){turretType="Great"; tBox=340;}
-        else if(420<destx && destx<460){turretType="Wall"; tBox=420;}
+        if(100<destx && destx<140){turretType="Basic"; tBox=100;mouseSelect="Basic";mouseIndex=0;}
+        else if(180<destx && destx<220){turretType="Normal"; tBox=180;mouseSelect="Normal";mouseIndex=1;}
+        else if(260<destx && destx<300){turretType="Good"; tBox=260;mouseSelect="Good";mouseIndex=2;}
+        else if(340<destx && destx<380){turretType="Great"; tBox=340;mouseSelect="Great";mouseIndex=3;}
+        else if(420<destx && destx<460){turretType="Wall"; tBox=420;mouseSelect="Wall";mouseIndex=4;}
       }
     }
   }    
@@ -684,7 +745,8 @@ class Menu extends JPanel{
   }
   
   class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
-    public void mouseEntered(MouseEvent e) {}//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+    public void mouseEntered(MouseEvent e) {
+    }//The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
     public void mouseExited(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {}    
     public void mouseClicked(MouseEvent e){}  
