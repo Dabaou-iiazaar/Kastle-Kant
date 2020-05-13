@@ -285,8 +285,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       return;
     }
-    g.drawImage(background,0,0,1000,680,null);
-    g.drawImage(castle,175,80,550,575,null);
+    g.drawImage(background,0,20,1900,750,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
     
     Font font = new Font("Verdana", Font.BOLD, 14);
