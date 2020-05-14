@@ -100,10 +100,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image[] kantMoves=new Image[12];
   public Image[] turretI=new Image[6];
   public int[] costs={25,50,100,175,70,100};
+  public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
+  public boolean beginPlay=false;
   public String turretType = "Basic";
   public int tBox=100;
   private Image background;
@@ -130,6 +132,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public String mouseSelect="None";
   public int mouseIndex=-1;
   public boolean placeTurr=false;
+  public int backx=-200;
+  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon"};
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
     keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -269,6 +273,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
+    if(beginPlay){
     System.out.println(desty);
     if(ends){
       if(didWon){
@@ -285,9 +290,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       return;
     }
-    g.drawImage(background,0,20,1900,750,null);
+    g.drawImage(background,backx,0,1900,750,null);
     g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
-    
+    if(backx<0){
+      backx+=5;
+      return;
+    }
     Font font = new Font("Verdana", Font.BOLD, 14);
     if(game.spot==-1 && monsters.size()==0){
       mainFrame.healthG=5;
@@ -312,8 +320,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
       }
     }
-    for(int i=0; i<6; i++){
-      g.drawImage(turretI[i],100+(i*80),620,40,40,null);
+    for(int i=0; i<chosenT.size(); i++){
+      g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);
     }
     int shotC=1;
     for(Tower turr:turrets){                        //Turret Drawing
@@ -450,6 +458,32 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     soundCount=40;
     }
     soundCount-=1;
+    }
+    else{
+      if(chosenT.size()==3){
+        beginPlay=true;
+      }
+      int ttx=0;
+      int tty=0;
+      for(Integer num:chosenT){
+        int tempx=num.intValue()%4*200;
+        int tempy=(int)(num.intValue()/4*200);
+        g.setColor(Color.red);
+        g.drawRect(tempx,tempy,40,40);
+      }
+      for(int k=0;k<6;k++){
+        g.drawImage(turretI[k],ttx,tty,40,40,null);
+        if(isDown && destx<ttx+40 && destx>ttx && desty<tty+40 && desty>tty){
+          chosenT.add(k);
+          isDown=false;
+        }
+        ttx+=200;
+        if(ttx>=800){
+          tty+=200;
+          ttx=0;
+        }
+      }
+    }
   }
   public void keyTyped(KeyEvent e) {
   }
@@ -505,13 +539,15 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       selx=e.getX();
       sely=e.getY();
       if(620<sely && sely<660){
-        if(100<selx && selx<140){turretType="Basic"; tBox=100;mouseSelect="Basic";mouseIndex=0;}
-        else if(180<selx && selx<220){turretType="Normal"; tBox=180;mouseSelect="Normal";mouseIndex=1;}
-        else if(260<selx && selx<300){turretType="Good"; tBox=260;mouseSelect="Good";mouseIndex=2;}
-        else if(340<selx && selx<380){turretType="Great"; tBox=340;mouseSelect="Great";mouseIndex=3;}
-        else if(420<selx && selx<460){turretType="Wall"; tBox=420;mouseSelect="Wall";mouseIndex=4;}
-        else if(500<selx && selx<540){turretType="Cannon"; tBox=500;mouseSelect="Cannon";mouseIndex=5;}
-        else if(900<selx && selx<920){turretType="None";mouseSelect="Remove";mouseIndex=0;}
+        for(int k=0;k<chosenT.size();k++){
+          int tempx=180+k*80;
+          if(selx<tempx && selx+80>tempx){
+            turretType=typesT[chosenT.get(k).intValue()];
+            mouseSelect=turretType;
+            tBox=tempx-80;
+            mouseIndex=chosenT.get(k).intValue();
+          }
+        }
       }
     }
   }    
