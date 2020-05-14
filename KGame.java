@@ -99,6 +99,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
   public Image[] turretI=new Image[6];
+  public Image tile1;
+  public Image tile2;
+  public Image shovel;
   public int[] costs={25,50,100,175,70,100};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
@@ -156,6 +159,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[5]=new ImageIcon("cannon.png").getImage();
     background=new ImageIcon("background.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
+    tile1=new ImageIcon("tile1.png").getImage();
+    tile2=new ImageIcon("tile2.png").getImage();
+    shovel=new ImageIcon("shovel.jpg").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
@@ -190,8 +196,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       picInd=kant.move(kant.x,kant.y,picInd);
     }
     if(placeTurr){
-      int temppx=destx;
-      int temppy=desty;
+      int temppx=destx-50;
+      int temppy=desty-50;
       boolean overlay=false;
       if(temppy%100>49 && temppy<660){
         temppy+=51;
@@ -232,7 +238,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(temppx,temppy,turretType,indy,mainFrame));
+          turrets.add(new Tower(temppx+25,temppy+25,turretType,indy,mainFrame));
         }
       }
       placeTurr=false;
@@ -289,7 +295,20 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         return;
       }
-      g.drawImage(background,backx,0,1000,700,null);
+      g.drawImage(castle,backx,100,100,500,null);
+      g.drawImage(shovel,900,0,40,40,null);
+      int countT=0;
+      for(int xxx=backx+100;xxx<backx+900;xxx+=100){
+        for(int yyy=100;yyy<600;yyy+=100){
+          if(countT%2==0){
+            g.drawImage(tile1,xxx,yyy,100,100,null);
+          }
+          else{
+            g.drawImage(tile2,xxx,yyy,100,100,null);
+          }
+          countT++;
+        }
+      }
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
       if(backx<0){
         backx+=5;
@@ -528,7 +547,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       isDown=true;
       selx=e.getX();
       sely=e.getY();
-      if(620<sely && sely<660){
+      if(sely<40 && selx>900 && selx<940){
+        mouseSelect="Remove";
+        mouseIndex=0;
+        System.out.println("Hey");
+      }
+      else if(620<sely && sely<660){
         for(int k=0;k<chosenT.size();k++){
           int tempx=180+k*80;
           if(selx<tempx && selx+80>tempx){
@@ -1016,7 +1040,7 @@ class Monster{
      direction="R";
      }
      } */
-    if(55<x && x<65){
+    /*if(55<x && x<65){
       if(y>300){
         y-=100;
         x=690;
@@ -1024,10 +1048,11 @@ class Monster{
         direction="L";
       }
     }
-    if(x<65 && y==145){
+    */
+    if(x<10){
       speed=0;
       x=10000;
-      mainFrame.healthG-=1;
+      mainFrame.healthG=0;
     }
   }
   public Image[] mPic(){
@@ -1162,6 +1187,7 @@ class GameMaker{
   public int waitTime=1;
   public int monsterLvl=1;
   public int wave=1;
+  public int monsRow=100;
   public GameMaker(String[] level, KGame game){
     spawn=level;
     mainFrame=game;
@@ -1174,28 +1200,28 @@ class GameMaker{
     }
     if(spot>=0){
       if(spawn[spot].equals("z")){
-        monsters.add(new Monster(800,600,"zombie",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"zombie",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("s")){
-        monsters.add(new Monster(800,600,"spider",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"spider",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("s2")){
-        monsters.add(new Monster(800,600,"widow",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"widow",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("n")){
-        monsters.add(new Monster(800,600,"nymph",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"nymph",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("k")){
-        monsters.add(new Monster(800,600,"skeleton",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"skeleton",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("w")){
-        monsters.add(new Monster(800,600,"werewolf",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"werewolf",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("v")){
-        monsters.add(new Monster(800,400,"vampire",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"vampire",monsterLvl,mainFrame));
       }
       else if(spawn[spot].equals("d")){
-        monsters.add(new Monster(800,600,"demon",monsterLvl,mainFrame));
+        monsters.add(new Monster(800,monsRow+20,"demon",monsterLvl,mainFrame));
       }
       else{
         int num=Integer.parseInt(spawn[spot]);
@@ -1207,6 +1233,10 @@ class GameMaker{
         }
       }
       spot+=1;
+      monsRow+=100;
+      if(monsRow>=600){
+        monsRow=100;
+      }
     }
     return monsters;
   }
