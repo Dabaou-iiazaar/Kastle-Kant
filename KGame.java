@@ -69,22 +69,22 @@ public class KGame extends JFrame{//Main, public class.
     }
   }
   public static void startMidi(String midFilename,int len) {//Method for playing the music and loading it up.
-      try {//Midi music player function taken from Mr. Mckenzie.
-         File midiFile = new File(midFilename);//Getting the music to be loaded in the following lines.
-         Sequence song = MidiSystem.getSequence(midiFile);
-         midiPlayer = MidiSystem.getSequencer();
-         midiPlayer.open();
-         midiPlayer.setSequence(song);
-         midiPlayer.setLoopCount(len);//In effect the music lasts forever.
-         midiPlayer.start();
-      } catch (MidiUnavailableException e) {//Below is all for catching potential errors when loading the music.
-         e.printStackTrace();
-      } catch (InvalidMidiDataException e) {
-         e.printStackTrace();
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-   }
+    try {//Midi music player function taken from Mr. Mckenzie.
+      File midiFile = new File(midFilename);//Getting the music to be loaded in the following lines.
+      Sequence song = MidiSystem.getSequence(midiFile);
+      midiPlayer = MidiSystem.getSequencer();
+      midiPlayer.open();
+      midiPlayer.setSequence(song);
+      midiPlayer.setLoopCount(len);//In effect the music lasts forever.
+      midiPlayer.start();
+    } catch (MidiUnavailableException e) {//Below is all for catching potential errors when loading the music.
+      e.printStackTrace();
+    } catch (InvalidMidiDataException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
   public static void main(String[] args){//Main method.
     KGame frame = new KGame();//Launching the graphics.
   }
@@ -274,213 +274,203 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     if(beginPlay){
-    System.out.println(desty);
-    if(ends){
-      if(didWon){
-        g.drawImage(won,0,0,1000,700,null);
-      }
-      else{
-        g.drawImage(lost,0,0,1000,700,null);
-      }
-      if(keys[KeyEvent.VK_ENTER]){
-        mainFrame.kind="Level";
-        mainFrame.change=true;
-        ends=false;
-        didWon=false;
-      }
-      return;
-    }
-    g.drawImage(background,backx,0,1900,750,null);
-    g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
-    if(backx<0){
-      backx+=5;
-      return;
-    }
-    Font font = new Font("Verdana", Font.BOLD, 14);
-    if(game.spot==-1 && monsters.size()==0){
-      mainFrame.healthG=5;
-      ends=true;
-      didWon=true;
-      return;
-    }
-    g.setFont(font);//Creating the font and setting its colour.
-    g.setColor(Color.white);
-    g.drawString("Coins: "+money,50,25);
-    g.drawString("Wave "+game.wave,50,50);
-    g.setColor(new Color(230,230,230));
-    g.fillRect(790,90,180,350);
-    g.setColor(Color.red);
-    g.drawRect(tBox,620,40,40);
-    g.drawString("Power Levels",830,110);
-    if(isDown && mouseIndex>-1){
-      if(mouseSelect.equals("Remove")){
-        g.drawRect(destx-20,desty-20,40,40);
-      }
-      else{
-        g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
-      }
-    }
-    for(int i=0; i<chosenT.size(); i++){
-      g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);
-    }
-    int shotC=1;
-    for(Tower turr:turrets){                        //Turret Drawing
-      if(turr.shoot(bullets,monsters) && shotC>0){
-        if(turr.type.equals("Basic")){
-          canS[0].play();
+      if(ends){
+        if(didWon){
+          g.drawImage(won,0,0,1000,700,null);
         }
-        else if(turr.type.equals("Normal")){
-          canS[1].play();
+        else{
+          g.drawImage(lost,0,0,1000,700,null);
         }
-        else if(turr.type.equals("Good")){
-          canS[2].play();
+        if(keys[KeyEvent.VK_ENTER]){
+          mainFrame.kind="Level";
+          mainFrame.change=true;
+          ends=false;
+          didWon=false;
         }
-        else if(turr.type.equals("Great")){
-          canS[3].play();
-        }
-        shotC-=1;
+        return;
       }
-      if(turr.x<=selx && selx<=turr.x+40){
-        if(turr.y<=sely && sely<=turr.y+40){
-          tmpTurret=turr;
-          g.drawRect(turr.x,turr.y,40,40);
-          g.drawImage(turretI[turr.indy],800,120,40,40,null);
-          g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),800,250);
-          if(turr.level<4){
-            g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
-            g.drawString("Cost: "+turr.ucost*turr.level,800,225);
+      g.drawImage(background,backx,0,1000,700,null);
+      g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
+      if(backx<0){
+        backx+=5;
+        return;
+      }
+      Font font = new Font("Verdana", Font.BOLD, 16);
+      if(game.spot==-1 && monsters.size()==0){
+        mainFrame.healthG=5;
+        ends=true;
+        didWon=true;
+        return;
+      }
+      g.setFont(font);//Creating the font and setting its colour.
+      g.setColor(Color.white);
+      g.drawString("Coins: "+money,50,25);
+      g.drawString("Wave "+game.wave,50,50);
+      g.setColor(Color.red);
+      g.drawRect(tBox,620,40,40);
+      g.drawString("Power Levels",55,230);
+      if(isDown && mouseIndex>-1){
+        if(mouseSelect.equals("Remove")){
+          g.drawRect(destx-20,desty-20,40,40);
+        }
+        else{
+          g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
+        }
+      }
+      for(int i=0; i<chosenT.size(); i++){
+        g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);
+      }
+      int shotC=1;
+      for(Tower turr:turrets){                        //Turret Drawing
+        if(turr.shoot(bullets,monsters) && shotC>0){
+          if(turr.type.equals("Basic")){
+            canS[0].play();
           }
-          else{
-            g.drawString("Max Level",800,200);
+          else if(turr.type.equals("Normal")){
+            canS[1].play();
           }
-          if(turr.type.equals("Wall")){
-            g.drawRect(795,165,turr.maxhealth/24,10);
-            g.fillRect(795,165,turr.health/24,10);
+          else if(turr.type.equals("Good")){
+            canS[2].play();
           }
-          if(turr.type.equals("Cannon")){
-            g.drawRect(795,165,turr.maxhealth/4,10);
-            g.fillRect(795,165,turr.health/4,10);
+          else if(turr.type.equals("Great")){
+            canS[3].play();
           }
-          else{
-            g.drawRect(795,165,turr.maxhealth/2,10);
-            g.fillRect(795,165,turr.health/2,10);
-          }        
+          shotC-=1;
         }
-      }
-      g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
-    }
-    for(Bullet bull:bullets){
-      money=bull.move(monsters,g,trashB,money);
-    }
-    ArrayList<Monster>endMons= new ArrayList<Monster>();
-    Monster wid=null;
-    if(monsters!=null){
-      for (Monster ms: monsters){
-        if(ms.x>1000){
-          if(ms.type.equals("widow")){
-            wid=ms;
-          }
-          endMons.add(ms);
-        }
-        ms.monsterDraw(g,turrets);
-        if(mainFrame.healthG<=0){
-          mainFrame.healthG=5;
-          ends=true;
-          return;
-        }
-        if(ms.x<=selx && selx<=ms.x+50){
-          if(ms.y<=sely && sely<=ms.y+50){
-            ms.select=true;
-            if(tmpMon!=null){
-              tmpMon.select=false;
+        if(turr.x<=selx && selx<=turr.x+40){
+          if(turr.y<=sely && sely<=turr.y+40){
+            tmpTurret=turr;
+            g.drawRect(turr.x,turr.y,40,40);
+            g.drawImage(turretI[turr.indy],800,120,40,40,null);
+            g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),800,250);
+            if(turr.level<4){
+              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
+              g.drawString("Cost: "+turr.ucost*turr.level,800,225);
             }
-            tmpMon=ms;
-            selx=-1;
+            else{
+              g.drawString("Max Level",800,200);
+            }
+            if(turr.type.equals("Wall")){
+              g.drawRect(795,165,turr.maxhealth/24,10);
+              g.fillRect(795,165,turr.health/24,10);
+            }
+            if(turr.type.equals("Cannon")){
+              g.drawRect(795,165,turr.maxhealth/4,10);
+              g.fillRect(795,165,turr.health/4,10);
+            }
+            else{
+              g.drawRect(795,165,turr.maxhealth/2,10);
+              g.fillRect(795,165,turr.health/2,10);
+            }        
           }
         }
+        g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);
       }
-      if(wid!=null){
-        monsters.add(new Monster(wid.x-1030,wid.y,"spider",wid.level,mainFrame));
-        monsters.add(new Monster(wid.x-1050,wid.y,"spider",wid.level,mainFrame));
+      for(Bullet bull:bullets){
+        money=bull.move(monsters,g,trashB,money);
       }
-    }
-    if(selx!=-1 && tmpMon!=null){
-      tmpMon.select=false;
-      tmpMon=null;
-    }
-    if(tmpTurret!=null){
-      if(800<selx && selx<950){
-        if(180<sely && sely<205){
-          for(Tower t:turrets){
-            if(t==tmpTurret){
-              if(money>tmpTurret.ucost*tmpTurret.level){
-                money-=tmpTurret.ucost*tmpTurret.level;
-                t.levelUp();
+      ArrayList<Monster>endMons= new ArrayList<Monster>();
+      Monster wid=null;
+      if(monsters!=null){
+        for (Monster ms: monsters){
+          if(ms.x>1000){
+            if(ms.type.equals("widow")){
+              wid=ms;
+            }
+            endMons.add(ms);
+          }
+          ms.monsterDraw(g,turrets);
+          if(mainFrame.healthG<=0){
+            mainFrame.healthG=5;
+            ends=true;
+            return;
+          }
+          if(ms.x<=selx && selx<=ms.x+50){
+            if(ms.y<=sely && sely<=ms.y+50){
+              ms.select=true;
+              if(tmpMon!=null){
+                tmpMon.select=false;
+              }
+              tmpMon=ms;
+              selx=-1;
+            }
+          }
+        }
+        if(wid!=null){
+          monsters.add(new Monster(wid.x-1030,wid.y,"spider",wid.level,mainFrame));
+          monsters.add(new Monster(wid.x-1050,wid.y,"spider",wid.level,mainFrame));
+        }
+      }
+      if(selx!=-1 && tmpMon!=null){
+        tmpMon.select=false;
+        tmpMon=null;
+      }
+      if(tmpTurret!=null){
+        if(800<selx && selx<950){
+          if(180<sely && sely<205){
+            for(Tower t:turrets){
+              if(t==tmpTurret){
+                if(money>tmpTurret.ucost*tmpTurret.level){
+                  money-=tmpTurret.ucost*tmpTurret.level;
+                  t.levelUp();
+                }
               }
             }
+            tmpTurret=null;
           }
-          tmpTurret=null;
+        }
+        if(800<selx && selx<860){
+          if(240<sely && sely<265){
+            turrets.remove(tmpTurret);
+            money+=(costs[tmpTurret.indy]+(tmpTurret.ucost*tmpTurret.level))/3;
+            tmpTurret=null;
+          }
         }
       }
-      if(800<selx && selx<860){
-        if(240<sely && sely<265){
-          turrets.remove(tmpTurret);
-          money+=(costs[tmpTurret.indy]+(tmpTurret.ucost*tmpTurret.level))/3;
-          tmpTurret=null;
-        }
+      timer+=game.time();
+      if(timer>monSpawn){
+        monsters=game.loadLevel(monsters);
+        timer-=monSpawn;
       }
-    }
-    timer+=game.time();
-    if(timer>monSpawn){
-      monsters=game.loadLevel(monsters);
-      timer-=monSpawn;
-    }
-    bullets.removeAll(trashB);
-    monsters.removeAll(endMons);
-    trashB.clear();
-    volume=(double)((double)monsters.size()/(double)15);
-    if(volume>1){
-      volume=1;
-    }  
-    if(soundCount<=1){
-    if(volume<1.5 && volume>0.75){
-      monS[3].play();
-    }
-    else if(volume<0.75 && volume>0.5){
-      monS[2].play();
-    }
-    else if(volume<0.5 && volume>0.25){
-      monS[1].play();
-    }
-    else if(volume<0.25 && volume>0){
-      monS[0].play();
-    }
-    soundCount=40;
-    }
-    soundCount-=1;
+      bullets.removeAll(trashB);
+      monsters.removeAll(endMons);
+      trashB.clear();
+      volume=(double)((double)monsters.size()/(double)15);
+      if(volume>1){
+        volume=1;
+      }  
+      if(soundCount<=1){
+        if(volume<1.5 && volume>0.75){
+          monS[3].play();
+        }
+        else if(volume<0.75 && volume>0.5){
+          monS[2].play();
+        }
+        else if(volume<0.5 && volume>0.25){
+          monS[1].play();
+        }
+        else if(volume<0.25 && volume>0){
+          monS[0].play();
+        }
+        soundCount=40;
+      }
+      soundCount-=1;
     }
     else{
       if(chosenT.size()==3){
         beginPlay=true;
       }
-      int ttx=0;
-      int tty=0;
       for(Integer num:chosenT){
-        int tempx=num.intValue()%4*200;
-        int tempy=(int)(num.intValue()/4*200);
-        g.setColor(Color.red);
+        int tempx=num.intValue()*50+110;
+        int tempy=490;
+        g.setColor(Color.white);
         g.drawRect(tempx,tempy,40,40);
       }
       for(int k=0;k<6;k++){
-        g.drawImage(turretI[k],ttx,tty,40,40,null);
-        if(isDown && destx<ttx+40 && destx>ttx && desty<tty+40 && desty>tty){
+        g.drawImage(turretI[k],k*50+110,490,40,40,null);
+        if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
           chosenT.add(k);
           isDown=false;
-        }
-        ttx+=200;
-        if(ttx>=800){
-          tty+=200;
-          ttx=0;
         }
       }
     }
@@ -518,13 +508,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       else{
         if(mouseSelect.equals("Remove")){
-        for(Tower t:turrets){
-          if(t.x-50<destx && t.x+50>destx && Math.abs(t.y-desty)<30){
-            turrets.remove(t);
-            money+=(costs[t.indy]+(t.ucost*t.level))/3;
-            break;
+          for(Tower t:turrets){
+            if(t.x-50<destx && t.x+50>destx && Math.abs(t.y-desty)<30){
+              turrets.remove(t);
+              money+=(costs[t.indy]+(t.ucost*t.level))/3;
+              break;
+            }
           }
-        }
         }
       }
       isDown=false;
@@ -756,13 +746,13 @@ class Bullet{
   public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb,int money){
     int ind=0;
     if(type.equals("Basic")){
-       ind=0;
+      ind=0;
     }
     else if(type.equals("Normal")){
-       ind=1;
+      ind=1;
     }
     else if(type.equals("Good")){
-       ind=2;
+      ind=2;
     }
     else if(type.equals("Great")){
       ind=3;
@@ -1001,7 +991,7 @@ class Monster{
 //      mPicR[i-1]=new ImageIcon(type+i+"R.png").getImage();
     }
     if(type.equals("spider") | type.equals("demon")){
-       power=7;
+      power=7;
     }
     else if(type=="werewolf"){
       power=14;
@@ -1018,14 +1008,14 @@ class Monster{
     }
   }
   public void floorUp(){
-/*    if(695<x && x<705){
-      if(y==145 | y==275 | y==405){
-        y+=130;
-        x=70;       
-        picCount=0;
-        direction="R";
-      }
-    } */
+    /*    if(695<x && x<705){
+     if(y==145 | y==275 | y==405){
+     y+=130;
+     x=70;       
+     picCount=0;
+     direction="R";
+     }
+     } */
     if(55<x && x<65){
       if(y>300){
         y-=100;
@@ -1128,7 +1118,7 @@ class Monster{
     }
     if(!overlay){
       if(pushx<=0){
-      x-=speed;
+        x-=speed;
       }
       else{
         x+=3;
@@ -1143,8 +1133,8 @@ class Monster{
     }
     else{
       if(typeT.equals("Great") && (x+10)<=700){
-      pushx=10;
-      pushy=10;
+        pushx=10;
+        pushy=10;
       }
       return false;
     }
@@ -1183,40 +1173,40 @@ class GameMaker{
       return monsters;
     }
     if(spot>=0){
-    if(spawn[spot].equals("z")){
-      monsters.add(new Monster(800,600,"zombie",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("s")){
-      monsters.add(new Monster(800,600,"spider",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("s2")){
-      monsters.add(new Monster(800,600,"widow",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("n")){
-      monsters.add(new Monster(800,600,"nymph",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("k")){
-      monsters.add(new Monster(800,600,"skeleton",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("w")){
-      monsters.add(new Monster(800,600,"werewolf",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("v")){
-      monsters.add(new Monster(800,400,"vampire",monsterLvl,mainFrame));
-    }
-    else if(spawn[spot].equals("d")){
-      monsters.add(new Monster(800,600,"demon",monsterLvl,mainFrame));
-    }
-    else{
-      int num=Integer.parseInt(spawn[spot]);
-      if(num>0){
-        monsterLvl=num;
+      if(spawn[spot].equals("z")){
+        monsters.add(new Monster(800,600,"zombie",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("s")){
+        monsters.add(new Monster(800,600,"spider",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("s2")){
+        monsters.add(new Monster(800,600,"widow",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("n")){
+        monsters.add(new Monster(800,600,"nymph",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("k")){
+        monsters.add(new Monster(800,600,"skeleton",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("w")){
+        monsters.add(new Monster(800,600,"werewolf",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("v")){
+        monsters.add(new Monster(800,400,"vampire",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("d")){
+        monsters.add(new Monster(800,600,"demon",monsterLvl,mainFrame));
       }
       else{
-        waitTime=num;
+        int num=Integer.parseInt(spawn[spot]);
+        if(num>0){
+          monsterLvl=num;
+        }
+        else{
+          waitTime=num;
+        }
       }
-    }
-    spot+=1;
+      spot+=1;
     }
     return monsters;
   }
