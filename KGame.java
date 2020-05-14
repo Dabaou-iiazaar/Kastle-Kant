@@ -341,26 +341,26 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           if(turr.y<=sely && sely<=turr.y+40){
             tmpTurret=turr;
             g.drawRect(turr.x,turr.y,40,40);
-            g.drawImage(turretI[turr.indy],800,120,40,40,null);
-            g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),800,250);
+            g.drawImage(turretI[turr.indy],30,235,40,40,null);
+            g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),30,350);
             if(turr.level<4){
-              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),800,200);
-              g.drawString("Cost: "+turr.ucost*turr.level,800,225);
+              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),30,310);
+              g.drawString("Cost: "+turr.ucost*turr.level,30,330);
             }
             else{
-              g.drawString("Max Level",800,200);
+              g.drawString("Max Level",30,310);
             }
             if(turr.type.equals("Wall")){
-              g.drawRect(795,165,turr.maxhealth/24,10);
-              g.fillRect(795,165,turr.health/24,10);
+              g.drawRect(30,280,turr.maxhealth/24,10);
+              g.fillRect(30,280,turr.health/24,10);
             }
             if(turr.type.equals("Cannon")){
-              g.drawRect(795,165,turr.maxhealth/4,10);
-              g.fillRect(795,165,turr.health/4,10);
+              g.drawRect(30,280,turr.maxhealth/4,10);
+              g.fillRect(30,280,turr.health/4,10);
             }
             else{
-              g.drawRect(795,165,turr.maxhealth/2,10);
-              g.fillRect(795,165,turr.health/2,10);
+              g.drawRect(30,280,turr.maxhealth/2,10);
+              g.fillRect(30,280,turr.health/2,10);
             }        
           }
         }
@@ -406,8 +406,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         tmpMon=null;
       }
       if(tmpTurret!=null){
-        if(800<selx && selx<950){
-          if(180<sely && sely<205){
+        if(30<selx && selx<180){
+          if(295<sely && sely<310){
             for(Tower t:turrets){
               if(t==tmpTurret){
                 if(money>tmpTurret.ucost*tmpTurret.level){
@@ -419,8 +419,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             tmpTurret=null;
           }
         }
-        if(800<selx && selx<860){
-          if(240<sely && sely<265){
+        if(30<selx && selx<90){
+          if(335<sely && sely<360){
             turrets.remove(tmpTurret);
             money+=(costs[tmpTurret.indy]+(tmpTurret.ucost*tmpTurret.level))/3;
             tmpTurret=null;
