@@ -113,6 +113,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int tBox=100;
   private Image background;
   private Image castle;
+  private Image fence;
+  private Image siding;
   private Kant kant=new Kant(70,130);
   private int picInd=2;
   private int walkSpeed=4;
@@ -161,6 +163,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("castle.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
     tile2=new ImageIcon("tile2.png").getImage();
+    fence=new ImageIcon("fence.png").getImage();
+    siding=new ImageIcon("siding.png").getImage();
     shovel=new ImageIcon("shovel.jpg").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
@@ -195,7 +199,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     else{
       picInd=kant.move(kant.x,kant.y,picInd);
     }
-    if(placeTurr){
+    if(placeTurr && destx>100 && destx<900 && desty>100 && desty<600){
       int temppx=destx-50;
       int temppy=desty-50;
       boolean overlay=false;
@@ -241,6 +245,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           turrets.add(new Tower(temppx+25,temppy+25,turretType,indy,mainFrame));
         }
       }
+      placeTurr=false;
+    }
+    else{
       placeTurr=false;
     }
     if (keys[KeyEvent.VK_SPACE]){
@@ -309,6 +316,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           countT++;
         }
       }
+      g.drawImage(fence,backx+100,0,800,100,null);
+      g.drawImage(siding,backx+0,0,100,100,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
       if(backx<0){
         backx+=5;
