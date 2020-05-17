@@ -159,7 +159,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    background=new ImageIcon("background.png").getImage();
+    background=new ImageIcon("plains.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
     tile2=new ImageIcon("tile2.png").getImage();
@@ -185,13 +185,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       keys[KeyEvent.VK_BACK_SPACE]=false;
     }
     if (keys[KeyEvent.VK_W]){
-      //  picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
+      picInd=kant.move(kant.x,kant.y-walkSpeed,picInd);
     }
     else if (keys[KeyEvent.VK_A]){
       picInd=kant.move(kant.x-walkSpeed,kant.y,picInd);
     }
     else if (keys[KeyEvent.VK_S]){
-      //  picInd=kant.move(kant.x,kant.y+walkSpeed,picInd);
+      picInd=kant.move(kant.x,kant.y+walkSpeed,picInd);
     }
     else if (keys[KeyEvent.VK_D]){
       picInd=kant.move(kant.x+walkSpeed,kant.y,picInd);
@@ -302,6 +302,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         return;
       }
+      g.drawImage(background,0,0,1000,700,null);
       g.drawImage(castle,backx,100,100,500,null);
       g.drawImage(shovel,900,0,40,40,null);
       int countT=0;
@@ -323,7 +324,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         backx+=5;
         return;
       }
-      Font font = new Font("Verdana", Font.BOLD, 16);
+      Font font = new Font("Verdana", Font.BOLD, 17);
       if(game.spot==-1 && monsters.size()==0){
         mainFrame.healthG=5;
         ends=true;
@@ -331,12 +332,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         return;
       }
       g.setFont(font);//Creating the font and setting its colour.
-      g.setColor(Color.white);
+      g.setColor(Color.black);
       g.drawString("Coins: "+money,50,25);
       g.drawString("Wave "+game.wave,50,50);
-      g.setColor(Color.red);
       g.drawRect(tBox,620,40,40);
-      g.drawString("Power Levels",55,230);
       if(isDown && mouseIndex>-1){
         if(mouseSelect.equals("Remove")){
           g.drawRect(destx-20,desty-20,40,40);
@@ -369,26 +368,25 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           if(turr.y<=sely && sely<=turr.y+40){
             tmpTurret=turr;
             g.drawRect(turr.x,turr.y,40,40);
-            g.drawImage(turretI[turr.indy],30,235,40,40,null);
-            g.drawString("Sell: "+((costs[turr.indy]+(turr.ucost*turr.level))/3),30,350);
+            g.drawImage(turretI[turr.indy],200,10,40,40,null);
             if(turr.level<4){
-              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),30,310);
-              g.drawString("Cost: "+turr.ucost*turr.level,30,330);
+              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),200,60);
+              g.drawString("Cost: "+turr.ucost*turr.level,200,80);
             }
             else{
-              g.drawString("Max Level",30,310);
+              g.drawString("Max Level",200,60);
             }
             if(turr.type.equals("Wall")){
-              g.drawRect(30,280,turr.maxhealth/24,10);
-              g.fillRect(30,280,turr.health/24,10);
+              g.drawRect(250,25,turr.maxhealth/24,10);
+              g.fillRect(250,25,turr.health/24,10);
             }
-            if(turr.type.equals("Cannon")){
-              g.drawRect(30,280,turr.maxhealth/4,10);
-              g.fillRect(30,280,turr.health/4,10);
+            else if(turr.type.equals("Cannon")){
+              g.drawRect(250,25,turr.maxhealth/4,10);
+              g.fillRect(250,25,turr.health/4,10);
             }
             else{
-              g.drawRect(30,280,turr.maxhealth/2,10);
-              g.fillRect(30,280,turr.health/2,10);
+              g.drawRect(250,25,turr.maxhealth/2,10);
+              g.fillRect(250,25,turr.health/2,10);
             }        
           }
         }
@@ -423,6 +421,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               selx=-1;
             }
           }
+          if(ms.x<kant.x+50 && kant.x>ms.x){
+            if(ms.y<kant.y+50 && kant.y>ms.y){
+              if(ms.damage(1,"Kant")){
+                endMons.add(ms);
+              }
+            }
+          }
         }
         if(wid!=null){
           monsters.add(new Monster(wid.x-1030,wid.y,"spider",wid.level,mainFrame));
@@ -434,8 +439,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         tmpMon=null;
       }
       if(tmpTurret!=null){
-        if(30<selx && selx<180){
-          if(295<sely && sely<310){
+        if(200<selx && selx<350){
+          if(50<sely && sely<75){
             for(Tower t:turrets){
               if(t==tmpTurret){
                 if(money>tmpTurret.ucost*tmpTurret.level){
@@ -444,13 +449,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
                 }
               }
             }
-            tmpTurret=null;
-          }
-        }
-        if(30<selx && selx<90){
-          if(335<sely && sely<360){
-            turrets.remove(tmpTurret);
-            money+=(costs[tmpTurret.indy]+(tmpTurret.ucost*tmpTurret.level))/3;
             tmpTurret=null;
           }
         }
@@ -497,7 +495,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       for(int k=0;k<6;k++){
         g.drawImage(turretI[k],k*50+110,490,40,40,null);
         if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
-          chosenT.add(k);
+          if(!chosenT.contains(k)){
+            chosenT.add(k);
+          }
           isDown=false;
         }
       }
@@ -559,7 +559,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       if(sely<40 && selx>900 && selx<940){
         mouseSelect="Remove";
         mouseIndex=0;
-        System.out.println("Hey");
       }
       else if(620<sely && sely<660){
         for(int k=0;k<chosenT.size();k++){
@@ -587,23 +586,7 @@ class Kant{
     picCount=0;
   }
   public int move(int mx,int my,int ind){
-    if(695<mx && mx<705){
-      if(my==130 | my==260 | my==390){
-        y+=130;
-        x=70;
-      }
-      ind=2;
-      return ind;
-    }
-    else if(55<mx && mx<65){
-      if(my==260 | my==390 | my==520){
-        y-=130;
-        x=690;
-      }
-      ind=2;
-      return ind;
-    }
-    else if(mx>x){
+    if(mx>x){
       x=mx;
       if (ind>6 && ind<9){
         picCount++;
@@ -711,11 +694,17 @@ class Tower{
       bspeed=0;
       ucost=50;
     }
-    else{
+    else if(type.equals("Cannon")){
       health=200;
       damage=100;
       bspeed=4;
       ucost=100;
+    }
+    else if(type.equals("Kant")){
+      health=2000;
+      damage=20;
+      bspeed=13;
+      ucost=200;
     }
     cooldown=(30-(bspeed*2))*10;
     max=cooldown;
@@ -727,7 +716,10 @@ class Tower{
       for(Monster mons: ms){
         if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
           cooldown=max;
-          if(!type.equals("Wall")){
+          if(type.equals("Kant")){
+          //  bs.add(new Bullet(kant.x,kant.y,type,bspeed,damage));
+          }
+          else if(!type.equals("Wall")){
             bs.add(new Bullet(x,y,type,bspeed,damage));
           }
           return true;
@@ -1125,26 +1117,26 @@ class Monster{
       }
     }
     if(select){
-      g.drawImage(mPic()[picCount/5],800,120,40,40,null);
-      int barNum=(maxhp/2)/150+1;
+      g.drawImage(mPic()[picCount/5],200,20,40,40,null);
+      int barNum=(maxhp/2)/300+1;
       for(int i=0; i<barNum; i++){
         if(i+1==barNum){
-          g.drawRect(795,185+(20*i),(maxhp/2)%150,10);
+          g.drawRect(250,20+(20*i),(maxhp/2)%300,10);
         }
         else{
-          g.drawRect(795,185+(20*i),150,10);
+          g.drawRect(250,20+(20*i),300,10);
         }
       }
-      barNum=(hp/2)/150+1;
+      barNum=(hp/2)/300+1;
       for(int i=0; i<barNum; i++){
         if(i+1==barNum){
-          g.fillRect(795,185+(20*i),(hp/2)%150,10);
+          g.fillRect(250,20+(20*i),(hp/2)%300,10);
         }
         else{
-          g.fillRect(795,185+(20*i),150,10);
+          g.fillRect(250,20+(20*i),300,10);
         }
       }
-      g.drawString("Level "+level,795,175);
+      g.drawString("Level "+level,180,80);
     }
     picCount+=1;
     if(picCount/5==listLen){
@@ -1242,9 +1234,9 @@ class GameMaker{
         }
       }
       spot+=1;
-      monsRow+=100;
+      monsRow+=randint(0,4)*100;
       if(monsRow>=600){
-        monsRow=100;
+        monsRow=100+randint(0,4)*100;
       }
     }
     return monsters;
@@ -1258,4 +1250,7 @@ class GameMaker{
     }
     return waitTime;
   } 
+  public static int randint(int low, int high){   // Gets a random integer between a set range
+    return (int)(Math.random()*(high-low+1)+low);
+  }
 }
