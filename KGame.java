@@ -115,7 +115,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Image castle;
   private Image fence;
   private Image siding;
-  private Kant kant=new Kant(70,130);
+  private Kant kant=new Kant(120,120);
   private int picInd=2;
   private int walkSpeed=4;
   public int timer=0;
@@ -421,8 +421,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               selx=-1;
             }
           }
-          if(ms.x<kant.x+50 && kant.x>ms.x){
-            if(ms.y<kant.y+50 && kant.y>ms.y){
+          if(ms.x<kant.x+90 && kant.x<ms.x){
+            if(ms.y<kant.y+40 && kant.y-40<ms.y){
               if(ms.damage(1,"Kant")){
                 endMons.add(ms);
               }
@@ -587,7 +587,9 @@ class Kant{
   }
   public int move(int mx,int my,int ind){
     if(mx>x){
-      x=mx;
+      if(mx<850){
+        x=mx;
+      }
       if (ind>6 && ind<9){
         picCount++;
         if(picCount==3){
@@ -601,7 +603,9 @@ class Kant{
       return ind;
     }
     else if(mx<x){
-      x=mx;
+      if(mx>100){
+        x=mx;
+      }
       if (ind>3 && ind<6){
         picCount++;
         if(picCount==3){
@@ -615,7 +619,9 @@ class Kant{
       return ind;
     }
     else if(my>y){
-      y=my;
+      if(my<550){
+        y=my;
+      }
       if (ind>0 && ind<3){
         picCount++;
         if(picCount==3){
@@ -629,7 +635,9 @@ class Kant{
       return ind;
     }
     else if(my<y){
-      y=my;
+      if(my>100){
+        y=my;
+      }
       if (ind>9 && ind<12){
         picCount++;
         if(picCount==3){
@@ -700,12 +708,6 @@ class Tower{
       bspeed=4;
       ucost=100;
     }
-    else if(type.equals("Kant")){
-      health=2000;
-      damage=20;
-      bspeed=13;
-      ucost=200;
-    }
     cooldown=(30-(bspeed*2))*10;
     max=cooldown;
     maxhealth=health;
@@ -716,10 +718,7 @@ class Tower{
       for(Monster mons: ms){
         if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
           cooldown=max;
-          if(type.equals("Kant")){
-          //  bs.add(new Bullet(kant.x,kant.y,type,bspeed,damage));
-          }
-          else if(!type.equals("Wall")){
+          if(!type.equals("Wall")){
             bs.add(new Bullet(x,y,type,bspeed,damage));
           }
           return true;
