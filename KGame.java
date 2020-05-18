@@ -98,16 +98,19 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
-  public Image[] turretI=new Image[6];
+  public Image[] turretI=new Image[7];
+  public Image[] coinsI=new Image[6];
   public Image tile1;
   public Image tile2;
   public Image shovel;
-  public int[] costs={25,50,100,175,70,100};
+  public int[] costs={25,50,100,175,70,100,10};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
+  public ArrayList<Coin> coins=new ArrayList<Coin>();
+  public ArrayList<Coin> trashC=new ArrayList<Coin>();
   public boolean beginPlay=false;
   public String turretType = "Basic";
   public int tBox=100;
@@ -138,7 +141,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int mouseIndex=-1;
   public boolean placeTurr=false;
   public int backx=-200;
-  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon"};
+  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun"};
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
     keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -157,8 +160,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       canS[k]=new Sound("cannon"+(k+1)+".wav");
       monS[k]=new Sound("monsterS"+(k+1)+".wav");
     }
+    for(int k=0;k<6;k++){
+      coinsI[k]=new ImageIcon("coin"+(k+1)+".png").getImage();
+    }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
+    turretI[6]=new ImageIcon("sun.png").getImage();
     background=new ImageIcon("plains.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
@@ -237,8 +244,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else if(turretType.equals("Wall")){
           indy=4;
         }
-        else{
+        else if(turretType.equals("Cannon")){
           indy=5;
+        }
+        else if(turretType.equals("Sun")){
+          indy=6;
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
@@ -275,8 +285,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else if(turretType.equals("Wall")){
           indy=4;
         }
-        else{
+        else if(turretType.equals("Cannon")){
           indy=5;
+        }
+        else if(turretType.equals("Sun")){
+          indy=6;
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
@@ -349,7 +362,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       int shotC=1;
       for(Tower turr:turrets){                        //Turret Drawing
-        if(turr.shoot(bullets,monsters) && shotC>0){
+        if(turr.shoot(bullets,monsters,coins) && shotC>0){
           if(turr.type.equals("Basic")){
             canS[0].play();
           }
@@ -394,6 +407,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       for(Bullet bull:bullets){
         money=bull.move(monsters,g,trashB,money);
+      }
+      for(Coin cc:coins){
+        cc.draw(g,coinsI);
       }
       ArrayList<Monster>endMons= new ArrayList<Monster>();
       Monster wid=null;
@@ -460,7 +476,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       bullets.removeAll(trashB);
       monsters.removeAll(endMons);
+      coins.removeAll(trashC);
       trashB.clear();
+      trashC.clear();
       volume=(double)((double)monsters.size()/(double)15);
       if(volume>1){
         volume=1;
@@ -492,7 +510,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.setColor(Color.white);
         g.drawRect(tempx,tempy,40,40);
       }
-      for(int k=0;k<6;k++){
+      for(int k=0;k<7;k++){
         g.drawImage(turretI[k],k*50+110,490,40,40,null);
         if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
           if(!chosenT.contains(k)){
@@ -556,6 +574,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       isDown=true;
       selx=e.getX();
       sely=e.getY();
+      for(Coin cc:coins){
+        if(selx>cc.x && selx<cc.x+20 && sely>cc.y && sely<cc.y+20){
+          money+=cc.val;
+          trashC.add(cc);
+        }
+      }
       if(sely<40 && selx>900 && selx<940){
         mouseSelect="Remove";
         mouseIndex=0;
@@ -708,17 +732,26 @@ class Tower{
       bspeed=4;
       ucost=100;
     }
+    else if(type.equals("Sun")){
+      health=120;
+      bspeed=0;
+    }
     cooldown=(30-(bspeed*2))*10;
     max=cooldown;
     maxhealth=health;
     mainFrame=m;
   }
-  public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms){
+  public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms,ArrayList<Coin> cs){
     if(cooldown<=0){
+      if(type.equals("Sun")){
+        cs.add(new Coin(x,y,10));
+        cooldown=max;
+        return false;
+      }
       for(Monster mons: ms){
         if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
           cooldown=max;
-          if(!type.equals("Wall")){
+          if(!type.equals("Wall") && !type.equals("Sun")){
             bs.add(new Bullet(x,y,type,bspeed,damage));
           }
           return true;
@@ -1251,5 +1284,23 @@ class GameMaker{
   } 
   public static int randint(int low, int high){   // Gets a random integer between a set range
     return (int)(Math.random()*(high-low+1)+low);
+  }
+}
+class Coin{
+  int x;
+  int y;
+  int val;
+  int indy=0;
+  public Coin(int sx,int sy, int vall){
+    x=(int)(Math.random()*(sx+20-sx+20+1)+sx-20);
+    y=(int)(Math.random()*(sy+20-sy+20+1)+sy-20);
+    val=vall;
+  }
+  public void draw(Graphics g,Image[] i){
+    g.drawImage(i[indy],x,y,20,20,null);
+    indy+=1;
+    if(indy==6){
+      indy=0;
+    }
   }
 }
