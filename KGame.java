@@ -207,27 +207,20 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       picInd=kant.move(kant.x,kant.y,picInd);
     }
     if(placeTurr && destx>100 && destx<900 && desty>100 && desty<600){
-      int temppx=destx-50;
-      int temppy=desty-50;
       boolean overlay=false;
-      if(temppy%100>49 && temppy<660){
-        temppy+=51;
-      }
-      temppy=temppy/100;
-      temppy=temppy*100;
-      if(temppx%100>49 && temppx<990){
-        temppx+=51;
-      }
-      temppx=temppx/100;
-      temppx=temppx*100;
-      
       for(Tower t:turrets){
-        if(t.x-40<temppx && temppx<t.x+40 && temppy==t.y){
+        if(t.x-30<destx && destx<t.x+70 && t.y-30<desty && desty<t.y+70){
           overlay=true;
           break;
         }
       }
       if(!overlay){
+        int temppx=destx;
+        int temppy=desty;
+        temppy=temppy/100;
+        temppy=temppy*100;
+        temppx=temppx/100;
+        temppx=temppx*100;
         int indy=0;
         if(turretType.equals("Basic")){
           indy=0;
@@ -252,7 +245,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if (money-costs[indy]>=0){
           money-=costs[indy];
-          turrets.add(new Tower(temppx+25,temppy+25,turretType,indy,mainFrame));
+          turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame));
         }
       }
       placeTurr=false;
@@ -261,6 +254,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       placeTurr=false;
     }
     if (keys[KeyEvent.VK_SPACE]){
+      /*
       boolean overlay=false;
       for(Tower t:turrets){
         if(t.x-40<kant.x && kant.x<t.x+40 && kant.y+30==t.y){
@@ -296,6 +290,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           turrets.add(new Tower(kant.x,kant.y+30,turretType,indy,mainFrame));
         }
       }
+      */
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
