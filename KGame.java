@@ -853,7 +853,9 @@ class Bullet{
 class Menu extends JPanel{
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private Image screen;
+  private Image rulePic;
   private KGame mainFrame;
+  private boolean rules=false;
   public boolean ready=false;
   public Menu(KGame m){
     mainFrame=m;
@@ -862,6 +864,7 @@ class Menu extends JPanel{
     desty=-20;
     setSize(800,600);
     screen=new ImageIcon("KantScreen.jpg").getImage();
+    rulePic=new ImageIcon("rules.png").getImage();
   }
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
@@ -871,6 +874,9 @@ class Menu extends JPanel{
   
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);
+    if(rules){
+      g.drawImage(rulePic,0,0,1000,700,null);
+    }
   }
   
   class clickListener implements MouseListener{//Class for checking for the user's mouse inputs.
@@ -883,10 +889,22 @@ class Menu extends JPanel{
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
-      if(410<destx && destx<610){
+      if(410<destx && destx<610 && !rules){
         if(210<desty && desty<350){
           mainFrame.kind="Level";
           mainFrame.change=true;
+        }
+      }
+      if(410<destx && destx<610){
+        if(370<desty && desty<510){
+          rules=true;
+        }
+      }
+      if(rules){
+        if(0<destx && destx<60){
+          if(0<desty && desty<60){
+            rules=false;
+          }
         }
       }
     }
