@@ -98,7 +98,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[12];
-  public Image[] turretI=new Image[7];
+  public Image[] turretI=new Image[8];
   public Image[] coinsI=new Image[6];
   public Image tile1;
   public Image tile2;
@@ -142,6 +142,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean placeTurr=false;
   public int backx=-200;
   public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun"};
+  public ArrayList<Samurai>sams= new ArrayList<Samurai>();
+  public Image[]samwalk=new Image[6];
+  public Image[]samwalkb=new Image[6];
+  public Image[]samatk=new Image[9];
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; 
     keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -163,9 +167,17 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     for(int k=0;k<6;k++){
       coinsI[k]=new ImageIcon("coin"+(k+1)+".png").getImage();
     }
+    for(int k=0; k<6; k++){
+      samwalk[k]=new ImageIcon("samwalk"+(k+1)+".png").getImage();
+      samwalkb[k]=new ImageIcon("samwalk"+(k+1)+"b.png").getImage();
+    }
+    for(int k=0; k<9; k++){
+      samatk[k]=new ImageIcon("samatk"+(k+1)+".png").getImage();
+    }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    turretI[6]=new ImageIcon("sun.png").getImage();
+    turretI[6]=coinsI[0];
+    turretI[7]=samatk[0];
     background=new ImageIcon("plains.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
@@ -177,6 +189,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     won=new ImageIcon("winner.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame);
+    sams.add(new Samurai(200,200));
   }
   
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
@@ -403,6 +416,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       for(Bullet bull:bullets){
         money=bull.move(monsters,g,trashB,money);
       }
+      for(Samurai sam:sams){
+        sam.drawSam(g,monsters,samwalk,samwalkb,samatk);
+      }
       for(Coin cc:coins){
         cc.draw(g,coinsI);
       }
@@ -416,7 +432,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             }
             endMons.add(ms);
           }
-          ms.monsterDraw(g,turrets);
+          ms.monsterDraw(g,turrets,sams);
           if(mainFrame.healthG<=0){
             mainFrame.healthG=5;
             ends=true;
@@ -505,7 +521,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.setColor(Color.white);
         g.drawRect(tempx,tempy,40,40);
       }
-      for(int k=0;k<7;k++){
+      for(int k=0;k<8;k++){
         g.drawImage(turretI[k],k*50+110,490,40,40,null);
         if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
           if(!chosenT.contains(k)){
@@ -1028,7 +1044,7 @@ class Monster{
     }
     
     
-    if(type.equals("nymph") | type.equals("vampire")){
+    if(type.equals("nymph")){
       hp=150;
     }
     else if(type.equals("demon")){
@@ -1104,7 +1120,7 @@ class Monster{
   public Image[] mPic(){
     return mPicL;
   }
-  public void monsterDraw(Graphics g,ArrayList<Tower> turrets){
+  public void monsterDraw(Graphics g,ArrayList<Tower> turrets, ArrayList<Samurai>sams){
     floorUp();
     boolean overlay=false;
     boolean shooting=false;
@@ -1141,6 +1157,16 @@ class Monster{
         }
       }
     }
+    ArrayList<Samurai>tmpsams=new ArrayList<Samurai>();
+    for(Samurai s:sams){
+      if(s.y==y && s.x+50>x && x>s.x){
+        if(s.damage(power)){
+          tmpsams.add(s);
+        }
+        overlay=true;
+      }
+    }
+    sams.removeAll(tmpsams);
     if(type.equals("spider") | type.equals("widow")){
       g.drawImage(mPic()[picCount/5],x,y+10,55,35,null);
       if(select){
@@ -1198,7 +1224,14 @@ class Monster{
     }
   }
   public boolean damage(int hurt,String typeT){
-    hp-=hurt;
+    if(type.equals("vampire")){
+      if(!typeT.equals("Basic") && !typeT.equals("Normal")){
+        hp-=hurt;
+      }
+    }
+    else{
+      hp-=hurt;
+    }    
     if (hp<=0){
       return true;
     }
@@ -1315,5 +1348,65 @@ class Coin{
     if(indy==6){
       indy=0;
     }
+  }
+}
+class Samurai{
+  public int x;
+  public int y;
+  public int health;
+  public int damage;
+  public String action="r";
+  public int spot=0;
+  public int attack=0;
+  public Samurai(int sx, int sy){
+    x=sx; y=sy+20;
+    health=1000;
+    damage=3;
+  }
+  public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk){
+    String tmpA=action;
+    ArrayList<Monster>tmpmons=new ArrayList<Monster>();
+    for(Monster m:monsters){
+      if(m.y==y && m.x<x+100 && m.x>x){
+        action="a";
+        g.drawImage(samatk[attack/4],x,y,50,50,null);
+        if(m.damage(2,"Samurai")){
+          tmpmons.add(m);
+        }
+        attack+=1;
+        if(attack==36){
+          attack=0;
+        }
+      }
+    }
+    monsters.removeAll(tmpmons);
+    if(action.equals("r")){
+      g.drawImage(samwalk[spot/4],x,y,50,50,null);
+      x+=1;
+    }
+    else if(action.equals("l")){
+      g.drawImage(samwalkb[spot/4],x,y,50,50,null);
+      x-=1;
+    }
+    spot+=1;
+    if(spot==24){
+      spot=0;
+    }
+    if(x>800){
+      action="l";
+    }
+    if(x<100){
+      action="r";
+    }
+    if(action.equals("a")){
+      action=tmpA;
+    }
+  }
+  public boolean damage(int hurt){
+    health-=hurt;
+    if(health<=0){
+      return true;
+    }
+    return false;
   }
 }
