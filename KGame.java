@@ -30,7 +30,7 @@ public class KGame extends JFrame{//Main, public class.
     game = new GamePanel(this);
     level=new Level(this);
     add(menu);
-    
+    startMidi("title.mid",-1);
     setResizable(false);
     setVisible(true);
   }
@@ -43,18 +43,20 @@ public class KGame extends JFrame{//Main, public class.
         remove(level);
         add(game);
         midiPlayer.stop();
+        startMidi("game.mid",-1);
       }
       if(change==true && kind.equals("Menu")){
         change=false;
         remove(game);
         add(menu);
+        startMidi("title.mid",-1);
+        midiPlayer.stop();
       }
       if(change==true && kind.equals("Level")){
         change=false;
         remove(menu);
         remove(game);
         add(level);
-        startMidi("Moz2.mid",-1);
       }
       if(kind.equals("Game") && game!= null && game.ready){
         game.move();
@@ -176,7 +178,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    turretI[6]=coinsI[0];
+    turretI[6]=new ImageIcon("sun.png").getImage();
     turretI[7]=samatk[0];
     background=new ImageIcon("plains.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
