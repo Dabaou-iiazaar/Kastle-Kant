@@ -30,7 +30,7 @@ public class KGame extends JFrame{//Main, public class.
     game = new GamePanel(this);
     level=new Level(this);
     add(menu);
-    startMidi("title.mid",-1);
+    
     setResizable(false);
     setVisible(true);
   }
@@ -43,20 +43,18 @@ public class KGame extends JFrame{//Main, public class.
         remove(level);
         add(game);
         midiPlayer.stop();
-        startMidi("game.mid",-1);
       }
       if(change==true && kind.equals("Menu")){
         change=false;
         remove(game);
         add(menu);
-        startMidi("title.mid",-1);
-        midiPlayer.stop();
       }
       if(change==true && kind.equals("Level")){
         change=false;
         remove(menu);
         remove(game);
         add(level);
+        startMidi("Moz2.mid",-1);
       }
       if(kind.equals("Game") && game!= null && game.ready){
         game.move();
@@ -99,7 +97,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private KGame mainFrame;
   public boolean ready=false;
   private boolean [] keys;
-  public Image[] kantMoves=new Image[12];
+  public Image[] kantMoves=new Image[13];
   public Image[] turretI=new Image[8];
   public Image[] coinsI=new Image[6];
   public Image tile1;
@@ -158,7 +156,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     addKeyListener(this);
     tmpMon=null;
     tmpTurret=null;
-    for(int k=0;k<12;k++){
+    for(int k=0;k<13;k++){
       kantMoves[k]=new ImageIcon("Kant "+(k+1)+".png").getImage();
     }
     for(int k=0;k<4;k++){
@@ -178,7 +176,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    turretI[6]=new ImageIcon("sun.png").getImage();
+    turretI[6]=coinsI[0];
     turretI[7]=samatk[0];
     background=new ImageIcon("plains.png").getImage();
     castle=new ImageIcon("castle.png").getImage();
@@ -237,30 +235,38 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         temppx=temppx/100;
         temppx=temppx*100;
         int indy=0;
-        if(turretType.equals("Basic")){
-          indy=0;
+        if(turretType.equals("Samurai")){
+          if(money-65>0){
+            sams.add(new Samurai(temppx,temppy));
+            money-=65;
+          }
         }
-        else if(turretType.equals("Normal")){
-          indy=1;
-        }
-        else if(turretType.equals("Good")){
-          indy=2;
-        }
-        else if(turretType.equals("Great")){
-          indy=3;
-        }
-        else if(turretType.equals("Wall")){
-          indy=4;
-        }
-        else if(turretType.equals("Cannon")){
-          indy=5;
-        }
-        else if(turretType.equals("Sun")){
-          indy=6;
-        }
-        if (money-costs[indy]>=0){
-          money-=costs[indy];
-          turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame));
+        else{
+          if(turretType.equals("Basic")){
+            indy=0;
+          }
+          else if(turretType.equals("Normal")){
+            indy=1;
+          }
+          else if(turretType.equals("Good")){
+            indy=2;
+          }
+          else if(turretType.equals("Great")){
+            indy=3;
+          }
+          else if(turretType.equals("Wall")){
+            indy=4;
+          }
+          else if(turretType.equals("Cannon")){
+            indy=5;
+          }
+          else if(turretType.equals("Sun")){
+            indy=6;
+          }         
+          if (money-costs[indy]>=0){
+            money-=costs[indy];
+            turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame));          
+          }
         }
       }
       placeTurr=false;
@@ -343,6 +349,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       g.drawImage(fence,backx+100,0,800,100,null);
       g.drawImage(siding,backx+0,0,100,100,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
+      if(kant.attack){
+        g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
+      }
       if(backx<0){
         backx+=5;
         return;
@@ -419,7 +428,17 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         money=bull.move(monsters,g,trashB,money);
       }
       for(Samurai sam:sams){
-        sam.drawSam(g,monsters,samwalk,samwalkb,samatk);
+        if(sam.select){
+          if(200<selx && selx<350){
+            if(50<sely && sely<75){
+              if(money-(30+(sam.level*70))>0){
+                money-=30+(sam.level*70);
+                sam.levelUp();
+              }
+            }
+          }
+        }
+        sam.drawSam(g,monsters,samwalk,samwalkb,samatk, selx, sely);
       }
       for(Coin cc:coins){
         cc.draw(g,coinsI);
@@ -450,10 +469,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               selx=-1;
             }
           }
-          if(ms.x<kant.x+90 && kant.x<ms.x){
-            if(ms.y<kant.y+40 && kant.y-40<ms.y){
-              if(ms.damage(1,"Kant")){
-                endMons.add(ms);
+          if(kant.attack){
+            if(ms.x<kant.x+70 && kant.x-70<ms.x){
+              if(ms.y<kant.y+40 && kant.y-40<ms.y){
+                if(ms.damage(1,"Kant")){
+                  endMons.add(ms);
+                }
               }
             }
           }
@@ -601,8 +622,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         for(int k=0;k<chosenT.size();k++){
           int tempx=180+k*80;
           if(selx<tempx && selx+80>tempx){
-            turretType=typesT[chosenT.get(k).intValue()];
-            mouseSelect=turretType;
+            if(chosenT.get(k)==7){
+              turretType="Samurai";
+              mouseSelect="Samurai";
+            }
+            else{
+              turretType=typesT[chosenT.get(k).intValue()];
+              mouseSelect=turretType;
+            }
             tBox=tempx-80;
             mouseIndex=chosenT.get(k).intValue();
           }
@@ -617,12 +644,14 @@ class Kant{
   public int x;
   public int y;
   public int picCount;
+  public boolean attack=false;
   public Kant(int placex,int placey){
     x=placex;
     y=placey;
     picCount=0;
   }
   public int move(int mx,int my,int ind){
+    attack=false;
     if(mx>x){
       if(mx<850){
         x=mx;
@@ -688,7 +717,8 @@ class Kant{
       return ind;
     }
     else{
-      ind=2;
+      ind=13;
+      attack=true;
       return ind;
     }
   }
@@ -1356,16 +1386,21 @@ class Samurai{
   public int x;
   public int y;
   public int health;
+  public int maxhealth;
   public int damage;
+  public int level=1;;
   public String action="r";
   public int spot=0;
   public int attack=0;
+  public boolean select=false;
+  public int tmppt=0;
   public Samurai(int sx, int sy){
     x=sx; y=sy+20;
     health=1000;
+    maxhealth=health;
     damage=3;
   }
-  public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk){
+  public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk, int selx, int sely){
     String tmpA=action;
     ArrayList<Monster>tmpmons=new ArrayList<Monster>();
     for(Monster m:monsters){
@@ -1403,6 +1438,28 @@ class Samurai{
     if(action.equals("a")){
       action=tmpA;
     }
+    if(select){
+      if(tmppt==selx*sely){
+        g.drawRect(x,y,50,50);
+        g.drawImage(samatk[0],200,10,40,40,null);
+        if(level<4){
+          g.drawString("Level Up | "+level+" -> "+(level+1),200,60);
+          g.drawString("Cost: "+(level*70),200,80);
+        }
+        else{
+          g.drawString("Max Level",200,60);
+        }
+        g.drawRect(250,25,maxhealth/16,10);
+        g.fillRect(250,25,health/16,10);
+      }
+      else{
+        select=false;
+      }
+    }
+    if(x<selx && selx<x+50 && y<sely && sely<y+50){
+      select=true;
+      tmppt=selx*sely;
+    }
   }
   public boolean damage(int hurt){
     health-=hurt;
@@ -1410,5 +1467,13 @@ class Samurai{
       return true;
     }
     return false;
+  }
+  public void levelUp(){
+    if(level<4){
+      maxhealth+=maxhealth/2;
+      health=maxhealth;
+      damage+=damage/2;
+      level+=1;
+    }
   }
 }
