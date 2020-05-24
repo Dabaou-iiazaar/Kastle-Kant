@@ -191,7 +191,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     won=new ImageIcon("winner.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame);
-    sams.add(new Samurai(200,200));
   }
   
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
@@ -925,7 +924,7 @@ class Menu extends JPanel{
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);
     if(rules){
-      g.drawImage(rulePic,0,0,1000,700,null);
+      g.drawImage(rulePic,0,0,995,665,null);
     }
   }
   
