@@ -470,7 +470,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               selx=-1;
             }
           }
-          if(kant.attack){
+          if(kant.attack && !ms.type.equals("ghost")){
             if(ms.x<kant.x+70 && kant.x-70<ms.x){
               if(ms.y<kant.y+40 && kant.y-40<ms.y){
                 if(ms.damage(1,"Kant")){
@@ -962,7 +962,7 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level1={"g","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
   public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","n","k","k","w","s","s","2","z","z","z","n","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","k","w","w"};
   public String[] level3={"n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
   public String[] level4={"z","z","z","z","z","z","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
@@ -1044,9 +1044,7 @@ class Monster{
     y=placey;
     level=monlevel;
     picCount=0;
-    type=mtype;
-    
-    
+    type=mtype;    
     if(type.equals("werewolf")){
       listLen=10;
       mPicL=new Image[listLen];
@@ -1067,7 +1065,7 @@ class Monster{
       listLen=13;
       mPicL=new Image[listLen];
     }
-    else if(type.equals("vampire")){
+    else if(type.equals("vampire") | type.equals("ghost")){
       listLen=4;
       mPicL=new Image[listLen];
     }
@@ -1180,7 +1178,7 @@ class Monster{
     }
     else{
       for(Tower t:turrets){
-        if(t.x-40<x && x<t.x+40 && Math.abs(t.y-y)<30){
+        if(t.x-40<x && x<t.x+40 && Math.abs(t.y-y)<30 && !type.equals("ghost")){
           overlay=true;
           if(t.damage(power)){
             turrets.remove(t);
@@ -1192,7 +1190,7 @@ class Monster{
     }
     ArrayList<Samurai>tmpsams=new ArrayList<Samurai>();
     for(Samurai s:sams){
-      if(s.y==y && s.x+50>x && x>s.x){
+      if(s.y==y && s.x+50>x && x>s.x && !type.equals("ghost")){
         if(s.damage(power)){
           tmpsams.add(s);
         }
@@ -1277,8 +1275,7 @@ class Monster{
     }
   }
 }
-class Sound
-{
+class Sound{
   File wavFile;
   AudioClip sound;
   public Sound(String name)
@@ -1334,6 +1331,9 @@ class GameMaker{
       }
       else if(spawn[spot].equals("d")){
         monsters.add(new Monster(800,monsRow+20,"demon",monsterLvl,mainFrame));
+      }
+      else if(spawn[spot].equals("g")){
+        monsters.add(new Monster(800,monsRow+20,"ghost",monsterLvl,mainFrame));
       }
       else{
         int num=Integer.parseInt(spawn[spot]);
@@ -1408,8 +1408,10 @@ class Samurai{
       if(m.y==y && m.x<x+100 && m.x>x){
         action="a";
         g.drawImage(samatk[attack/4],x,y,50,50,null);
-        if(m.damage(2,"Samurai")){
-          tmpmons.add(m);
+        if(!m.type.equals("ghost")){
+          if(m.damage(2,"Samurai")){
+            tmpmons.add(m);
+          }
         }
         attack+=1;
         if(attack==36){
