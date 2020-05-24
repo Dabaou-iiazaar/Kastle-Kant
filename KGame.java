@@ -950,8 +950,8 @@ class Menu extends JPanel{
         }
       }
       if(rules){
-        if(0<destx && destx<60){
-          if(0<desty && desty<60){
+        if(0<destx && destx<100){
+          if(0<desty && desty<80){
             rules=false;
           }
         }
