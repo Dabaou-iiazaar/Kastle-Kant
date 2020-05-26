@@ -100,12 +100,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[13];
-  public Image[] turretI=new Image[9];
+  public Image[] turretI=new Image[10];
   public Image[] coinsI=new Image[6];
   public Image tile1;
   public Image tile2;
   public Image shovel;
-  public int[] costs={25,50,100,175,70,100,10,100,25};
+  public int[] costs={25,50,100,175,70,100,10,100,100,25};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
@@ -143,7 +143,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int mouseIndex=-1;
   public boolean placeTurr=false;
   public int backx=-200;
-  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun","Samurai","Spike"};
+  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun","Samurai","Spike","Mine"};
   public ArrayList<Samurai>sams= new ArrayList<Samurai>();
   public Image[]samwalk=new Image[6];
   public Image[]samwalkb=new Image[6];
@@ -181,7 +181,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[6]=new ImageIcon("sun.png").getImage();
     turretI[7]=samatk[0];
     turretI[8]=new ImageIcon("spike.png").getImage();
-    background=new ImageIcon("bakki.png").getImage();
+    turretI[9]=new ImageIcon("Mine.png").getImage();
+    background=new ImageIcon("levelselect.png").getImage();
     castle=new ImageIcon("gate.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
     tile2=new ImageIcon("tile2.png").getImage();
@@ -268,6 +269,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           else if(turretType.equals("Spike")){
             indy=8;
           }
+          else if(turretType.equals("Mine")){
+            indy=9;
+          }
           if (money-costs[indy]>=0){
             money-=costs[indy];
             turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame));          
@@ -278,45 +282,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     else{
       placeTurr=false;
-    }
-    if (keys[KeyEvent.VK_SPACE]){
-      /*
-      boolean overlay=false;
-      for(Tower t:turrets){
-        if(t.x-40<kant.x && kant.x<t.x+40 && kant.y+30==t.y){
-          overlay=true;
-          break;
-        }
-      }
-      if(!overlay){
-        int indy=0;
-        if(turretType.equals("Basic")){
-          indy=0;
-        }
-        else if(turretType.equals("Normal")){
-          indy=1;
-        }
-        else if(turretType.equals("Good")){
-          indy=2;
-        }
-        else if(turretType.equals("Great")){
-          indy=3;
-        }
-        else if(turretType.equals("Wall")){
-          indy=4;
-        }
-        else if(turretType.equals("Cannon")){
-          indy=5;
-        }
-        else if(turretType.equals("Sun")){
-          indy=6;
-        }
-        if (money-costs[indy]>=0){
-          money-=costs[indy];
-          turrets.add(new Tower(kant.x,kant.y+30,turretType,indy,mainFrame));
-        }
-      }
-      */
     }
   }
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
@@ -336,7 +301,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         return;
       }
-      //g.drawImage(background,0,0,1000,700,null);
+      g.drawImage(background,0,0,1000,700,null); // This needs to be here so there are no after trails being left on the right side of the screen
       g.drawImage(shovel,900,0,40,40,null);
       int countT=0;
       for(int xxx=backx;xxx<backx+900;xxx+=100){
@@ -549,7 +514,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.setColor(Color.white);
         g.drawRect(tempx,tempy,40,40);
       }
-      for(int k=0;k<9;k++){
+      for(int k=0;k<10;k++){
         g.drawImage(turretI[k],k*50+110,490,40,40,null);
         if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
           if(!chosenT.contains(k)){
@@ -597,6 +562,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             if(t.x-50<destx && t.x+50>destx && Math.abs(t.y-desty)<30){
               turrets.remove(t);
               money+=(costs[t.indy]+(t.ucost*t.level))/3;
+              break;
+            }
+          }
+          for(Samurai s:sams){
+            if(s.x-50<destx && s.x+50>destx && Math.abs(s.y-desty)<30){
+              sams.remove(s);
+              money+=30*s.level;
               break;
             }
           }
@@ -789,6 +761,11 @@ class Tower{
       damage=1;
       bspeed=15;
     }
+    else if(type.equals("Mine")){
+      health=1;
+      damage=30;
+      bspeed=15;
+    }
     cooldown=(30-(bspeed*2))*10;
     max=cooldown;
     maxhealth=health;
@@ -801,26 +778,28 @@ class Tower{
         cooldown=max;
         return false;
       }
-      if(type.equals("Spike")){
+      else if(type.equals("Spike") | type.equals("Mine")){
         for(Monster mons: ms){
-          if((Math.abs(y-mons.y)<30) && mons.x<=x+42 && mons.x>(x-66)){
-            bs.add(new Bullet(x,y,type,0,1));
+          if((Math.abs(y-mons.y)<30) && mons.x<=x+42 && mons.x>(x-66) && !mons.type.equals("ghost")){
+            bs.add(new Bullet(x,y,type,0,damage));
             cooldown=max;
             return false;
           }
         }
         return false;
       }
-      for(Monster mons: ms){
-        if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
-          cooldown=max;
-          if(!type.equals("Wall") && !type.equals("Sun")){
-            bs.add(new Bullet(x,y,type,bspeed,damage));
+      else{
+        for(Monster mons: ms){
+          if((Math.abs(y-mons.y)<30) && mons.x<=x+300 && mons.x>x){
+            cooldown=max;
+            if(!type.equals("Wall")){
+              bs.add(new Bullet(x,y,type,bspeed,damage));
+            }
+            return true;
           }
-          return true;
         }
+        return false;
       }
-      return false;
     }
     else{
       cooldown-=5;
@@ -1286,7 +1265,7 @@ class Monster{
     }
     else{
       hp-=hurt;
-    }    
+    }   
     if (hp<=0){
       return true;
     }
