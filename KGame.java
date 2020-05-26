@@ -105,12 +105,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image tile1;
   public Image tile2;
   public Image shovel;
+  public Image stone;
   public int[] costs={25,50,100,175,70,100,10,100,100,25};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
   public ArrayList<Bullet> bullets=new ArrayList<Bullet>();
   public ArrayList<Bullet> trashB=new ArrayList<Bullet>();
+  public ArrayList<Tower> trashT=new ArrayList<Tower>();
   public ArrayList<Coin> coins=new ArrayList<Coin>();
   public ArrayList<Coin> trashC=new ArrayList<Coin>();
   public boolean beginPlay=false;
@@ -131,6 +133,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Tower tmpTurret;
   public Sound[] canS=new Sound[4];
   public Sound[] monS=new Sound[4];
+  public Sound explosion;
   private double soundC=-1;
   public GameMaker game;
   public int soundCount=40;
@@ -166,6 +169,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       canS[k]=new Sound("cannon"+(k+1)+".wav");
       monS[k]=new Sound("monsterS"+(k+1)+".wav");
     }
+    explosion=new Sound("explosion.wav");
     for(int k=0;k<6;k++){
       coinsI[k]=new ImageIcon("coin"+(k+1)+".png").getImage();
     }
@@ -186,6 +190,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     castle=new ImageIcon("gate.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
     tile2=new ImageIcon("tile2.png").getImage();
+    stone=new ImageIcon("stone.png").getImage();
     fence=new ImageIcon("fence.png").getImage();
     siding=new ImageIcon("siding.png").getImage();
     shovel=new ImageIcon("shovel.jpg").getImage();
@@ -301,11 +306,15 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         return;
       }
-      g.drawImage(background,0,0,1000,700,null); // This needs to be here so there are no after trails being left on the right side of the screen
-      g.drawImage(shovel,900,0,40,40,null);
+      //g.drawImage(background,backx,0,1000,700,null); // This needs to be here so there are no after trails being left on the right side of the screen
       int countT=0;
+      for(int xx=backx;xx<backx+1000;xx+=100){
+        g.drawImage(stone,xx,0,100,100,null);
+        g.drawImage(stone,xx,600,100,100,null);
+        g.drawImage(stone,backx+900,xx-backx,100,100,null);
+      }
       for(int xxx=backx;xxx<backx+900;xxx+=100){
-        for(int yyy=0;yyy<700;yyy+=100){
+        for(int yyy=100;yyy<600;yyy+=100){
           if(countT%2==0){
             g.drawImage(tile1,xxx,yyy,100,100,null);
           }
@@ -317,6 +326,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       //g.drawImage(fence,backx+100,0,800,100,null);
       //g.drawImage(siding,backx+0,0,100,100,null);
+      g.drawImage(shovel,900,backx,40,40,null);
       g.drawImage(castle,backx-200,-300,400,1100,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
       if(kant.attack){
@@ -351,20 +361,26 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       }
       int shotC=1;
       for(Tower turr:turrets){                        //Turret Drawing
-        if(turr.shoot(bullets,monsters,coins) && shotC>0){
-          if(turr.type.equals("Basic")){
-            canS[0].play();
+        if(turr.shoot(bullets,monsters,coins)){
+          if(shotC>0){
+            if(turr.type.equals("Basic")){
+              canS[0].play();
+            }
+            else if(turr.type.equals("Normal")){
+              canS[1].play();
+            }
+            else if(turr.type.equals("Good")){
+              canS[2].play();
+            }
+            else if(turr.type.equals("Great")){
+              canS[3].play();
+            }
+            shotC-=1;
           }
-          else if(turr.type.equals("Normal")){
-            canS[1].play();
+          if(turr.type.equals("Mine")){
+            trashT.add(turr);
+            explosion.play();
           }
-          else if(turr.type.equals("Good")){
-            canS[2].play();
-          }
-          else if(turr.type.equals("Great")){
-            canS[3].play();
-          }
-          shotC-=1;
         }
         if(turr.x<=selx && selx<=turr.x+40){
           if(turr.y<=sely && sely<=turr.y+40){
@@ -481,6 +497,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       bullets.removeAll(trashB);
       monsters.removeAll(endMons);
       coins.removeAll(trashC);
+      turrets.removeAll(trashT);
+      trashT.clear();
       trashB.clear();
       trashC.clear();
       volume=(double)((double)monsters.size()/(double)15);
@@ -509,14 +527,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         beginPlay=true;
       }
       for(Integer num:chosenT){
-        int tempx=num.intValue()*50+110;
-        int tempy=490;
+        int tempx=(num.intValue()%4)*125+125;
+        int tempy=(num.intValue()/4)*125+125;
         g.setColor(Color.white);
-        g.drawRect(tempx,tempy,40,40);
+        g.drawRect(tempx,tempy,100,100);
       }
       for(int k=0;k<10;k++){
-        g.drawImage(turretI[k],k*50+110,490,40,40,null);
-        if(isDown && destx<k*50+150 && destx>k*50+110 && desty<530 && desty>490){
+        g.drawImage(turretI[k],(k%4)*125+125,(k/4)*125+125,100,100,null);
+        if(isDown && destx<(k%4)*125+125+100 && destx>(k%4)*125+125 && desty<(k/4)*125+125+100 && desty>(k/4)*125+125){
           if(!chosenT.contains(k)){
             chosenT.add(k);
           }
@@ -763,7 +781,7 @@ class Tower{
     }
     else if(type.equals("Mine")){
       health=1;
-      damage=30;
+      damage=9999;
       bspeed=15;
     }
     cooldown=(30-(bspeed*2))*10;
@@ -783,7 +801,7 @@ class Tower{
           if((Math.abs(y-mons.y)<30) && mons.x<=x+42 && mons.x>(x-66) && !mons.type.equals("ghost")){
             bs.add(new Bullet(x,y,type,0,damage));
             cooldown=max;
-            return false;
+            return true;
           }
         }
         return false;
@@ -831,7 +849,7 @@ class Bullet{
   int speed;
   int damage;
   int contact=-1;
-  private Image[] types=new Image[5];
+  private Image[] types=new Image[6];
   public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){
     x=xx;
     y=yy;
@@ -841,6 +859,7 @@ class Bullet{
     for(int k=0;k<5;k++){
       types[k]=new ImageIcon("Bullet "+(k+1)+".png").getImage();
     }
+    types[5]=new ImageIcon("explosion.png").getImage();
   }
   public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb,int money){
     int ind=0;
@@ -859,14 +878,20 @@ class Bullet{
     else if(type.equals("Spike")){
       ind=-1;
     }
+    else if(type.equals("Mine")){
+      ind=5;
+    }
     else{
       ind=4;
     }
-    if(ind>=0){
+    if(ind>=0 && ind<5){
       g.drawImage(types[ind],x,y+10,40,10,null);
     }
+    if(ind==5){
+      g.drawImage(types[ind],x-20,y-20,100,100,null);
+    }
     for(Monster mons:ms){
-      if(mons.x<x+40 && Math.abs(mons.y-y)<30){
+      if(mons.x<x+40 && Math.abs(mons.y-y)<30 && mons.x>(x-66)){
         if(contact<0){
           contact=mons.x;
         }
