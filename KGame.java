@@ -24,7 +24,7 @@ public class KGame extends JFrame{//Main, public class.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1000,700);
-    myTimer = new Timer(30, new TickListener());
+    myTimer = new Timer(40, new TickListener());
     myTimer.start();
     menu=new Menu(this);
     game = new GamePanel(this);
@@ -94,7 +94,7 @@ public class KGame extends JFrame{//Main, public class.
 
 
 class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics.
-  private int money=1000;
+  private int money=100;
   private int destx, desty, selx, sely;//Variables for keeping track of the mouse's position.
   private KGame mainFrame;
   public boolean ready=false;
@@ -106,7 +106,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image tile2;
   public Image shovel;
   public Image stone;
-  public int[] costs={25,50,100,175,70,100,10,100,100,25};
+  public int[] costs={20,40,80,170,60,100,50,55,70,15};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
@@ -126,7 +126,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private int picInd=2;
   private int walkSpeed=4;
   public int timer=0;
-  public int monSpawn=80;
+  public int monSpawn=100;
   public boolean breakIn=false;
   public double volume=0;
   private Monster tmpMon;
@@ -244,9 +244,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         temppx=temppx*100;
         int indy=0;
         if(turretType.equals("Samurai")){
-          if(money-65>0){
+          if(money-55>0){
             sams.add(new Samurai(temppx,temppy));
-            money-=65;
+            money-=55;
           }
         }
         else{
@@ -523,7 +523,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       soundCount-=1;
     }
     else{
-      if(chosenT.size()==3){
+      if(chosenT.size()==5){
         beginPlay=true;
       }
       for(Integer num:chosenT){
@@ -746,7 +746,7 @@ class Tower{
     else if(type.equals("Normal")){
       damage=25;
       bspeed=9;
-      ucost=40;
+      ucost=45;
     }
     else if(type.equals("Good")){
       damage=2;
@@ -756,7 +756,7 @@ class Tower{
     else if(type.equals("Great")){
       damage=75;
       bspeed=11;
-      ucost=100;
+      ucost=150;
     }
     else if(type.equals("Wall")){
       health=1200;
@@ -765,14 +765,14 @@ class Tower{
       ucost=50;
     }
     else if(type.equals("Cannon")){
-      health=200;
+      health=250;
       damage=100;
       bspeed=4;
       ucost=100;
     }
     else if(type.equals("Sun")){
       health=120;
-      bspeed=0;
+      bspeed=-35;
     }
     else if(type.equals("Spike")){
       health=100;
@@ -781,7 +781,7 @@ class Tower{
     }
     else if(type.equals("Mine")){
       health=1;
-      damage=9999;
+      damage=300;
       bspeed=15;
     }
     cooldown=(30-(bspeed*2))*10;
@@ -898,7 +898,7 @@ class Bullet{
         if(mons.damage(damage,type)){
           mons.x+=1000;
           mons.speed=0;
-          money+=10;
+          money+=10*(mons.maxhp/100)*mons.level;
         }
         if(type.equals("Good") && contact+100<x){
           x=10000;
@@ -990,10 +990,10 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"g","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"z","z","z","z","z","s","s","z","z","w","w","z","z","s","s","-500","z","z","z","n","k","k","w","s","s","2","z","z","z","n","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","k","w","w"};
-  public String[] level3={"n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level4={"z","z","z","z","z","z","w","w","v","v","w","w","w","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","w","s","s","w","w","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level1={"-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
+  public String[] level3={"-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level4={"-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
@@ -1052,7 +1052,7 @@ class Monster{
   public int y;
   public int picCount;
   public int hp;
-  private int maxhp;
+  public int maxhp;
   public int power;
   public String type;
   public String direction;
@@ -1139,7 +1139,7 @@ class Monster{
       power=7;
     }
     else if(type=="werewolf"){
-      power=14;
+      power=10;
     }
     else{
       power=5;
@@ -1284,7 +1284,7 @@ class Monster{
   }
   public boolean damage(int hurt,String typeT){
     if(type.equals("vampire")){
-      if(!typeT.equals("Basic") && !typeT.equals("Normal")){
+      if(!typeT.equals("Basic")){
         hp-=hurt;
       }
     }
