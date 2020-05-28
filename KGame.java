@@ -106,7 +106,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image tile2;
   public Image shovel;
   public Image stone;
-  public int[] costs={20,40,80,170,60,100,50,55,70,15};
+  public int[] costs={20,35,80,160,60,90,50,55,70,25};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
@@ -126,7 +126,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private int picInd=2;
   private int walkSpeed=4;
   public int timer=0;
-  public int monSpawn=100;
   public boolean breakIn=false;
   public double volume=0;
   private Monster tmpMon;
@@ -490,9 +489,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
       }
       timer+=game.time();
-      if(timer>monSpawn){
+      if(timer>game.monspawn){
         monsters=game.loadLevel(monsters);
-        timer-=monSpawn;
+        timer-=game.monspawn;
       }
       bullets.removeAll(trashB);
       monsters.removeAll(endMons);
@@ -898,7 +897,9 @@ class Bullet{
         if(mons.damage(damage,type)){
           mons.x+=1000;
           mons.speed=0;
-          money+=10*(mons.maxhp/100)*mons.level;
+          if(!type.equals("Mine")){
+            money+=10*mons.level;
+          }
         }
         if(type.equals("Good") && contact+100<x){
           x=10000;
@@ -990,10 +991,14 @@ class Menu extends JPanel{
 
 
 class Level extends JPanel{
-  public String[] level1={"-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
-  public String[] level3={"-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level4={"-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
+  public String[] level3={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
+  public String[] level4={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
+  public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
+  public String[] level6={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level7={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
+  public String[] level8={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
@@ -1026,19 +1031,37 @@ class Level extends JPanel{
       destx = e.getX();
       desty = e.getY();
       if(95<desty && desty<315){
-        if(110<destx && destx<195){
+        if(110<destx && destx<190){
           mainFrame.gameLevel=level1;
         }
-        else if(195<destx && destx<280){
+        else if(190<destx && destx<275){
           mainFrame.gameLevel=level2;
         }
-        else if(280<destx && destx<365){
+        else if(275<destx && destx<355){
           mainFrame.gameLevel=level3;
         }
-        else if(365<destx && destx<450){
+        else if(355<destx && destx<440){
           mainFrame.gameLevel=level4;
         }
-        if(110<destx && destx<450){
+        else if(440<destx && destx<520){
+          mainFrame.gameLevel=level5;
+        }
+        else if(520<destx && destx<605){
+          mainFrame.gameLevel=level6;
+        }
+        else if(605<destx && destx<680){
+          mainFrame.gameLevel=level7;
+        }
+        else if(680<destx && destx<765){
+          mainFrame.gameLevel=level8;
+        }
+        else if(765<destx && destx<835){
+          mainFrame.gameLevel=level1;
+        }
+        else if(835<destx && destx<900){
+          mainFrame.gameLevel=level1;
+        }
+        if(110<destx && destx<785){
           mainFrame.kind="Game";
           mainFrame.change=true;
         }
@@ -1320,17 +1343,22 @@ class GameMaker{
   public KGame mainFrame;
   public String[] spawn;
   public int len;
-  public int spot=0;
+  public int spot=1;
+  public int monspawn=0;
   public int waitTime=1;
   public int monsterLvl=1;
-  public int wave=1;
+  public int wave=0;
   public int monsRow=100;
   public GameMaker(String[] level, KGame game){
     spawn=level;
     mainFrame=game;
     len=spawn.length;
+    System.out.println(level[0]);
   }
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
+    if(monspawn==0){
+      monspawn=Integer.parseInt((spawn[0]));
+    }
     if(spot>=len){
       spot=-1;
       return monsters;
