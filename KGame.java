@@ -106,6 +106,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image tile2;
   public Image shovel;
   public Image stone;
+  public Image slot;
   public int[] costs={20,35,80,160,60,90,50,55,70,25};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
@@ -144,7 +145,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public String mouseSelect="None";
   public int mouseIndex=-1;
   public boolean placeTurr=false;
-  public int backx=-200;
+  public int backx=-1000;
   public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun","Samurai","Spike","Mine"};
   public ArrayList<Samurai>sams= new ArrayList<Samurai>();
   public Image[]samwalk=new Image[6];
@@ -185,7 +186,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     turretI[7]=samatk[0];
     turretI[8]=new ImageIcon("spike.png").getImage();
     turretI[9]=new ImageIcon("Mine.png").getImage();
-    background=new ImageIcon("levelselect.png").getImage();
+    background=new ImageIcon("lake.png").getImage();
     castle=new ImageIcon("gate.png").getImage();
     tile1=new ImageIcon("tile1.png").getImage();
     tile2=new ImageIcon("tile2.png").getImage();
@@ -195,6 +196,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     shovel=new ImageIcon("shovel.jpg").getImage();
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
+    slot=new ImageIcon("slot.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame);
   }
@@ -305,7 +307,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         return;
       }
-      //g.drawImage(background,backx,0,1000,700,null); // This needs to be here so there are no after trails being left on the right side of the screen
+      g.drawImage(background,backx+1000,0,1000,700,null);
       int countT=0;
       for(int xx=backx;xx<backx+1000;xx+=100){
         g.drawImage(stone,xx,0,100,100,null);
@@ -326,7 +328,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       //g.drawImage(fence,backx+100,0,800,100,null);
       //g.drawImage(siding,backx+0,0,100,100,null);
       g.drawImage(shovel,900,backx,40,40,null);
-      g.drawImage(castle,backx-200,-300,400,1100,null);
+      g.drawImage(castle,backx-225,-300,400,1100,null);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null);
       if(kant.attack){
         g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
@@ -525,20 +527,33 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       if(chosenT.size()==5){
         beginPlay=true;
       }
-      for(Integer num:chosenT){
-        int tempx=(num.intValue()%4)*125+125;
-        int tempy=(num.intValue()/4)*125+125;
-        g.setColor(Color.white);
-        g.drawRect(tempx,tempy,100,100);
-      }
+      g.drawImage(background,backx+1000,0,1000,700,null);
       for(int k=0;k<10;k++){
-        g.drawImage(turretI[k],(k%4)*125+125,(k/4)*125+125,100,100,null);
-        if(isDown && destx<(k%4)*125+125+100 && destx>(k%4)*125+125 && desty<(k/4)*125+125+100 && desty>(k/4)*125+125){
+        g.drawImage(slot,(k%4)*190+125-20,(k/4)*155+150-10,100+40,100+30,null);
+        g.drawImage(turretI[k],(k%4)*190+125,(k/4)*155+150,100,100,null);
+        Font font = new Font("Verdana", Font.BOLD, 17);
+        g.setFont(font);
+        g.setColor(Color.black);
+        String adder="";
+        if(k<4){
+          adder+=" Turret";
+        }
+        g.drawString(typesT[k]+adder,(k%4)*190+125,(k/4)*155+150-10);
+        if(isDown && destx<(k%4)*190+125+100 && destx>(k%4)*190+125 && desty<(k/4)*155+150+100 && desty>(k/4)*155+150){
           if(!chosenT.contains(k)){
             chosenT.add(k);
           }
           isDown=false;
         }
+      }
+      g.setFont(new Font("Verdana",Font.BOLD,35));
+      g.drawString("Pick 5 Defences!",350,50);
+      for(Integer num:chosenT){
+        int tempx=(num.intValue()%4)*190+125;
+        int tempy=(num.intValue()/4)*155+150;
+        g.setColor(Color.white);
+        g.drawRect(tempx,tempy,100,100);
+        
       }
     }
   }
@@ -932,8 +947,10 @@ class Menu extends JPanel{
   private int destx,desty;//Variables for keeping track of the mouse's position.
   private Image screen;
   private Image rulePic;
+  private Image credits;
   private KGame mainFrame;
   private boolean rules=false;
+  private boolean credit=false;
   public boolean ready=false;
   public Menu(KGame m){
     mainFrame=m;
@@ -943,6 +960,7 @@ class Menu extends JPanel{
     setSize(800,600);
     screen=new ImageIcon("KantScreen.jpg").getImage();
     rulePic=new ImageIcon("rules.png").getImage();
+    credits=new ImageIcon("credits.png").getImage();
   }
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
@@ -953,7 +971,10 @@ class Menu extends JPanel{
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);
     if(rules){
-      g.drawImage(rulePic,0,0,995,665,null);
+      g.drawImage(rulePic,0,0,1000,700,null);
+    }
+    if(credit){
+      g.drawImage(credits,0,0,1000,700,null);
     }
   }
   
@@ -978,10 +999,22 @@ class Menu extends JPanel{
           rules=true;
         }
       }
+      if(410<destx && destx<610){
+        if(530<desty && desty<670){
+          credit=true;
+        }
+      }
       if(rules){
         if(0<destx && destx<100){
           if(0<desty && desty<80){
             rules=false;
+          }
+        }
+      }
+      if(credit){
+        if(0<destx && destx<100){
+          if(0<desty && desty<80){
+            credit=false;
           }
         }
       }
