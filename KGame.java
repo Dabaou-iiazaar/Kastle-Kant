@@ -18,6 +18,7 @@ public class KGame extends JFrame{//Main, public class.
   Menu menu;
   Level level;
   public String[] gameLevel={""};
+  public boolean endless=false;
   private static Sequencer midiPlayer;
   public int healthG=5;
   public KGame() {//Constructor.
@@ -198,7 +199,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     won=new ImageIcon("winner.png").getImage();
     slot=new ImageIcon("slot.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
-    game=new GameMaker(gameMons,mainFrame);
+    game=new GameMaker(gameMons,mainFrame,mainFrame.endless);
   }
   
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
@@ -1065,6 +1066,13 @@ class Level extends JPanel{
     public void mousePressed(MouseEvent e){//Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();
+      if(420<desty && desty<595){
+        if(110<destx && destx<190){
+          mainFrame.endless=true;
+          mainFrame.kind="Game";
+          mainFrame.change=true;
+        }
+      }
       if(95<desty && desty<315){
         if(110<destx && destx<190){
           mainFrame.gameLevel=level1;
@@ -1096,7 +1104,7 @@ class Level extends JPanel{
         else if(835<destx && destx<900){
           mainFrame.gameLevel=level10;
         }
-        if(110<destx && destx<785){
+        if(110<destx && destx<900){
           mainFrame.kind="Game";
           mainFrame.change=true;
         }
@@ -1376,7 +1384,7 @@ class Sound{
 }
 class GameMaker{
   public KGame mainFrame;
-  public String[] spawn;
+  public String[] spawn=new String[25];
   public int len;
   public int spot=1;
   public int monspawn=0;
@@ -1384,19 +1392,47 @@ class GameMaker{
   public int monsterLvl=1;
   public int wave=0;
   public int monsRow=100;
-  public GameMaker(String[] level, KGame game){
-    spawn=level;
+  public boolean infinite;
+  public boolean money;
+  public int wait=-500;
+  public int max=-500;
+  public String[] types={"z","k","n","g","v","w","s","s2","d"};
+  public GameMaker(String[] level, KGame game,boolean endless){
+    if(!infinite){
+      spawn=level;
+    }
     mainFrame=game;
+    infinite=endless;
+    if(infinite){
+      spawn=new String[25];
+    }
     len=spawn.length;
     System.out.println(level[0]);
+    spot=1;
+    if(infinite){
+      spawn[0]="100";
+      spawn[1]="-500";
+      for(int k=2;k<25;k++){
+        spawn[k]=types[randint(0,8)];
+      }
+    }
   }
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){
     if(monspawn==0){
       monspawn=Integer.parseInt((spawn[0]));
     }
     if(spot>=len){
-      spot=-1;
-      return monsters;
+      if(infinite){
+        spot=1;
+        spawn[1]="-500";
+        for(int k=2;k<25;k++){
+          spawn[k]=types[randint(0,8)];
+        }
+      }
+      else{
+        spot=-1;
+        return monsters;
+      }
     }
     if(spot>=0){
       if(spawn[spot].equals("z")){
