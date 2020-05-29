@@ -146,7 +146,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int mouseIndex=-1;
   public boolean placeTurr=false;
   public int backx=-1000;
-  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Sun","Samurai","Spike","Mine"};
+  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Gold","Samurai","Spike","Mine"};
   public ArrayList<Samurai>sams= new ArrayList<Samurai>();
   public Image[]samwalk=new Image[6];
   public Image[]samwalkb=new Image[6];
@@ -269,7 +269,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           else if(turretType.equals("Cannon")){
             indy=5;
           }
-          else if(turretType.equals("Sun")){
+          else if(turretType.equals("Gold")){
             indy=6;
           }
           else if(turretType.equals("Spike")){
@@ -784,7 +784,7 @@ class Tower{
       bspeed=4;
       ucost=100;
     }
-    else if(type.equals("Sun")){
+    else if(type.equals("Gold")){
       health=120;
       bspeed=-35;
     }
@@ -805,7 +805,7 @@ class Tower{
   }
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms,ArrayList<Coin> cs){
     if(cooldown<=0){
-      if(type.equals("Sun")){
+      if(type.equals("Gold")){
         cs.add(new Coin(x,y,10));
         cooldown=max;
         return false;
