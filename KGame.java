@@ -971,7 +971,7 @@ class Menu extends JPanel{
   public void paintComponent(Graphics g){      //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);
     if(rules){
-      g.drawImage(rulePic,0,0,1000,700,null);
+      g.drawImage(rulePic,0,0,995,665,null);
     }
     if(credit){
       g.drawImage(credits,0,0,1000,700,null);
@@ -1029,9 +1029,11 @@ class Level extends JPanel{
   public String[] level3={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
   public String[] level4={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
   public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
-  public String[] level6={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level7={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
-  public String[] level8={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
+  public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
+  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
   public boolean ready=false;
@@ -1089,10 +1091,10 @@ class Level extends JPanel{
           mainFrame.gameLevel=level8;
         }
         else if(765<destx && destx<835){
-          mainFrame.gameLevel=level1;
+          mainFrame.gameLevel=level9;
         }
         else if(835<destx && destx<900){
-          mainFrame.gameLevel=level1;
+          mainFrame.gameLevel=level10;
         }
         if(110<destx && destx<785){
           mainFrame.kind="Game";
