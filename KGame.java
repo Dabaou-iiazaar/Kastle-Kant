@@ -108,7 +108,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public Image shovel;
   public Image stone;
   public Image slot;
-  public int[] costs={20,35,80,160,60,90,50,55,70,25};
+  public int[] costs={20,40,80,160,60,90,50,55,70,25};
   public ArrayList<Integer> chosenT=new ArrayList<Integer>();
   public ArrayList<Tower> turrets=new ArrayList<Tower>();
   public ArrayList<Monster> monsters=new ArrayList<Monster>();
@@ -1027,13 +1027,13 @@ class Menu extends JPanel{
 class Level extends JPanel{
   public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
   public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
-  public String[] level3={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
-  public String[] level4={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
+  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
+  public String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
   public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
   public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
   public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
   public String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
-  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","s2","-500","3","n","n","d","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
   public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
   private int destx,desty;//Variables for keeping track of the mouse's position.
   public KGame mainFrame;
