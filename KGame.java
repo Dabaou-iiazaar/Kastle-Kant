@@ -181,7 +181,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    turretI[6]=new ImageIcon("sun.png").getImage();
+    if(mainFrame.endless){
+      turretI[6]=new ImageIcon("sunx.png").getImage();
+    }
+    else{
+      turretI[6]=new ImageIcon("sun.png").getImage();
+    }
     turretI[7]=samatk[0];
     turretI[8]=new ImageIcon("spike.png").getImage();
     turretI[9]=new ImageIcon("Mine.png").getImage();
@@ -198,6 +203,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     slot=new ImageIcon("slot.png").getImage();
     String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame,mainFrame.endless);//New GameMaker for the processing enemies.
+    if(mainFrame.endless){
+      money=350;            // You start with 350 coins in endless mode
+    }
   }
   
   public void addNotify() {       //Method for notifying, seeing if the graphics are ready.
@@ -538,7 +546,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.drawString(typesT[k]+adder,(k%4)*190+125,(k/4)*155+150-10);
         if(isDown && destx<(k%4)*190+125+100 && destx>(k%4)*190+125 && desty<(k/4)*155+150+100 && desty>(k/4)*155+150){
           if(!chosenT.contains(k)){//For selecting a turrret from all of them.
-            chosenT.add(k);
+            if(mainFrame.endless){
+              if(k!=6){
+                chosenT.add(k);
+              }
+            }
+            else{
+              chosenT.add(k);
+            }
           }
           isDown=false;
         }
@@ -766,7 +781,7 @@ class Tower{//Class for the turrets. This class is also used for the canons, spi
     }
     else if(type.equals("Great")){
       damage=75;
-      bspeed=11;
+      bspeed=10;
       ucost=150;
     }
     else if(type.equals("Wall")){
@@ -1023,8 +1038,8 @@ class Menu extends JPanel{//Class for the menu. Same as the GamePanel clas excep
 class Level extends JPanel{//Class for the level-select screen. Very similar to the menu.
   public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
   public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
-  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
   public String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
+  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
   public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
   public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
   public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
@@ -1127,7 +1142,6 @@ class Monster{//Class for the monster enemies.
   public int ax=-1;
   private int listLen;
   public int pushx=0;
-  public int pushy=0;
   public Monster(int placex, int placey, String mtype,int monlevel, KGame m){//Constructor.
     mainFrame=m;
     x=placex;
@@ -1214,24 +1228,7 @@ class Monster{//Class for the monster enemies.
       arrow=new ImageIcon("arrow.png").getImage();
     }
   }
-  public void floorUp(){//Method for checking if a monster has passed the defences and defeated the player.
-    /*    if(695<x && x<705){
-     if(y==145 | y==275 | y==405){
-     y+=130;
-     x=70;       
-     picCount=0;
-     direction="R";
-     }
-     } */
-    /*if(55<x && x<65){
-      if(y>300){
-        y-=100;
-        x=690;
-        picCount=0;
-        direction="L";
-      }
-    }
-    */
+  public void floorEnd(){//Method for checking if a monster has passed the defences and defeated the player.
     if(x<10){
       speed=0;//Getting the monster off-screen, to be removed.
       x=10000;
@@ -1242,7 +1239,7 @@ class Monster{//Class for the monster enemies.
     return mPicL;
   }
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets, ArrayList<Samurai>sams){//Method for drawing the monster's actions.
-    floorUp();
+    floorEnd();
     boolean overlay=false;
     boolean shooting=false;
     if(type.equals("skeleton")){//For letting the skeletons shoot at towers.
@@ -1358,8 +1355,7 @@ class Monster{//Class for the monster enemies.
     }
     else{
       if(typeT.equals("Great") && (x+10)<=700){
-        pushx=10;//Getting the push-pack for this type of turret.
-        pushy=10;
+        pushx=7;//Getting the push-pack for this type of turret.
       }
       return false;
     }
@@ -1392,9 +1388,9 @@ class GameMaker{//Class for getting the monsters to be spawned in at the right t
   public boolean money;
   public int wait=-500;
   public int max=-500;
-  public String[] types={"z","k","n","g","v","w","s","s2","d"};//Strings that stand for all the types of monsters. Used while getting random enemies with endless mode.
+  public String[] types={"z","z","z","z","z","z","z","n","n","k","k","g","g","g","v","v","v","w","w","w","s","s","s","s2","d"};//Strings that stand for all the types of monsters. Used while getting random enemies with endless mode.
   public GameMaker(String[] level, KGame game,boolean endless){//Constructor.
-    if(!infinite){
+    if(!endless){
       spawn=level;
     }
     mainFrame=game;
@@ -1403,13 +1399,12 @@ class GameMaker{//Class for getting the monsters to be spawned in at the right t
       spawn=new String[25];//Making an empty array for infinite mode.
     }
     len=spawn.length;
-    System.out.println(level[0]);
     spot=1;
     if(infinite){
       spawn[0]="100";//Setting up the basically universal first two values. The 100 is the amount of time between monster spawns.
       spawn[1]="-500";//Negative values are for the time lapses between monster waves.
       for(int k=2;k<25;k++){//Getting the random monster spawns.
-        spawn[k]=types[randint(0,8)];
+        spawn[k]=types[randint(0,24)];
       }
     }
   }
@@ -1421,6 +1416,7 @@ class GameMaker{//Class for getting the monsters to be spawned in at the right t
       if(infinite){
         spot=1;//Settting up the next batch of monsters with infinite mode.
         spawn[1]="-500";
+        monsterLvl+=1;
         for(int k=2;k<25;k++){
           spawn[k]=types[randint(0,8)];
         }
