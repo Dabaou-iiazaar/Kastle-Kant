@@ -255,14 +255,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         temppx=temppx/100;
         temppx=temppx*100;
         int indy=0;        //Default index for the picture being shown. Below, getting the apropriate image and money taken for the chosen and placed turret.
-        if(turretType.equals("Samurai")){          //Buys a samurai
+        if(turretType.equals("Samurai")){          //Buys a samurai.
           if(money-55>0){
             sams.add(new Samurai(temppx,temppy));
             money-=55;
           }
         }
         else{
-          if(turretType.equals("Basic")){         //Purchasing weapons. indy indicates what type of weapon is desired
+          if(turretType.equals("Basic")){         //Purchasing weapons. indy indicates what type of weapon is desired.
             indy=0;
           }
           else if(turretType.equals("Normal")){
@@ -291,7 +291,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           }
           if (money-costs[indy]>=0){
             money-=costs[indy];
-            turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame)); //Adding the purchased weapon to the list         
+            turrets.add(new Tower(temppx+30,temppy+30,turretType,indy,mainFrame)); //Adding the purchased weapon to the list.         
           }
         }
       }
@@ -1416,7 +1416,7 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
         spawn[1]="-500";
         monsterLvl+=1;
         for(int k=2;k<25;k++){
-          spawn[k]=types[randint(0,8)];
+          spawn[k]=types[randint(0,24)];
         }
       }
       else{
