@@ -21,7 +21,12 @@ public class KGame extends JFrame{ //Main, public class.
   GamePanel game;                  //This and the two below are the 3 different GamePanels that are added.
   Menu menu;
   Level level;
+  public boolean[] awards=new boolean[3];//These two arrays are used to keep track of whether or not the player has earned any of the three possible achievements.
+  public Image[] trophies=new Image[3];
+  public String[] lines=new String[3];//The three possible achievement images will be stored here.
+  public String[] descriptions={"You're on your way!\nCompleted the first level.","Master of defence!\nFinished the last level.","Just the beginning.\nAttempted the endless mode."};//Achievement descriptions.
   public String[] gameLevel={""};  //Will hold Strings that represent which enemy types will be spawned in, or what the level and delay between enemies should be.
+  public int stage;
   public boolean endless=false;
   private static Sequencer midiPlayer;
   public int healthG=5;            //Once reaches zero, the level of the game that the player is on will end, they will lose.
@@ -35,12 +40,32 @@ public class KGame extends JFrame{ //Main, public class.
     game = new GamePanel(this);
     level=new Level(this);
     add(menu);
-    startMidi("title.mid",-1); //Playing title music
+    startMidi("title.mid",-1); //Playing title music.
     setResizable(false);
     setVisible(true);
+    for(int k=0;k<3;k++){
+      trophies[k]=new ImageIcon("trophy"+(k+1)+".png").getImage();
+    }
+    try{//Try-catch for errors.
+      BufferedReader inF = new BufferedReader(new FileReader("record.txt"));
+      for(int k=0; k<3;k++){//Reading from this file to see if the player had previously unlocked any achievements.
+        String line=inF.readLine();
+        if(line.equals("yes")){
+          awards[k]=true;
+        }
+        else{
+          awards[k]=false;
+        }
+        lines[k]=line;
+      }
+      inF.close();
+    }
+    catch(Exception e){
+      System.out.println(e);
+    }
   }
   
-  class TickListener implements ActionListener{    //Class and its one method to update the graphics on screen every time the Timer tells them to. Creates the different screens and allows you to switch between them
+  class TickListener implements ActionListener{    //Class and its one method to update the graphics on screen every time the Timer tells them to. Creates the different screens and allows you to switch between them.
     public void actionPerformed(ActionEvent evt){
       if(change==true && kind.equals("Game")){     //Below, depending on which current GamePanel the JFrame has, a new GamePanel will be added if change is called for.
         change=false;
@@ -220,8 +245,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   
   public void move(){                  //Method for moving Kant using WASD and updating the index for his sprites, and for placing down the turrets of the player,a and for some other key controls.
     if (keys[KeyEvent.VK_BACK_SPACE]){ //At any time during an actual game level, the player can quit back to the game menu.
-      mainFrame.kind="Menu";
+      mainFrame.kind="Menu";//Resetting variables for possible new game levels.
       mainFrame.change=true;
+      mainFrame.endless=false;
       keys[KeyEvent.VK_BACK_SPACE]=false;
     }
     if (keys[KeyEvent.VK_W]){
@@ -311,10 +337,41 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           g.drawImage(lost,0,0,1000,700,null);
         }
         if(keys[KeyEvent.VK_ENTER]){  //When the player enters to end the finished game level and return to level select.
-          mainFrame.kind="Level";
+          mainFrame.kind="Level";//Resetting variables so new game levels will be properly new.
           mainFrame.change=true;
           ends=false;
           didWon=false;
+          mainFrame.endless=false;
+        }
+        try{//Try-catch in case of error where the file cannot be found.
+          int changed;//This is the index of the boolean and status that has changed.
+          if(!mainFrame.awards[0] && mainFrame.stage==1 && didWon){//When the first level has been completed.
+            changed=0;
+          }
+          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the second level is completed.           
+            changed=1;
+          }
+          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been attempted.
+            changed=2;
+          }
+          else{
+            changed=-1;
+          }
+          PrintWriter outFile = new PrintWriter(new BufferedWriter (new FileWriter ("record.txt")));//Writing out to this file to record the achievements.
+          for(int k=0;k<3;k++){
+            if(k!=changed){
+              outFile.println(mainFrame.lines[k]);
+            }
+            else{//Only changing the file and updating if something has actually changed.
+              outFile.println("yes");
+              mainFrame.lines[k]="yes";
+              mainFrame.awards[k]=true;
+            }
+          }
+          outFile.close();
+        }
+        catch(Exception e){
+          System.out.println(e);
         }
         return;
       }
@@ -343,7 +400,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
       }
       if(backx<0){  //For scrolling the screen after turrets are chosen.
-        backx+=5;
+        backx+=15;
         return;
       }
       Font font = new Font("Verdana", Font.BOLD, 17);
@@ -550,7 +607,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.drawString(typesT[k]+adder,(k%4)*190+125,(k/4)*155+150-10);
         if(isDown && destx<(k%4)*190+125+100 && destx>(k%4)*190+125 && desty<(k/4)*155+150+100 && desty>(k/4)*155+150){
           if(!chosenT.contains(k)){//For selecting a turrret from all of them.
-            if(mainFrame.endless){ //There are no gold mines in endless mode
+            if(mainFrame.endless){ //There are no gold mines in endless mode.
               if(k!=6){
                 chosenT.add(k);
               }
@@ -1070,6 +1127,21 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
   
   public void paintComponent(Graphics g){ //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(levelSelect,0,0,1000,700,null);
+    for(int k=0;k<3;k++){
+      if(mainFrame.awards[k]){//Drawing the unlocked achievements, if any.
+        g.drawImage(mainFrame.trophies[k],300+k*200,460,150,150,null);
+      }
+    }
+    if(desty>460 && desty<610){
+      for(int k=0;k<3;k++){//If the player clicks on a trophy, the description will be shown.
+        if(destx>300+k*200 && destx<300+k*200+150 && mainFrame.awards[k]){
+          Font font = new Font("Verdana", Font.BOLD, 17);
+          g.setFont(font); //Creating the font and setting its colour.
+          g.setColor(Color.black);
+          g.drawString(mainFrame.descriptions[k],300,380);
+        }
+      }
+    }
   }
   
   class clickListener implements MouseListener{ //Class for checking for the user's mouse inputs.
@@ -1086,38 +1158,49 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
           mainFrame.endless=true;  //For the endless level.
           mainFrame.kind="Game";
           mainFrame.change=true;
+          mainFrame.stage=-1;
         }
       }
       if(95<desty && desty<315){        //Gets the selected level from the user
         if(110<destx && destx<190){
           mainFrame.gameLevel=level1;
+          mainFrame.stage=1;
         }
         else if(190<destx && destx<275){
           mainFrame.gameLevel=level2;
+          mainFrame.stage=2;
         }
         else if(275<destx && destx<355){
           mainFrame.gameLevel=level3;
+          mainFrame.stage=3;
         }
         else if(355<destx && destx<440){
           mainFrame.gameLevel=level4;
+          mainFrame.stage=4;
         }
         else if(440<destx && destx<520){
           mainFrame.gameLevel=level5;
+          mainFrame.stage=5;
         }
         else if(520<destx && destx<605){
           mainFrame.gameLevel=level6;
+          mainFrame.stage=6;
         }
         else if(605<destx && destx<680){
           mainFrame.gameLevel=level7;
+          mainFrame.stage=7;
         }
         else if(680<destx && destx<765){
           mainFrame.gameLevel=level8;
+          mainFrame.stage=8;
         }
         else if(765<destx && destx<835){
           mainFrame.gameLevel=level9;
+          mainFrame.stage=9;
         }
         else if(835<destx && destx<900){
           mainFrame.gameLevel=level10;
+          mainFrame.stage=10;
         }
         if(110<destx && destx<900){
           mainFrame.kind="Game";
