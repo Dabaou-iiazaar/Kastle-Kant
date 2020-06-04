@@ -73,7 +73,7 @@ public class KGame extends JFrame{ //Main, public class.
         remove(level);
         add(game);
         midiPlayer.stop();
-        startMidi("game.mid",-1);  //Music changes when you change screens
+        startMidi("game.mid",-1);  //Music changes when you change screens.
       }
       if(change==true && kind.equals("Menu")){
         change=false;
@@ -124,15 +124,15 @@ public class KGame extends JFrame{ //Main, public class.
 
 
 class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics and the game.
-  private int money=100;                  //money is used to buy weapons
+  private int money=100;                  //money is used to buy weapons.
   private int destx, desty, selx, sely;   //Variables for keeping track of the mouse's position. The last two are for the mouse's position specifically when it is clicked down.
   private KGame mainFrame;
   public boolean ready=false;
   private boolean [] keys;
   public Image[] kantMoves=new Image[13];  //Arrays for holding some of the images for the game that have similar names. Most of these are sprites.
-  public Image[] turretI=new Image[10];
+  public Image[] turretI=new Image[10];    //Throughout, turret, tower and defence will be used interchangeably. Tower is the name of the class used for all our defences.
   public Image[] coinsI=new Image[6];
-  public Image tile1;                      //Tile1/2 and stone are for drawing the game board
+  public Image tile1;                      //Tile1/2 and stone are for drawing the game board.
   public Image tile2;
   public Image shovel;
   public Image stone;
@@ -146,7 +146,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public ArrayList<Tower> trashT=new ArrayList<Tower>();
   public ArrayList<Coin> coins=new ArrayList<Coin>();
   public ArrayList<Coin> trashC=new ArrayList<Coin>();
-  public boolean beginPlay=false;                             //Determines if the game sequence is ready or not
+  public boolean beginPlay=false;                             //Determines if the game sequence is ready or not.
   public String turretType = "Basic";  //Default selected turret.
   public int tBox=100;                 //X-coordinate of the box that is to be draw around the selected turret.
   private Image background;
@@ -167,7 +167,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   public int soundCount=40;            //Timer that, when lowered enough, will play the monster horde's sound effect.
   private Image lost;
   private Image won;
-  public boolean ends=false;           //Variables for checking if certain conditions are met
+  public boolean ends=false;           //Variables for checking if certain conditions are met.
   public boolean didWon=false;
   public boolean isDown=false;
   public String mouseSelect="None";
@@ -233,7 +233,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     String[]gameMons=mainFrame.gameLevel;
     game=new GameMaker(gameMons,mainFrame,mainFrame.endless);//New GameMaker for the processing enemies.
     if(mainFrame.endless){
-      money=350;            // You start with 350 coins in endless mode
+      money=350;            // You start with 350 coins in endless mode.
     }
   }
   
@@ -351,36 +351,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           didWon=false;
           mainFrame.endless=false;
         }
-        try{//Try-catch in case of error where the file cannot be found.
-          int changed;//This is the index of the boolean and status that has changed.
-          if(!mainFrame.awards[0] && mainFrame.stage==1 && didWon){//When the first level has been completed.
-            changed=0;
-          }
-          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the last level is completed.           
-            changed=1;
-          }
-          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been cleared past stage 10.
-            changed=2;
-          }
-          else{
-            changed=-1;
-          }
-          PrintWriter outFile = new PrintWriter(new BufferedWriter (new FileWriter ("record.txt")));//Writing out to this file to record the achievements.
-          for(int k=0;k<3;k++){
-            if(k!=changed){
-              outFile.println(mainFrame.lines[k]);
-            }
-            else{//Only changing the file and updating if something has actually changed.
-              outFile.println("yes");
-              mainFrame.lines[k]="yes";
-              mainFrame.awards[k]=true;
-            }
-          }
-          outFile.close();
-        }
-        catch(Exception e){
-          System.out.println(e);
-        }
+        updateTro();
         return;
       }
       g.drawImage(background,backx+1000,0,1000,700,null); //Drawing the images that almost always appear on the screen during a game.
@@ -425,7 +396,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       g.drawRect(tBox,620,40,40);
       if(isDown && mouseIndex>-1){//For removing plants using the shovel feature or just drawing the selected turret on the mouse's position.
         if(mouseSelect.equals("Remove")){
-          g.drawRect(destx-20,desty-20,40,40); //Drawing in the removeing square
+          g.drawRect(destx-20,desty-20,40,40); //Drawing in the removing square.
         }
         else{
           g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
@@ -468,7 +439,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             }
             else{
               g.drawString("Max Level",200,60);
-            }  //Drawing the turret's healthbar. Based off a tower's hp, their health is divided by a certain amount for the bar so the bar is always 100 pixels wide
+            }  //Drawing the turret's healthbar. Based off a tower's hp, their health is divided by a certain amount for the bar so the bar is always 100 pixels wide.
             if(turr.type.equals("Wall")){
               g.drawRect(250,25,turr.maxhealth/24,10);
               g.fillRect(250,25,turr.health/24,10);
@@ -598,7 +569,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       soundCount-=1;
     }
     else{
-      if(chosenT.size()==5){    //Turret selection
+      beforeGame(g);
+    }
+  }
+  public void beforeGame(Graphics g){
+    if(chosenT.size()==5){    //Turret selection.
         beginPlay=true;  //Once the turrets have been chosen.
       }
       g.drawImage(background,backx+1000,0,1000,700,null);
@@ -636,7 +611,38 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         g.drawRect(tempx,tempy,100,100);
         
       }
-    }
+  }
+  public void updateTro(){//Method for seeing if the player unlocked any of the achievements after a level.
+    try{//Try-catch in case of error where the file cannot be found.
+          int changed;//This is the index of the boolean and status that has changed.
+          if(!mainFrame.awards[0] && mainFrame.stage==1 && didWon){//When the first level has been completed.
+            changed=0;
+          }
+          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the last level is completed.           
+            changed=1;
+          }
+          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been cleared past stage 10.
+            changed=2;
+          }
+          else{
+            changed=-1;
+          }
+          PrintWriter outFile = new PrintWriter(new BufferedWriter (new FileWriter ("record.txt")));//Writing out to this file to record the achievements.
+          for(int k=0;k<3;k++){
+            if(k!=changed){
+              outFile.println(mainFrame.lines[k]);
+            }
+            else{//Only changing the file and updating if something has actually changed.
+              outFile.println("yes");
+              mainFrame.lines[k]="yes";
+              mainFrame.awards[k]=true;
+            }
+          }
+          outFile.close();
+        }
+        catch(Exception e){
+          System.out.println(e);
+        }
   }
   public void keyTyped(KeyEvent e) { //Below, listeners for the mouse, some of which are used to update important variables.
   }
@@ -806,7 +812,7 @@ class Kant{ //Class for the player-controlled character.
       }
       return ind;
     }
-    else{         //When Kant is not moving he does damage
+    else{         //When Kant is not moving he does damage.
       ind=13;
       attack=true;
       return ind;
@@ -949,7 +955,7 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
   int damage;
   int contact=-1;  //Will hold where the bullet first made contact with a monster. Used for the turret that can go through multiple enemies.
   private Image[] types=new Image[6]; //Images for the different bullet types.
-  public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){ // Getting the bullet values based on the turret that shot
+  public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){ // Getting the bullet values based on the turret that shot.
     x=xx;
     y=yy;
     type=ttype;
@@ -1008,7 +1014,7 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
           break;
         }
         else{
-          if(!type.equals("Good")){ //Allows the good bullet to do splash damage
+          if(!type.equals("Good")){ //Allows the good bullet to do splash damage.
             x=10000;
             speed=0;
             tb.add(this);
@@ -1148,7 +1154,7 @@ class Coin{ //Class for the coins that the player can click on to collect and ga
 
 
 class Monster{  //Class for the monster enemies.
-  public KGame mainFrame; //Basic variables to control health, damage, and movement
+  public KGame mainFrame; //Basic variables to control health, damage, and movement.
   public int x;
   public int y;
   public int picCount;
@@ -1325,19 +1331,19 @@ class Monster{  //Class for the monster enemies.
     }
     if(select){     //For drawing the monster when they are selected to be seen with information near the top of the screen.
       g.drawImage(mPicL[picCount/5],200,20,40,40,null);
-      int barNum=(maxhp/2)/300+1;   //Determining the number of hp bars. Each one is 300 pixels long
+      int barNum=(maxhp/2)/300+1;   //Determining the number of hp bars. Each one is 300 pixels long.
       for(int i=0; i<barNum; i++){  //Drawing the health-bars, both the border and the actual amount.
         if(i+1==barNum){
-          g.drawRect(250,20+(20*i),(maxhp/2)%300,10);  //Drawing the bars stacked on each other
+          g.drawRect(250,20+(20*i),(maxhp/2)%300,10);  //Drawing the bars stacked on each other.
         }
         else{
           g.drawRect(250,20+(20*i),300,10);
         }
       }
-      barNum=(hp/2)/300+1;         //Repeating the process except with filled rects
+      barNum=(hp/2)/300+1;         //Repeating the process except with filled rectangles.
       for(int i=0; i<barNum; i++){
         if(i+1==barNum){
-          g.fillRect(250,20+(20*i),(hp/2)%300,10); //The bar is drawn to the remainder of 300
+          g.fillRect(250,20+(20*i),(hp/2)%300,10); //The bar is drawn to the remainder of 300.
         }
         else{
           g.fillRect(250,20+(20*i),300,10);
@@ -1360,7 +1366,7 @@ class Monster{  //Class for the monster enemies.
     }
   }
   public boolean damage(int hurt,String typeT){ //Method for hurting the monsters. Will return true if the monster is killed.
-    if(type.equals("vampire")){    //Hurt depends on type. Vampire cant be hurt by basic
+    if(type.equals("vampire")){    //Hurt depends on type. Vampire cant be hurt by basic.
       if(!typeT.equals("Basic")){
         hp-=hurt;
       }
@@ -1441,7 +1447,7 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
     public void mousePressed(MouseEvent e){ //Method for getting the coordinates of the mouse.
       destx = e.getX();
       desty = e.getY();   //Below, if the x and y positions of the mouse are within a certain range, the corresponding image's boolean will be made true or false.
-      if(410<destx && destx<610 && !rules){ //Allows you to navigate around the title screen using clicks
+      if(410<destx && destx<610 && !rules){ //Allows you to navigate around the title screen using clicks.
         if(210<desty && desty<350){
           mainFrame.kind="Level";
           mainFrame.change=true;
@@ -1488,9 +1494,10 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
   public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
   public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
   private int destx,desty; //Variables for keeping track of the mouse's position. Above, the arrays hold the enemy spawn-order and spawn-times for each level.
-  public KGame mainFrame;
+  public KGame mainFrame;//Done to access the JFrame's variables.
   public boolean ready=false;
   private Image levelSelect;
+  private Image endBo;
   public Level(KGame m){ //Constructor.
     mainFrame=m;
     addMouseListener(new clickListener());
@@ -1498,6 +1505,7 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
     desty=-20;
     setSize(1000,700);
     levelSelect=new ImageIcon("LevelSelect.png").getImage();
+    endBo=new ImageIcon("endlessBo.png").getImage();
   }
   public void addNotify() {  //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
@@ -1507,6 +1515,7 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
   
   public void paintComponent(Graphics g){ //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(levelSelect,0,0,1000,700,null);
+    g.drawImage(endBo,77,405,160,213,null);//Drawing the book for endless mode.
     for(int k=0;k<3;k++){
       if(mainFrame.awards[k]){//Drawing the unlocked achievements, if any.
         g.drawImage(mainFrame.trophies[k],300+k*200,460,150,150,null);
@@ -1540,7 +1549,7 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
           mainFrame.change=true;
         }
       }
-      if(95<desty && desty<315){        //Gets the selected level from the user
+      if(95<desty && desty<315){        //Gets the selected level from the user.
         if(110<destx && destx<190){
           mainFrame.gameLevel=level1;
           mainFrame.stage=1;
@@ -1688,7 +1697,7 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
     }
     return monsters;
   }
-  public int time(){ //Method for timing the spawns.
+  public int time(){ //Method for timing the wave increases.
     if(waitTime<1){
       int tmp=waitTime;
       waitTime=1;
@@ -1697,7 +1706,7 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
     }
     return waitTime;
   } 
-  public static int randint(int low, int high){   // Gets a random integer between a set range
+  public static int randint(int low, int high){   // Gets a random integer between a set range.
     return (int)(Math.random()*(high-low+1)+low);
   }
 }
