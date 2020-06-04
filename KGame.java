@@ -24,7 +24,7 @@ public class KGame extends JFrame{ //Main, public class.
   public boolean[] awards=new boolean[3];//These two arrays are used to keep track of whether or not the player has earned any of the three possible achievements.
   public Image[] trophies=new Image[3];
   public String[] lines=new String[3];//The three possible achievement images will be stored here.
-  public String[] descriptions={"You're on your way!\nCompleted the first level.","Master of defence!\nFinished the last level.","Just the beginning.\nAttempted the endless mode."};//Achievement descriptions.
+  public String[] descriptions={"You're on your way! \nCompleted the first level. ","Master of defence! \nFinished the last level. ","Congratulations. \nYou passed the 10th stage of endless. "};//Achievement descriptions.
   public String[] gameLevel={""};  //Will hold Strings that represent which enemy types will be spawned in, or what the level and delay between enemies should be.
   public int stage;
   public boolean endless=false;
@@ -335,6 +335,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         else{
           g.drawImage(lost,0,0,1000,700,null);
+          if(mainFrame.endless){
+            Font font = new Font("Verdana", Font.BOLD, 30);
+            g.setFont(font);
+            g.drawString("You reached wave "+game.wave,510,500);
+            if(game.wave>10){
+              mainFrame.stage=-1;
+            }
+          }
         }
         if(keys[KeyEvent.VK_ENTER]){  //When the player enters to end the finished game level and return to level select.
           mainFrame.kind="Level";//Resetting variables so new game levels will be properly new.
@@ -348,10 +356,10 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           if(!mainFrame.awards[0] && mainFrame.stage==1 && didWon){//When the first level has been completed.
             changed=0;
           }
-          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the second level is completed.           
+          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the last level is completed.           
             changed=1;
           }
-          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been attempted.
+          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been cleared past stage 10.
             changed=2;
           }
           else{
@@ -805,6 +813,8 @@ class Kant{ //Class for the player-controlled character.
     }
   }
 }
+
+
 class Tower{ //Class for the turrets. This class is also used for the canons, spikes, mines, and coin-producing defences, too.
   public int x;
   public int y;
@@ -929,6 +939,8 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
     }
   }
 }
+
+
 class Bullet{ //Class for the bullets and projectiles in the game fired by the defences.
   int x;
   int y;
@@ -1016,200 +1028,125 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
 }
 
 
-class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas except that it is not for a game's level and has reduced features.
-  private int destx,desty; //Variables for keeping track of the mouse's position.
-  private Image screen;    //Images of the rules and credits that will be shown on the screen when selected.
-  private Image rulePic;
-  private Image credits;
-  private KGame mainFrame;
-  private boolean rules=false; //Booleans for if these should be shown.
-  private boolean credit=false;
-  public boolean ready=false;
-  public Menu(KGame m){  //Constructor.
-    mainFrame=m;
-    addMouseListener(new clickListener());
-    destx=-20;  //Default values for the mouse's position is off screen.
-    desty=-20;
-    setSize(800,600);
-    screen=new ImageIcon("KantScreen.jpg").getImage(); //Loading in the images.
-    rulePic=new ImageIcon("rules.png").getImage();
-    credits=new ImageIcon("credits.png").getImage();
+class Samurai{ //Class for the samurai heros that the player does not control.
+  public int x;
+  public int y;
+  public int health;
+  public int maxhealth;
+  public int damage;
+  public int level=1;;
+  public String action="r"; //String that keeps track of which direction the samurai is heading, or if it is attacking.
+  public int spot=0;   //Index of the only-moving animation pictures.
+  public int attack=0; //Keeps track of which image in samurai's attack images should be drawn.
+  public boolean select=false;
+  public int tmppt=0;
+  public Samurai(int sx, int sy){ //Constructor.
+    x=sx; y=sy+20;
+    health=1000;
+    maxhealth=health;
+    damage=3;
   }
-  public void addNotify() {    //Method for notifying, seeing if the graphics are ready.
-    super.addNotify();
-    requestFocus();
-    ready = true;
-  }
-  
-  public void paintComponent(Graphics g){   //Method for actually drawing all the needed graphics onto the screen.
-    g.drawImage(screen,0,0,1000,700,null);  //Drawing the base image and the rules or the credits if selected.
-    if(rules){
-      g.drawImage(rulePic,0,0,995,665,null);
-    }
-    if(credit){
-      g.drawImage(credits,0,0,1000,700,null);
-    }
-  }
-  
-  class clickListener implements MouseListener{  //Class for checking for the user's mouse inputs.
-    public void mouseEntered(MouseEvent e) {
-    }  //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
-    public void mouseExited(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}    
-    public void mouseClicked(MouseEvent e){}  
-    
-    public void mousePressed(MouseEvent e){ //Method for getting the coordinates of the mouse.
-      destx = e.getX();
-      desty = e.getY();   //Below, if the x and y positions of the mouse are within a certain range, the corresponding image's boolean will be made true or false.
-      if(410<destx && destx<610 && !rules){ //Allows you to navigate around the title screen using clicks
-        if(210<desty && desty<350){
-          mainFrame.kind="Level";
-          mainFrame.change=true;
-        }
-      }
-      if(410<destx && destx<610){
-        if(370<desty && desty<510){
-          rules=true;
-        }
-      }
-      if(410<destx && destx<610){
-        if(530<desty && desty<670){
-          credit=true;
-        }
-      }
-      if(rules){
-        if(0<destx && destx<100){
-          if(0<desty && desty<80){
-            rules=false;
+  public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk, int selx, int sely){//Method for drawing the samurai and its actions.
+    String tmpA=action;
+    ArrayList<Monster>tmpmons=new ArrayList<Monster>(); //Will hold all of the vanquished monsters.
+    for(Monster m:monsters){            //Going through all the monsters.
+      if(m.y==y && m.x<x+100 && m.x>x){ //If in range.
+        action="a";
+        g.drawImage(samatk[attack/4],x,y,50,50,null);
+        if(!m.type.equals("ghost")){    //Samurai attacks if the enemy is not a ghost.
+          if(m.damage(2,"Samurai")){
+            tmpmons.add(m);
           }
         }
-      }
-      if(credit){
-        if(0<destx && destx<100){
-          if(0<desty && desty<80){
-            credit=false;
-          }
+        attack+=1;
+        if(attack==36){  //Making sure the index does not go out of range.
+          attack=0;
         }
       }
+    }
+    monsters.removeAll(tmpmons);//Clearing the monsters of the dead.
+    if(action.equals("r")){
+      g.drawImage(samwalk[spot/4],x,y,50,50,null);//Drawing the samurai as it moves right.
+      x+=1;
+    }
+    else if(action.equals("l")){//Samurai moving left.
+      g.drawImage(samwalkb[spot/4],x,y,50,50,null);
+      x-=1;
+    }
+    spot+=1;
+    if(spot==24){
+      spot=0;//Keeping index in range.
+    }
+    if(x>800){
+      action="l"; //When the samurai has to turn around after walking in either direction.
+    }
+    if(x<100){
+      action="r";
+    }
+    if(action.equals("a")){
+      action=tmpA;
+    }
+    if(select){   //For when the player selects to view the samurai's information.
+      if(tmppt==selx*sely){
+        g.drawRect(x,y,50,50);
+        g.drawImage(samatk[0],200,10,40,40,null);
+        if(level<4){
+          g.drawString("Level Up | "+level+" -> "+(level+1),200,60);
+          g.drawString("Cost: "+(level*70),200,80);
+        }
+        else{
+          g.drawString("Max Level",200,60);
+        }
+        g.drawRect(250,25,maxhealth/16,10); //Drawing the health-bar.
+        g.fillRect(250,25,health/16,10);
+      }
+      else{
+        select=false;
+      }
+    }
+    if(x<selx && selx<x+50 && y<sely && sely<y+50){
+      select=true;     //When the samurai is to be viewed.
+      tmppt=selx*sely;
+    }
+  }
+  public boolean damage(int hurt){ //Method for damaging the samurai.
+    health-=hurt;
+    if(health<=0){
+      return true;
+    }
+    return false;
+  }
+  public void levelUp(){   //Method for the samurai's leveling up.
+    if(level<4){           //Improving the stats as well by 150%.
+      maxhealth+=maxhealth/2;
+      health=maxhealth;
+      damage+=damage/2;
+      level+=1;
     }
   }
 }
 
 
-class Level extends JPanel{  //Class for the level-select screen. Very similar to the menu.
-  public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
-  public String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
-  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
-  public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
-  public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
-  public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
-  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
-  public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
-  private int destx,desty; //Variables for keeping track of the mouse's position. Above, the arrays hold the enemy spawn-order and spawn-times for each level.
-  public KGame mainFrame;
-  public boolean ready=false;
-  private Image levelSelect;
-  public Level(KGame m){ //Constructor.
-    mainFrame=m;
-    addMouseListener(new clickListener());
-    destx=-20;    //Default values for the mouse's position is off screen.
-    desty=-20;
-    setSize(1000,700);
-    levelSelect=new ImageIcon("LevelSelect.png").getImage();
+class Coin{ //Class for the coins that the player can click on to collect and gain money.
+  int x;
+  int y;
+  int val;
+  int indy=0;
+  public Coin(int sx,int sy, int vall){
+    x=(int)(Math.random()*(sx+20-sx+20+1)+sx-20); //Getting a random coin position within a certain area. Area is determined by the coin-spawning tower's position.
+    y=(int)(Math.random()*(sy+20-sy+20+1)+sy-20);
+    val=vall;
   }
-  public void addNotify() {  //Method for notifying, seeing if the graphics are ready.
-    super.addNotify();
-    requestFocus();
-    ready = true;
-  }
-  
-  public void paintComponent(Graphics g){ //Method for actually drawing all the needed graphics onto the screen.
-    g.drawImage(levelSelect,0,0,1000,700,null);
-    for(int k=0;k<3;k++){
-      if(mainFrame.awards[k]){//Drawing the unlocked achievements, if any.
-        g.drawImage(mainFrame.trophies[k],300+k*200,460,150,150,null);
-      }
-    }
-    if(desty>460 && desty<610){
-      for(int k=0;k<3;k++){//If the player clicks on a trophy, the description will be shown.
-        if(destx>300+k*200 && destx<300+k*200+150 && mainFrame.awards[k]){
-          Font font = new Font("Verdana", Font.BOLD, 17);
-          g.setFont(font); //Creating the font and setting its colour.
-          g.setColor(Color.black);
-          g.drawString(mainFrame.descriptions[k],300,380);
-        }
-      }
-    }
-  }
-  
-  class clickListener implements MouseListener{ //Class for checking for the user's mouse inputs.
-    public void mouseEntered(MouseEvent e) {}   //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
-    public void mouseExited(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}    
-    public void mouseClicked(MouseEvent e){}  
-    
-    public void mousePressed(MouseEvent e){   //Method for getting the coordinates of the mouse.
-      destx = e.getX();
-      desty = e.getY();    //Below, if the x and y coordinates are within a certain area, the corresponding level will be made to be loaded up and turned to.
-      if(420<desty && desty<595){
-        if(110<destx && destx<190){
-          mainFrame.endless=true;  //For the endless level.
-          mainFrame.kind="Game";
-          mainFrame.change=true;
-          mainFrame.stage=-1;
-        }
-      }
-      if(95<desty && desty<315){        //Gets the selected level from the user
-        if(110<destx && destx<190){
-          mainFrame.gameLevel=level1;
-          mainFrame.stage=1;
-        }
-        else if(190<destx && destx<275){
-          mainFrame.gameLevel=level2;
-          mainFrame.stage=2;
-        }
-        else if(275<destx && destx<355){
-          mainFrame.gameLevel=level3;
-          mainFrame.stage=3;
-        }
-        else if(355<destx && destx<440){
-          mainFrame.gameLevel=level4;
-          mainFrame.stage=4;
-        }
-        else if(440<destx && destx<520){
-          mainFrame.gameLevel=level5;
-          mainFrame.stage=5;
-        }
-        else if(520<destx && destx<605){
-          mainFrame.gameLevel=level6;
-          mainFrame.stage=6;
-        }
-        else if(605<destx && destx<680){
-          mainFrame.gameLevel=level7;
-          mainFrame.stage=7;
-        }
-        else if(680<destx && destx<765){
-          mainFrame.gameLevel=level8;
-          mainFrame.stage=8;
-        }
-        else if(765<destx && destx<835){
-          mainFrame.gameLevel=level9;
-          mainFrame.stage=9;
-        }
-        else if(835<destx && destx<900){
-          mainFrame.gameLevel=level10;
-          mainFrame.stage=10;
-        }
-        if(110<destx && destx<900){
-          mainFrame.kind="Game";
-          mainFrame.change=true;
-        }
-      }
+  public void draw(Graphics g,Image[] i){
+    g.drawImage(i[indy],x,y,20,20,null); //Drawing the coin in its movements.
+    indy+=1;
+    if(indy==6){
+      indy=0;
     }
   }
 }
+
+
 class Monster{  //Class for the monster enemies.
   public KGame mainFrame; //Basic variables to control health, damage, and movement
   public int x;
@@ -1442,6 +1379,8 @@ class Monster{  //Class for the monster enemies.
     }
   }
 }
+
+
 class Sound{    //Sound class. Used for sound-effects.
   File wavFile;
   AudioClip sound;
@@ -1455,6 +1394,203 @@ class Sound{    //Sound class. Used for sound-effects.
     sound.play();
   }
 }
+
+
+class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas except that it is not for a game's level and has reduced features.
+  private int destx,desty; //Variables for keeping track of the mouse's position.
+  private Image screen;    //Images of the rules and credits that will be shown on the screen when selected.
+  private Image rulePic;
+  private Image credits;
+  private KGame mainFrame;
+  private boolean rules=false; //Booleans for if these should be shown.
+  private boolean credit=false;
+  public boolean ready=false;
+  public Menu(KGame m){  //Constructor.
+    mainFrame=m;
+    addMouseListener(new clickListener());
+    destx=-20;  //Default values for the mouse's position is off screen.
+    desty=-20;
+    setSize(800,600);
+    screen=new ImageIcon("KantScreen.jpg").getImage(); //Loading in the images.
+    rulePic=new ImageIcon("rules.png").getImage();
+    credits=new ImageIcon("credits.png").getImage();
+  }
+  public void addNotify() {    //Method for notifying, seeing if the graphics are ready.
+    super.addNotify();
+    requestFocus();
+    ready = true;
+  }
+  
+  public void paintComponent(Graphics g){   //Method for actually drawing all the needed graphics onto the screen.
+    g.drawImage(screen,0,0,1000,700,null);  //Drawing the base image and the rules or the credits if selected.
+    if(rules){
+      g.drawImage(rulePic,0,0,995,665,null);
+    }
+    if(credit){
+      g.drawImage(credits,0,0,1000,700,null);
+    }
+  }
+  
+  class clickListener implements MouseListener{  //Class for checking for the user's mouse inputs.
+    public void mouseEntered(MouseEvent e) {
+    }  //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+    public void mouseExited(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}    
+    public void mouseClicked(MouseEvent e){}  
+    
+    public void mousePressed(MouseEvent e){ //Method for getting the coordinates of the mouse.
+      destx = e.getX();
+      desty = e.getY();   //Below, if the x and y positions of the mouse are within a certain range, the corresponding image's boolean will be made true or false.
+      if(410<destx && destx<610 && !rules){ //Allows you to navigate around the title screen using clicks
+        if(210<desty && desty<350){
+          mainFrame.kind="Level";
+          mainFrame.change=true;
+        }
+      }
+      if(410<destx && destx<610){
+        if(370<desty && desty<510){
+          rules=true;
+        }
+      }
+      if(410<destx && destx<610){
+        if(530<desty && desty<670){
+          credit=true;
+        }
+      }
+      if(rules){
+        if(0<destx && destx<100){
+          if(0<desty && desty<80){
+            rules=false;
+          }
+        }
+      }
+      if(credit){
+        if(0<destx && destx<100){
+          if(0<desty && desty<80){
+            credit=false;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+class Level extends JPanel{  //Class for the level-select screen. Very similar to the menu.
+  public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
+  public String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
+  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
+  public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
+  public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
+  public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  public String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
+  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
+  private int destx,desty; //Variables for keeping track of the mouse's position. Above, the arrays hold the enemy spawn-order and spawn-times for each level.
+  public KGame mainFrame;
+  public boolean ready=false;
+  private Image levelSelect;
+  public Level(KGame m){ //Constructor.
+    mainFrame=m;
+    addMouseListener(new clickListener());
+    destx=-20;    //Default values for the mouse's position is off screen.
+    desty=-20;
+    setSize(1000,700);
+    levelSelect=new ImageIcon("LevelSelect.png").getImage();
+  }
+  public void addNotify() {  //Method for notifying, seeing if the graphics are ready.
+    super.addNotify();
+    requestFocus();
+    ready = true;
+  }
+  
+  public void paintComponent(Graphics g){ //Method for actually drawing all the needed graphics onto the screen.
+    g.drawImage(levelSelect,0,0,1000,700,null);
+    for(int k=0;k<3;k++){
+      if(mainFrame.awards[k]){//Drawing the unlocked achievements, if any.
+        g.drawImage(mainFrame.trophies[k],300+k*200,460,150,150,null);
+      }
+    }
+    if(desty>460 && desty<610){
+      for(int k=0;k<3;k++){//If the player clicks on a trophy, the description will be shown.
+        if(destx>300+k*200 && destx<300+k*200+150 && mainFrame.awards[k]){
+          Font font = new Font("Verdana", Font.BOLD, 17);
+          g.setFont(font); //Creating the font and setting its colour.
+          g.setColor(Color.black);
+          g.drawString(mainFrame.descriptions[k],300,380);
+        }
+      }
+    }
+  }
+  
+  class clickListener implements MouseListener{ //Class for checking for the user's mouse inputs.
+    public void mouseEntered(MouseEvent e) {}   //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
+    public void mouseExited(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}    
+    public void mouseClicked(MouseEvent e){}  
+    
+    public void mousePressed(MouseEvent e){   //Method for getting the coordinates of the mouse.
+      destx = e.getX();
+      desty = e.getY();    //Below, if the x and y coordinates are within a certain area, the corresponding level will be made to be loaded up and turned to.
+      if(420<desty && desty<595){
+        if(110<destx && destx<190){
+          mainFrame.endless=true;  //For the endless level.
+          mainFrame.kind="Game";
+          mainFrame.change=true;
+        }
+      }
+      if(95<desty && desty<315){        //Gets the selected level from the user
+        if(110<destx && destx<190){
+          mainFrame.gameLevel=level1;
+          mainFrame.stage=1;
+        }
+        else if(190<destx && destx<275){
+          mainFrame.gameLevel=level2;
+          mainFrame.stage=2;
+        }
+        else if(275<destx && destx<355){
+          mainFrame.gameLevel=level3;
+          mainFrame.stage=3;
+        }
+        else if(355<destx && destx<440){
+          mainFrame.gameLevel=level4;
+          mainFrame.stage=4;
+        }
+        else if(440<destx && destx<520){
+          mainFrame.gameLevel=level5;
+          mainFrame.stage=5;
+        }
+        else if(520<destx && destx<605){
+          mainFrame.gameLevel=level6;
+          mainFrame.stage=6;
+        }
+        else if(605<destx && destx<680){
+          mainFrame.gameLevel=level7;
+          mainFrame.stage=7;
+        }
+        else if(680<destx && destx<765){
+          mainFrame.gameLevel=level8;
+          mainFrame.stage=8;
+        }
+        else if(765<destx && destx<835){
+          mainFrame.gameLevel=level9;
+          mainFrame.stage=9;
+        }
+        else if(835<destx && destx<900){
+          mainFrame.gameLevel=level10;
+          mainFrame.stage=10;
+        }
+        if(110<destx && destx<900){
+          mainFrame.kind="Game";
+          mainFrame.change=true;
+        }
+      }
+    }
+  }
+}
+
+
 class GameMaker{ //Class for getting the monsters to be spawned in at the right time, according to the level.
   public KGame mainFrame;
   public String[] spawn=new String[25];
@@ -1563,120 +1699,5 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
   } 
   public static int randint(int low, int high){   // Gets a random integer between a set range
     return (int)(Math.random()*(high-low+1)+low);
-  }
-}
-class Coin{ //Class for the coins that the player can click on to collect and gain money.
-  int x;
-  int y;
-  int val;
-  int indy=0;
-  public Coin(int sx,int sy, int vall){
-    x=(int)(Math.random()*(sx+20-sx+20+1)+sx-20); //Getting a random coin position within a certain area. Area is determined by the coin-spawning tower's position.
-    y=(int)(Math.random()*(sy+20-sy+20+1)+sy-20);
-    val=vall;
-  }
-  public void draw(Graphics g,Image[] i){
-    g.drawImage(i[indy],x,y,20,20,null); //Drawing the coin in its movements.
-    indy+=1;
-    if(indy==6){
-      indy=0;
-    }
-  }
-}
-class Samurai{ //Class for the samurai heros that the player does not control.
-  public int x;
-  public int y;
-  public int health;
-  public int maxhealth;
-  public int damage;
-  public int level=1;;
-  public String action="r"; //String that keeps track of which direction the samurai is heading, or if it is attacking.
-  public int spot=0;   //Index of the only-moving animation pictures.
-  public int attack=0; //Keeps track of which image in samurai's attack images should be drawn.
-  public boolean select=false;
-  public int tmppt=0;
-  public Samurai(int sx, int sy){ //Constructor.
-    x=sx; y=sy+20;
-    health=1000;
-    maxhealth=health;
-    damage=3;
-  }
-  public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk, int selx, int sely){//Method for drawing the samurai and its actions.
-    String tmpA=action;
-    ArrayList<Monster>tmpmons=new ArrayList<Monster>(); //Will hold all of the vanquished monsters.
-    for(Monster m:monsters){            //Going through all the monsters.
-      if(m.y==y && m.x<x+100 && m.x>x){ //If in range.
-        action="a";
-        g.drawImage(samatk[attack/4],x,y,50,50,null);
-        if(!m.type.equals("ghost")){    //Samurai attacks if the enemy is not a ghost.
-          if(m.damage(2,"Samurai")){
-            tmpmons.add(m);
-          }
-        }
-        attack+=1;
-        if(attack==36){  //Making sure the index does not go out of range.
-          attack=0;
-        }
-      }
-    }
-    monsters.removeAll(tmpmons);//Clearing the monsters of the dead.
-    if(action.equals("r")){
-      g.drawImage(samwalk[spot/4],x,y,50,50,null);//Drawing the samurai as it moves right.
-      x+=1;
-    }
-    else if(action.equals("l")){//Samurai moving left.
-      g.drawImage(samwalkb[spot/4],x,y,50,50,null);
-      x-=1;
-    }
-    spot+=1;
-    if(spot==24){
-      spot=0;//Keeping index in range.
-    }
-    if(x>800){
-      action="l"; //When the samurai has to turn around after walking in either direction.
-    }
-    if(x<100){
-      action="r";
-    }
-    if(action.equals("a")){
-      action=tmpA;
-    }
-    if(select){   //For when the player selects to view the samurai's information.
-      if(tmppt==selx*sely){
-        g.drawRect(x,y,50,50);
-        g.drawImage(samatk[0],200,10,40,40,null);
-        if(level<4){
-          g.drawString("Level Up | "+level+" -> "+(level+1),200,60);
-          g.drawString("Cost: "+(level*70),200,80);
-        }
-        else{
-          g.drawString("Max Level",200,60);
-        }
-        g.drawRect(250,25,maxhealth/16,10); //Drawing the health-bar.
-        g.fillRect(250,25,health/16,10);
-      }
-      else{
-        select=false;
-      }
-    }
-    if(x<selx && selx<x+50 && y<sely && sely<y+50){
-      select=true;     //When the samurai is to be viewed.
-      tmppt=selx*sely;
-    }
-  }
-  public boolean damage(int hurt){ //Method for damaging the samurai.
-    health-=hurt;
-    if(health<=0){
-      return true;
-    }
-    return false;
-  }
-  public void levelUp(){   //Method for the samurai's leveling up.
-    if(level<4){           //Improving the stats as well by 150%.
-      maxhealth+=maxhealth/2;
-      health=maxhealth;
-      damage+=damage/2;
-      level+=1;
-    }
   }
 }
