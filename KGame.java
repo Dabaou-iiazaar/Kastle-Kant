@@ -15,21 +15,21 @@ import java.applet.*;
 import java.lang.Math;
 import javax.swing.Timer;          //Specifying which Timer since there would be a conflict with util otherwise.
 public class KGame extends JFrame{ //Main, public class.
-  public String kind="Menu";       //String that determines which GamePanel should be on the JFrqme.
-  public boolean change=false;     //Variable that becomes true when there should be a GamePanel change.
+  private String kind="Menu";       //String that determines which GamePanel should be on the JFrqme.
+  private boolean change=false;     //Variable that becomes true when there should be a GamePanel change.
   Timer myTimer;                   //Timer to keep the graphics at a good pace.  
   GamePanel game;                  //This and the two below are the 3 different GamePanels that are added.
   Menu menu;
   Level level;
-  public boolean[] awards=new boolean[3];//These two arrays are used to keep track of whether or not the player has earned any of the three possible achievements.
-  public Image[] trophies=new Image[3];
-  public String[] lines=new String[3];//The three possible achievement images will be stored here.
-  public String[] descriptions={"You're on your way! \nCompleted the first level. ","Master of defence! \nFinished the last level. ","Congratulations. \nYou passed the 10th stage of endless. "};//Achievement descriptions.
-  public String[] gameLevel={""};  //Will hold Strings that represent which enemy types will be spawned in, or what the level and delay between enemies should be.
-  public int stage;
-  public boolean endless=false;
+  private boolean[] awards=new boolean[3];//These two arrays are used to keep track of whether or not the player has earned any of the three possible achievements.
+  private Image[] trophies=new Image[3];
+  private String[] lines=new String[3];//The three possible achievement images will be stored here.
+  private String[] descriptions={"You're on your way! \nCompleted the first level. ","Master of defence! \nFinished the last level. ","Congratulations. \nYou passed the 10th stage of endless. "};//Achievement descriptions.
+  private String[] gameLevel={""};  //Will hold Strings that represent which enemy types will be spawned in, or what the level and delay between enemies should be.
+  private int stage;
+  private boolean endless=false;
   private static Sequencer midiPlayer;
-  public int healthG=5;            //Once reaches zero, the level of the game that the player is on will end, they will lose.
+  private boolean healthG=true;            //Once reaches zero, the level of the game that the player is on will end, they will lose.
   public KGame() {           //Constructor.
     super("Kant's Kastle");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,7 +64,55 @@ public class KGame extends JFrame{ //Main, public class.
       System.out.println(e);
     }
   }
-  
+  //Getters and Setters
+  public void kind(String type){
+    kind=type;
+  }
+  public void change(){
+    change=true;
+  }
+  public boolean[] awards(){
+    return awards;
+  }
+  public void awardsSet(int spot){
+    awards[spot]=true;
+  }
+  public Image[] tImg(){
+    return trophies;
+  }
+  public String lines(int spot){
+    return lines[spot];
+  }
+  public void linesSet(int spot){
+    lines[spot]="yes";
+  }
+  public String[] descriptions(){
+    return descriptions;
+  }
+  public String[] gameLevel(){
+    return gameLevel;
+  }
+  public void levelSet(String[] level){
+    gameLevel=level;
+  }
+  public int stage(){
+    return stage;
+  }
+  public void stageSet(int s){
+    stage=s;
+  }
+  public boolean endless(){
+    return endless;
+  }
+  public void Setendless(boolean b){
+    endless=b;
+  }
+  public boolean healthG(){
+    return healthG;
+  }
+  public void SetHealth(boolean h){
+    healthG=h;
+  }
   class TickListener implements ActionListener{    //Class and its one method to update the graphics on screen every time the Timer tells them to. Creates the different screens and allows you to switch between them.
     public void actionPerformed(ActionEvent evt){
       if(change==true && kind.equals("Game")){     //Below, depending on which current GamePanel the JFrame has, a new GamePanel will be added if change is called for.
@@ -129,26 +177,26 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private KGame mainFrame;
   public boolean ready=false;
   private boolean [] keys;
-  public Image[] kantMoves=new Image[13];  //Arrays for holding some of the images for the game that have similar names. Most of these are sprites.
-  public Image[] turretI=new Image[10];    //Throughout, turret, tower and defence will be used interchangeably. Tower is the name of the class used for all our defences.
-  public Image[] coinsI=new Image[6];
-  public Image tile1;                      //Tile1/2 and stone are for drawing the game board.
-  public Image tile2;
-  public Image shovel;
-  public Image stone;
-  public Image slot;
-  public int[] costs={20,40,80,160,60,90,50,55,70,25};        //Costs for the turrets.
-  public ArrayList<Integer> chosenT=new ArrayList<Integer>(); //ArrayList holding the player's chosen turrets.
-  public ArrayList<Tower> turrets=new ArrayList<Tower>();     //ArrayList holding all the turrets active in the game.
-  public ArrayList<Monster> monsters=new ArrayList<Monster>();//ArrayList holding all the monsters active in the game.
-  public ArrayList<Bullet> bullets=new ArrayList<Bullet>();   //All the bullets active in the game.
-  public ArrayList<Bullet> trashB=new ArrayList<Bullet>();    //Below, ArrayLists for holding objects that are to be removed from the game. Done this way to avoid concurrent modification errors.
-  public ArrayList<Tower> trashT=new ArrayList<Tower>();
-  public ArrayList<Coin> coins=new ArrayList<Coin>();
-  public ArrayList<Coin> trashC=new ArrayList<Coin>();
-  public boolean beginPlay=false;                             //Determines if the game sequence is ready or not.
-  public String turretType = "Basic";  //Default selected turret.
-  public int tBox=100;                 //X-coordinate of the box that is to be draw around the selected turret.
+  private Image[] kantMoves=new Image[13];  //Arrays for holding some of the images for the game that have similar names. Most of these are sprites.
+  private Image[] turretI=new Image[10];    //Throughout, turret, tower and defence will be used interchangeably. Tower is the name of the class used for all our defences.
+  private Image[] coinsI=new Image[6];
+  private Image tile1;                      //Tile1/2 and stone are for drawing the game board.
+  private Image tile2;
+  private Image shovel;
+  private Image stone;
+  private Image slot;
+  private int[] costs={20,40,80,160,60,90,50,55,70,25};        //Costs for the turrets.
+  private ArrayList<Integer> chosenT=new ArrayList<Integer>(); //ArrayList holding the player's chosen turrets.
+  private ArrayList<Tower> turrets=new ArrayList<Tower>();     //ArrayList holding all the turrets active in the game.
+  private ArrayList<Monster> monsters=new ArrayList<Monster>();//ArrayList holding all the monsters active in the game.
+  private ArrayList<Bullet> bullets=new ArrayList<Bullet>();   //All the bullets active in the game.
+  private ArrayList<Bullet> trashB=new ArrayList<Bullet>();    //Below, ArrayLists for holding objects that are to be removed from the game. Done this way to avoid concurrent modification errors.
+  private ArrayList<Tower> trashT=new ArrayList<Tower>();
+  private ArrayList<Coin> coins=new ArrayList<Coin>();
+  private ArrayList<Coin> trashC=new ArrayList<Coin>();
+  private boolean beginPlay=false;                             //Determines if the game sequence is ready or not.
+  private String turretType = "Basic";  //Default selected turret.
+  private int tBox=100;                 //X-coordinate of the box that is to be draw around the selected turret.
   private Image background;
   private Image castle;
   private Image fence;
@@ -156,29 +204,29 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   private Kant kant=new Kant(120,120); //Spawning in thd player-controlled character that is used as a weapon.
   private int picInd=2;                //Index for which sprite for Kant should be drawn.
   private int walkSpeed=4;             //Kant's walkspeed.
-  public int timer=0;                  //Timing for spawning monsters.
-  public double volume=0;
+  private int timer=0;                  //Timing for spawning monsters.
+  private double volume=0;
   private Monster tmpMon;              //Will hold a monster that is to be drawn and shown with information.
   private Tower tmpTurret;             //Same as above, but for turrets.
-  public Sound[] canS=new Sound[4];    //Sound effects.
-  public Sound[] monS=new Sound[4];
-  public Sound explosion;
-  public GameMaker game;               //Helps to read in which enemies are to be spawned in and when.
-  public int soundCount=40;            //Timer that, when lowered enough, will play the monster horde's sound effect.
+  private Sound[] canS=new Sound[4];    //Sound effects.
+  private Sound[] monS=new Sound[4];
+  private Sound explosion;
+  private GameMaker game;               //Helps to read in which enemies are to be spawned in and when.
+  private int soundCount=40;            //Timer that, when lowered enough, will play the monster horde's sound effect.
   private Image lost;
   private Image won;
-  public boolean ends=false;           //Variables for checking if certain conditions are met.
-  public boolean didWon=false;
-  public boolean isDown=false;
-  public String mouseSelect="None";
-  public int mouseIndex=-1;            //Index for which turret's image should be drawn on the mouse's postion, for placing.
-  public boolean placeTurr=false;
-  public int backx=-1000;              //X-coordinate for scrolling the game's screen at the beginning.
-  public String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Gold","Samurai","Spike","Mine"};
-  public ArrayList<Samurai>sams= new ArrayList<Samurai>(); //Special ArrayList just for holding the Samurai defenders.
-  public Image[]samwalk=new Image[6];  //Sprites for the samurai.
-  public Image[]samwalkb=new Image[6];
-  public Image[]samatk=new Image[9];
+  private boolean ends=false;           //Variables for checking if certain conditions are met.
+  private boolean didWon=false;
+  private boolean isDown=false;
+  private String mouseSelect="None";
+  private int mouseIndex=-1;            //Index for which turret's image should be drawn on the mouse's postion, for placing.
+  private boolean placeTurr=false;
+  private int backx=-1000;              //X-coordinate for scrolling the game's screen at the beginning.
+  private String[] typesT={"Basic","Normal","Good","Great","Wall","Cannon","Gold","Samurai","Spike","Mine"};
+  private ArrayList<Samurai>sams= new ArrayList<Samurai>(); //Special ArrayList just for holding the Samurai defenders.
+  private Image[]samwalk=new Image[6];  //Sprites for the samurai.
+  private Image[]samwalkb=new Image[6];
+  private Image[]samatk=new Image[9];
   public GamePanel(KGame m){     //Constructor.
     mainFrame=m; //Making sure the JFrame can still be accessed.
     keys = new boolean[KeyEvent.KEY_LAST+1];     //Getting keyboard input and mouse information.
@@ -210,7 +258,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
     turretI[4]=new ImageIcon("barricade.png").getImage();
     turretI[5]=new ImageIcon("cannon.png").getImage();
-    if(mainFrame.endless){
+    if(mainFrame.endless()){
       turretI[6]=new ImageIcon("sunx.png").getImage();
     }
     else{
@@ -230,9 +278,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     lost=new ImageIcon("loser.png").getImage();
     won=new ImageIcon("winner.png").getImage();
     slot=new ImageIcon("slot.png").getImage();
-    String[]gameMons=mainFrame.gameLevel;
-    game=new GameMaker(gameMons,mainFrame,mainFrame.endless);//New GameMaker for the processing enemies.
-    if(mainFrame.endless){
+    String[]gameMons=mainFrame.gameLevel();
+    game=new GameMaker(gameMons,mainFrame,mainFrame.endless());//New GameMaker for the processing enemies.
+    if(mainFrame.endless()){
       money=350;            // You start with 350 coins in endless mode.
     }
   }
@@ -245,9 +293,9 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
   
   public void move(){                  //Method for moving Kant using WASD and updating the index for his sprites, and for placing down the turrets of the player,a and for some other key controls.
     if (keys[KeyEvent.VK_BACK_SPACE]){ //At any time during an actual game level, the player can quit back to the game menu.
-      mainFrame.kind="Menu";//Resetting variables for possible new game levels.
-      mainFrame.change=true;
-      mainFrame.endless=false;
+      mainFrame.kind("Menu");//Resetting variables for possible new game levels.
+      mainFrame.change();
+      mainFrame.Setendless(false);
       keys[KeyEvent.VK_BACK_SPACE]=false;
     }
     if (keys[KeyEvent.VK_W]){
@@ -327,6 +375,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       placeTurr=false;
     }
   }
+  
   public void paintComponent(Graphics g){   //Method for actually drawing all the needed graphics onto the screen.
     if(beginPlay){                  //When the turrets are chosen by the player.
       if(ends){                     //When the actual game level has ended.
@@ -335,45 +384,26 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         else{
           g.drawImage(lost,0,0,1000,700,null);
-          if(mainFrame.endless){
+          if(mainFrame.endless()){
             Font font = new Font("Verdana", Font.BOLD, 30);
             g.setFont(font);
             g.drawString("You reached wave "+game.wave,510,500);
             if(game.wave>10){
-              mainFrame.stage=-1;
+              mainFrame.stageSet(-1);
             }
           }
         }
         if(keys[KeyEvent.VK_ENTER]){  //When the player enters to end the finished game level and return to level select.
-          mainFrame.kind="Level";//Resetting variables so new game levels will be properly new.
-          mainFrame.change=true;
+          mainFrame.kind("Level");//Resetting variables so new game levels will be properly new.
+          mainFrame.change();
           ends=false;
           didWon=false;
-          mainFrame.endless=false;
+          mainFrame.Setendless(false);
         }
         updateTro();
         return;
       }
-      g.drawImage(background,backx+1000,0,1000,700,null); //Drawing the images that almost always appear on the screen during a game.
-      int countT=0;      //Keeping track of which type of grass tile is supposed to be drawn. ALternates form the darker variety to the lighter, or vice-versa.
-      for(int xx=backx;xx<backx+1000;xx+=100){            //Going through some positions on the screen and drawing the bordering stone tiles.
-        g.drawImage(stone,xx,0,100,100,null);
-        g.drawImage(stone,xx,600,100,100,null);
-        g.drawImage(stone,backx+900,xx-backx,100,100,null);
-      }
-      for(int xxx=backx;xxx<backx+900;xxx+=100){  //Drawing all the alternating grasss tiles.
-        for(int yyy=100;yyy<600;yyy+=100){
-          if(countT%2==0){
-            g.drawImage(tile1,xxx,yyy,100,100,null);
-          }
-          else{
-            g.drawImage(tile2,xxx,yyy,100,100,null);
-          }
-          countT++;
-        }
-      }
-      g.drawImage(shovel,900,backx,40,40,null);
-      g.drawImage(castle,backx-225,-300,400,1100,null);
+      background(g);
       g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null); //Drawing the Kant sprites.
       if(kant.attack){
         g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
@@ -382,18 +412,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         backx+=15;
         return;
       }
-      Font font = new Font("Verdana", Font.BOLD, 17);
       if(game.spot==-1 && monsters.size()==0) {//When the player has won the game, meaning all monsters are dead and the list for spawning monsters is traversed through.
-        mainFrame.healthG=5; //Resetting.
+        mainFrame.SetHealth(true); //Resetting.
         ends=true;
         didWon=true;
         return;
       }
-      g.setFont(font); //Creating the font and setting its colour.
-      g.setColor(Color.black);
-      g.drawString("Coins: "+money,50,25);
-      g.drawString("Wave "+game.wave,50,50);
-      g.drawRect(tBox,620,40,40);
       if(isDown && mouseIndex>-1){//For removing plants using the shovel feature or just drawing the selected turret on the mouse's position.
         if(mouseSelect.equals("Remove")){
           g.drawRect(destx-20,desty-20,40,40); //Drawing in the removing square.
@@ -401,9 +425,6 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         else{
           g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
         }
-      }
-      for(int i=0; i<chosenT.size(); i++){
-        g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);//Drawing the chosen turrets for the player to choose from.
       }
       int shotC=1;//Making sure the sound effects are not being played to often or at the same time.
       for(Tower turr:turrets){         //Turret drawing and playing the turret shooting sound effects.
@@ -430,28 +451,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         }
         if(turr.x<=selx && selx<=turr.x+40){ //When a turret that is in the field is clicked on to see its properties and stats.
           if(turr.y<=sely && sely<=turr.y+40){
-            tmpTurret=turr;
-            g.drawRect(turr.x,turr.y,40,40); //Drawing the turret's likeness above the field of play and putting a border around it.
-            g.drawImage(turretI[turr.indy],200,10,40,40,null);
-            if(turr.level<4)                 {//Showing the turret's stats and options for leveling it up, if available.
-              g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),200,60);
-              g.drawString("Cost: "+turr.ucost*turr.level,200,80);
-            }
-            else{
-              g.drawString("Max Level",200,60);
-            }  //Drawing the turret's healthbar. Based off a tower's hp, their health is divided by a certain amount for the bar so the bar is always 100 pixels wide.
-            if(turr.type.equals("Wall")){
-              g.drawRect(250,25,turr.maxhealth/24,10);
-              g.fillRect(250,25,turr.health/24,10);
-            }
-            else if(turr.type.equals("Cannon")){
-              g.drawRect(250,25,turr.maxhealth/4,10);
-              g.fillRect(250,25,turr.health/4,10);
-            }
-            else{
-              g.drawRect(250,25,turr.maxhealth/2,10);
-              g.fillRect(250,25,turr.health/2,10);
-            }        
+            turrDisplay(turr,g);
           }
         }
         g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);//Actually drawing the turret.
@@ -475,19 +475,19 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       for(Coin cc:coins){ //Drawing all the collectible coins.
         cc.draw(g,coinsI);
       }
-      ArrayList<Monster>endMons= new ArrayList<Monster>(); //For holding all the monsters that are to be removed from the game-field.
+      ArrayList<Monster>endMons=new ArrayList<Monster>(); //For holding all the monsters that are to be removed from the game-field.
       Monster wid=null;    //Becomes not-null if a widow spider is killed. Later, it is checked and two normal spiders will be spawned in its place if it is not null.
       if(monsters!=null){  //Goes through the monsters ArrayList if possible and removes dead ones, checks for widow-deaths, monster-information selection, and monster and turret interaction.
         for (Monster ms: monsters){
           if(ms.x>1000){
-            if(ms.type.equals("widow")){
+            if(ms.type.equals("widow")){ //Special case for widow dealths
               wid=ms;
             }
-            endMons.add(ms);
+            endMons.add(ms); //Dead monster
           }
           ms.monsterDraw(g,turrets,sams);
-          if(mainFrame.healthG<=0){ //Checking to see if a monster's getting past defences has ended the game.
-            mainFrame.healthG=5;
+          if(mainFrame.healthG()==false){ //Checking to see if a monster's getting past defences has ended the game.
+            mainFrame.SetHealth(true);
             ends=true;
             return;
           }
@@ -502,13 +502,11 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
             }
           }
           if(kant.attack && !ms.type.equals("ghost")){
-            if(ms.x<kant.x+70 && kant.x-70<ms.x){
-              if(ms.y<kant.y+40 && kant.y-40<ms.y){
-                if(ms.damage(1,"Kant")){
-                  endMons.add(ms); //Damaging monsters with Kant's powers if eligible.
-                }
+            if(ms.x<kant.x+70 && kant.x-70<ms.x && ms.y<kant.y+40 && kant.y-40<ms.y){
+              if(ms.damage(1,"Kant")){
+                endMons.add(ms); //Damaging monsters with Kant's powers if eligible.
               }
-            }
+            }            
           }
         }
         if(wid!=null){ //Adding the two monsters after widow-burst.
@@ -535,22 +533,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           }
         }
       }
-      timer+=game.time();  //Timer updated to see if monsters should be spawned or not.
-      if(timer>game.monspawn){
-        monsters=game.loadLevel(monsters);
-        timer-=game.monspawn;
-      }
-      bullets.removeAll(trashB);
-      monsters.removeAll(endMons);
-      coins.removeAll(trashC);
-      turrets.removeAll(trashT); //Removing all the useless, finished objects from the ArrayLists above.
-      trashT.clear();
-      trashB.clear();
-      trashC.clear();   //Clearing the ArrayLists holding the ones to be removed to avoid redundancy.
-      volume=(double)((double)monsters.size()/(double)15);
-      if(volume>1){
-        volume=1;
-      }  
+      gameTick();     //Makes the game progress
+      monsters.removeAll(endMons); //Removing dead monsters
       if(soundCount<=1){  //Playing the appropriate sound effect for the monsters, depending on how many there are and how loud they are to be.
         if(volume<1.5 && volume>0.75){
           monS[3].play();
@@ -572,56 +556,133 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       beforeGame(g);
     }
   }
+  
+  public void background(Graphics g){
+    g.drawImage(background,backx+1000,0,1000,700,null); //Drawing the images that almost always appear on the screen during a game.
+    int countT=0;      //Keeping track of which type of grass tile is supposed to be drawn. ALternates form the darker variety to the lighter, or vice-versa.
+    for(int xx=backx;xx<backx+1000;xx+=100){            //Going through some positions on the screen and drawing the bordering stone tiles.
+      g.drawImage(stone,xx,0,100,100,null);
+      g.drawImage(stone,xx,600,100,100,null);
+      g.drawImage(stone,backx+900,xx-backx,100,100,null);
+    }
+    for(int xxx=backx;xxx<backx+900;xxx+=100){  //Drawing all the alternating grasss tiles.
+      for(int yyy=100;yyy<600;yyy+=100){
+        if(countT%2==0){
+          g.drawImage(tile1,xxx,yyy,100,100,null);
+        }
+        else{
+          g.drawImage(tile2,xxx,yyy,100,100,null);
+        }
+        countT++;
+      }
+    }
+    Font font = new Font("Verdana", Font.BOLD, 17);
+    g.drawImage(shovel,900,backx,40,40,null);
+    g.drawImage(castle,backx-225,-300,400,1100,null);
+    g.setFont(font); //Creating the font and setting its colour.
+    g.setColor(Color.black);
+    g.drawString("Coins: "+money,50,25);
+    g.drawString("Wave "+game.wave,50,50);
+    g.drawRect(tBox,620,40,40);
+    for(int i=0; i<chosenT.size(); i++){
+      g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);//Drawing the chosen turrets for the player to choose from.
+    }
+  }
+  
+  public void turrDisplay(Tower turr, Graphics g){
+    tmpTurret=turr;
+    g.drawRect(turr.x,turr.y,40,40); //Drawing the turret's likeness above the field of play and putting a border around it.
+    g.drawImage(turretI[turr.indy],200,10,40,40,null);
+    if(turr.level<4)                 {//Showing the turret's stats and options for leveling it up, if available.
+      g.drawString("Level Up | "+turr.level+" -> "+(turr.level+1),200,60);
+      g.drawString("Cost: "+turr.ucost*turr.level,200,80);
+    }
+    else{
+      g.drawString("Max Level",200,60);
+    }  //Drawing the turret's healthbar. Based off a tower's hp, their health is divided by a certain amount for the bar so the bar is always 100 pixels wide.
+    if(turr.type.equals("Wall")){
+      g.drawRect(250,25,turr.maxhealth/24,10);
+      g.fillRect(250,25,turr.health/24,10);
+    }
+    else if(turr.type.equals("Cannon")){
+      g.drawRect(250,25,turr.maxhealth/4,10);
+      g.fillRect(250,25,turr.health/4,10);
+    }
+    else{
+      g.drawRect(250,25,turr.maxhealth/2,10);
+      g.fillRect(250,25,turr.health/2,10);
+    } 
+  }
+  
+  public void gameTick(){ //Loads in the game from gameMaker and removes things from ALists
+    timer+=game.time();  //Timer updated to see if monsters should be spawned or not.
+    if(timer>game.monspawn){
+      monsters=game.loadLevel(monsters);
+      timer-=game.monspawn;
+    }
+    bullets.removeAll(trashB);
+    coins.removeAll(trashC);
+    turrets.removeAll(trashT); //Removing all the useless, finished objects from the ArrayLists above.
+    trashT.clear();
+    trashB.clear();
+    trashC.clear();   //Clearing the ArrayLists holding the ones to be removed to avoid redundancy.
+    volume=(double)((double)monsters.size()/(double)15);
+    if(volume>1){
+      volume=1;
+    } 
+  }
+  
   public void beforeGame(Graphics g){
     if(chosenT.size()==5){    //Turret selection.
-        beginPlay=true;  //Once the turrets have been chosen.
+      beginPlay=true;  //Once the turrets have been chosen.
+    }
+    g.drawImage(background,backx+1000,0,1000,700,null);
+    for(int k=0;k<10;k++){   //Drawing the turrets that can be chosen from.
+      g.drawImage(slot,(k%4)*190+125-20,(k/4)*155+150-10,100+40,100+30,null);
+      g.drawImage(turretI[k],(k%4)*190+125,(k/4)*155+150,100,100,null);
+      Font font = new Font("Verdana", Font.BOLD, 17);//Drawing their names, as well.
+      g.setFont(font);
+      g.setColor(Color.black);
+      String adder="";
+      if(k<4){
+        adder+=" Turret";
       }
-      g.drawImage(background,backx+1000,0,1000,700,null);
-      for(int k=0;k<10;k++){   //Drawing the turrets that can be chosen from.
-        g.drawImage(slot,(k%4)*190+125-20,(k/4)*155+150-10,100+40,100+30,null);
-        g.drawImage(turretI[k],(k%4)*190+125,(k/4)*155+150,100,100,null);
-        Font font = new Font("Verdana", Font.BOLD, 17);//Drawing their names, as well.
-        g.setFont(font);
-        g.setColor(Color.black);
-        String adder="";
-        if(k<4){
-          adder+=" Turret";
-        }
-        g.drawString(typesT[k]+adder,(k%4)*190+125,(k/4)*155+150-10);
-        if(isDown && destx<(k%4)*190+125+100 && destx>(k%4)*190+125 && desty<(k/4)*155+150+100 && desty>(k/4)*155+150){
-          if(!chosenT.contains(k)){//For selecting a turrret from all of them.
-            if(mainFrame.endless){ //There are no gold mines in endless mode.
-              if(k!=6){
-                chosenT.add(k);
-              }
-            }
-            else{
+      g.drawString(typesT[k]+adder,(k%4)*190+125,(k/4)*155+150-10);
+      if(isDown && destx<(k%4)*190+125+100 && destx>(k%4)*190+125 && desty<(k/4)*155+150+100 && desty>(k/4)*155+150){
+        if(!chosenT.contains(k)){//For selecting a turrret from all of them.
+          if(mainFrame.endless()){ //There are no gold mines in endless mode.
+            if(k!=6){
               chosenT.add(k);
             }
           }
-          isDown=false;
+          else{
+            chosenT.add(k);
+          }
         }
+        isDown=false;
       }
-      g.setFont(new Font("Verdana",Font.BOLD,35));
-      g.drawString("Pick 5 Defences!",350,50);
-      for(Integer num:chosenT){    //Drawing a white box around all those that have been chosen.
-        int tempx=(num.intValue()%4)*190+125;
-        int tempy=(num.intValue()/4)*155+150;
-        g.setColor(Color.white);
-        g.drawRect(tempx,tempy,100,100);
-        
-      }
+    }
+    g.setFont(new Font("Verdana",Font.BOLD,35));
+    g.drawString("Pick 5 Defences!",350,50);
+    for(Integer num:chosenT){    //Drawing a white box around all those that have been chosen.
+      int tempx=(num.intValue()%4)*190+125;
+      int tempy=(num.intValue()/4)*155+150;
+      g.setColor(Color.white);
+      g.drawRect(tempx,tempy,100,100);
+      
+    }
   }
+  
   public void updateTro(){//Method for seeing if the player unlocked any of the achievements after a level.
     try{//Try-catch in case of error where the file cannot be found.
           int changed;//This is the index of the boolean and status that has changed.
-          if(!mainFrame.awards[0] && mainFrame.stage==1 && didWon){//When the first level has been completed.
+          if(!mainFrame.awards()[0] && mainFrame.stage()==1 && didWon){//When the first level has been completed.
             changed=0;
           }
-          else if(!mainFrame.awards[1] && mainFrame.stage==10 && didWon){//When the last level is completed.           
+          else if(!mainFrame.awards()[1] && mainFrame.stage()==10 && didWon){//When the last level is completed.           
             changed=1;
           }
-          else if(!mainFrame.awards[2] && mainFrame.stage==-1){//When the endless mode has been cleared past stage 10.
+          else if(!mainFrame.awards()[2] && mainFrame.stage()==-1){//When the endless mode has been cleared past stage 10.
             changed=2;
           }
           else{
@@ -630,12 +691,12 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           PrintWriter outFile = new PrintWriter(new BufferedWriter (new FileWriter ("record.txt")));//Writing out to this file to record the achievements.
           for(int k=0;k<3;k++){
             if(k!=changed){
-              outFile.println(mainFrame.lines[k]);
+              outFile.println(mainFrame.lines(k));
             }
             else{//Only changing the file and updating if something has actually changed.
               outFile.println("yes");
-              mainFrame.lines[k]="yes";
-              mainFrame.awards[k]=true;
+              mainFrame.linesSet(k);
+              mainFrame.awardsSet(k);
             }
           }
           outFile.close();
@@ -826,15 +887,15 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
   public int y;
   public String type;
   public int indy;
-  public int cooldown;
-  public int max;
+  private int cooldown;
+  private int max;
   public int health;
   public int maxhealth;
-  public int damage;
+  private int damage;
   private int bspeed;
   public int ucost;
   public int level=1;
-  public KGame mainFrame;
+  private KGame mainFrame;
   public Tower(int xx,int yy, String kind, int img, KGame m){//Constructor.
     x=xx;
     y=yy;
@@ -892,6 +953,7 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
     maxhealth=health;
     mainFrame=m;
   }
+  
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms,ArrayList<Coin> cs){//Method for shooting out a bullet or a coin.
     if(cooldown<=0){ //When the cooldown has finished, a coin may be added if the type is Gold.
       if(type.equals("Gold")){
@@ -936,6 +998,7 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
       return false;
     }
   }
+  
   public void levelUp(){  //Method for leveling up the defence.
     if(level<4){
       maxhealth+=maxhealth/2; //Stats are improved by 150% by doing so.
@@ -948,12 +1011,12 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
 
 
 class Bullet{ //Class for the bullets and projectiles in the game fired by the defences.
-  int x;
-  int y;
-  String type;
-  int speed;
-  int damage;
-  int contact=-1;  //Will hold where the bullet first made contact with a monster. Used for the turret that can go through multiple enemies.
+  private int x;
+  private int y;
+  private String type;
+  private int speed;
+  private int damage;
+  private int contact=-1;  //Will hold where the bullet first made contact with a monster. Used for the turret that can go through multiple enemies.
   private Image[] types=new Image[6]; //Images for the different bullet types.
   public Bullet(int xx, int yy, String ttype, int sspeed, int ddamage){ // Getting the bullet values based on the turret that shot.
     x=xx;
@@ -1037,21 +1100,22 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
 class Samurai{ //Class for the samurai heros that the player does not control.
   public int x;
   public int y;
-  public int health;
-  public int maxhealth;
-  public int damage;
+  private int health;
+  private int maxhealth;
+  private int damage;
   public int level=1;;
-  public String action="r"; //String that keeps track of which direction the samurai is heading, or if it is attacking.
-  public int spot=0;   //Index of the only-moving animation pictures.
-  public int attack=0; //Keeps track of which image in samurai's attack images should be drawn.
+  private String action="r"; //String that keeps track of which direction the samurai is heading, or if it is attacking.
+  private int spot=0;   //Index of the only-moving animation pictures.
+  private int attack=0; //Keeps track of which image in samurai's attack images should be drawn.
   public boolean select=false;
-  public int tmppt=0;
+  private int tmppt=0;
   public Samurai(int sx, int sy){ //Constructor.
     x=sx; y=sy+20;
     health=1000;
     maxhealth=health;
     damage=3;
   }
+  
   public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk, int selx, int sely){//Method for drawing the samurai and its actions.
     String tmpA=action;
     ArrayList<Monster>tmpmons=new ArrayList<Monster>(); //Will hold all of the vanquished monsters.
@@ -1115,6 +1179,7 @@ class Samurai{ //Class for the samurai heros that the player does not control.
       tmppt=selx*sely;
     }
   }
+  
   public boolean damage(int hurt){ //Method for damaging the samurai.
     health-=hurt;
     if(health<=0){
@@ -1122,6 +1187,7 @@ class Samurai{ //Class for the samurai heros that the player does not control.
     }
     return false;
   }
+  
   public void levelUp(){   //Method for the samurai's leveling up.
     if(level<4){           //Improving the stats as well by 150%.
       maxhealth+=maxhealth/2;
@@ -1134,10 +1200,10 @@ class Samurai{ //Class for the samurai heros that the player does not control.
 
 
 class Coin{ //Class for the coins that the player can click on to collect and gain money.
-  int x;
-  int y;
-  int val;
-  int indy=0;
+  public int x;
+  public int y;
+  public int val;
+  private int indy=0;
   public Coin(int sx,int sy, int vall){
     x=(int)(Math.random()*(sx+20-sx+20+1)+sx-20); //Getting a random coin position within a certain area. Area is determined by the coin-spawning tower's position.
     y=(int)(Math.random()*(sy+20-sy+20+1)+sy-20);
@@ -1154,13 +1220,13 @@ class Coin{ //Class for the coins that the player can click on to collect and ga
 
 
 class Monster{  //Class for the monster enemies.
-  public KGame mainFrame; //Basic variables to control health, damage, and movement.
+  private KGame mainFrame; //Basic variables to control health, damage, and movement.
   public int x;
   public int y;
-  public int picCount;
-  public int hp;
-  public int maxhp;
-  public int power;
+  private int picCount;
+  private int hp;
+  private int maxhp;
+  private int power;
   public String type;
   public double speed;
   public boolean select=false;
@@ -1168,9 +1234,9 @@ class Monster{  //Class for the monster enemies.
   private Image[] mPicL;
   private Image attack;
   private Image arrow;
-  public int ax=-1;
+  private int ax=-1;
   private int listLen;
-  public int pushx=0;
+  private int pushx=0;
   public Monster(int placex, int placey, String mtype,int monlevel, KGame m){ //Constructor.
     mainFrame=m;
     x=placex;
@@ -1183,7 +1249,7 @@ class Monster{  //Class for the monster enemies.
       mPicL=new Image[listLen];
     }
     else if(type.equals("demon") | type.equals("zombie")){
-      listLen=15;
+     listLen=15;
       mPicL=new Image[listLen];
     }
     else if(type.equals("nymph")){
@@ -1206,8 +1272,6 @@ class Monster{  //Class for the monster enemies.
       listLen=3;
       mPicL=new Image[listLen];
     }
-    
-    
     if(type.equals("nymph")){ //Getting the right health for the monster-type.
       hp=150;
     }
@@ -1255,13 +1319,15 @@ class Monster{  //Class for the monster enemies.
       arrow=new ImageIcon("arrow.png").getImage();
     }
   }
+  
   public void floorEnd(){//Method for checking if a monster has passed the defences and defeated the player.
     if(x<10){
       speed=0;//Getting the monster off-screen, to be removed.
       x=10000;
-      mainFrame.healthG=0;//Will end the game because of this.
+      mainFrame.SetHealth(false);//Will end the game because of this.
     }
   }
+  
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets, ArrayList<Samurai>sams){//Method for drawing the monster's actions.
     floorEnd();
     boolean overlay=false;
@@ -1365,6 +1431,7 @@ class Monster{  //Class for the monster enemies.
       }
     }
   }
+  
   public boolean damage(int hurt,String typeT){ //Method for hurting the monsters. Will return true if the monster is killed.
     if(type.equals("vampire")){    //Hurt depends on type. Vampire cant be hurt by basic.
       if(!typeT.equals("Basic")){
@@ -1449,8 +1516,8 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
       desty = e.getY();   //Below, if the x and y positions of the mouse are within a certain range, the corresponding image's boolean will be made true or false.
       if(410<destx && destx<610 && !rules){ //Allows you to navigate around the title screen using clicks.
         if(210<desty && desty<350){
-          mainFrame.kind="Level";
-          mainFrame.change=true;
+          mainFrame.kind("Level");
+          mainFrame.change();
         }
       }
       if(410<destx && destx<610){
@@ -1483,16 +1550,16 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
 
 
 class Level extends JPanel{  //Class for the level-select screen. Very similar to the menu.
-  public String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
-  public String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
-  public String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
-  public String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
-  public String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
-  public String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
-  public String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
-  public String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
-  public String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
-  public String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
+  private String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
+  private String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
+  private String[] level3={"150","-100","z","z","z","z","n","n","n","d","w","w","z","z","z","-500","z","d","z","n","n","z","d","n","w","n","z","z","z","d","d","d","d","-500","2","z","z","z","n","n","w","3","d","d","d","d","d"};
+  private String[] level4={"100","-100","z","z","n","s","z","k","k","k","z","z","z","z","s","s","z","z","-500","n","n","s","s","z","z","z","2","z","z","z","n","k","k","w","z","z","z","n","w","z","s","s","z","w","s","w","s","w","-500","3","d","z","z","z","z","d","w","d","k","k","k","k","s","w","w"};
+  private String[] level5={"70","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","g","g","z","z","n","g","g","z","z","g","g","g","g","w","-500","2","z","z","z","d","g","g","n","w","w","g","g","z","z","d","g","g","w","w"};
+  private String[] level6={"100","-100","g","k","g","k","z","z","z","v","v","z","z","k","k","k","g","z","z","z","z","z","s2","-500","s2","z","z","g","g","k","k","v","v","v","s","s2","v","v","v","k","k","k","g","s","z","2","k","k","s","v","s","s","v","v","g","s2","-500","3","z","z","d","z","z","k","k","4","z","z","s2","z","z","v","v","s","s","s2","z","s2"};
+  private String[] level7={"100","-100","n","v","v","v","z","z","z","z","s","s","z","z","k","w","k","w","g","z","z","z","z","v","v","-500","n","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","v","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v","-500","2","z","z","d","k","k","k","w","w","w","s","s2","v","v","v","v","s","s","d","z","z","d","k","k","k","w","w","w","s","s","v","v","v","v","v"};
+  private String[] level8={"50","-100","k","k","k","k","z","z","z","k","k","k","k","z","z","k","k","k","k","z","z","z","w","k","k","k","k","w","n","n","w","-500","k","k","k","s","z","z","n","s","k","k","z","n","v","s","z","z","k","k","w","d","w","-500","z","z","z","d","d","d","k","k","n","w","s","v","v","z","z","2","d","d","3","k","k","k","k","k","k","k","k","k","k","k","k"};
+  private String[] level9={"100","-100","z","z","z","z","z","z","n","n","n","v","w","g","v","v","z","z","z","v","v","w","w","-500","2","n","z","z","z","w","w","w","s","s","w","w","g","v","v","s","w","w","v","v","z","z","z","-500","3","n","n","d","k","k","k","w","w","w","s","s","w","v","v","v","s2"};
+  private String[] level10={"100","-100","z","z","z","z","z","z","n","g","n","g","w","v","v","v","g","z","z","s","v","s","v","w","n","w","-500","2","d","z","z","z","n","w","w","s","s","v","g","w","w","g","v","w","v","s","w","g","w","v","v","s","s2","-500","3","n","n","d","d","k","k","k","w","w","4","n","d","w","k","g","g","5","n","d","w","k","g","g","s"};
   private int destx,desty; //Variables for keeping track of the mouse's position. Above, the arrays hold the enemy spawn-order and spawn-times for each level.
   public KGame mainFrame;//Done to access the JFrame's variables.
   public boolean ready=false;
@@ -1517,17 +1584,17 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
     g.drawImage(levelSelect,0,0,1000,700,null);
     g.drawImage(endBo,77,405,160,213,null);//Drawing the book for endless mode.
     for(int k=0;k<3;k++){
-      if(mainFrame.awards[k]){//Drawing the unlocked achievements, if any.
-        g.drawImage(mainFrame.trophies[k],300+k*200,460,150,150,null);
+      if(mainFrame.awards()[k]){//Drawing the unlocked achievements, if any.
+        g.drawImage(mainFrame.tImg()[k],300+k*200,460,150,150,null);
       }
     }
     if(desty>460 && desty<610){
       for(int k=0;k<3;k++){//If the player clicks on a trophy, the description will be shown.
-        if(destx>300+k*200 && destx<300+k*200+150 && mainFrame.awards[k]){
+        if(destx>300+k*200 && destx<300+k*200+150 && mainFrame.awards()[k]){
           Font font = new Font("Verdana", Font.BOLD, 17);
           g.setFont(font); //Creating the font and setting its colour.
           g.setColor(Color.black);
-          g.drawString(mainFrame.descriptions[k],300,380);
+          g.drawString(mainFrame.descriptions()[k],300,380);
         }
       }
     }
@@ -1544,55 +1611,55 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
       desty = e.getY();    //Below, if the x and y coordinates are within a certain area, the corresponding level will be made to be loaded up and turned to.
       if(420<desty && desty<595){
         if(110<destx && destx<190){
-          mainFrame.endless=true;  //For the endless level.
-          mainFrame.kind="Game";
-          mainFrame.change=true;
+          mainFrame.Setendless(true);  //For the endless level.
+          mainFrame.kind("Game");
+          mainFrame.change();
         }
       }
       if(95<desty && desty<315){        //Gets the selected level from the user.
         if(110<destx && destx<190){
-          mainFrame.gameLevel=level1;
-          mainFrame.stage=1;
+          mainFrame.levelSet(level1);
+          mainFrame.stageSet(1);
         }
         else if(190<destx && destx<275){
-          mainFrame.gameLevel=level2;
-          mainFrame.stage=2;
+          mainFrame.levelSet(level2);
+          mainFrame.stageSet(2);
         }
         else if(275<destx && destx<355){
-          mainFrame.gameLevel=level3;
-          mainFrame.stage=3;
+          mainFrame.levelSet(level3);
+          mainFrame.stageSet(3);
         }
         else if(355<destx && destx<440){
-          mainFrame.gameLevel=level4;
-          mainFrame.stage=4;
+          mainFrame.levelSet(level4);
+          mainFrame.stageSet(4);
         }
         else if(440<destx && destx<520){
-          mainFrame.gameLevel=level5;
-          mainFrame.stage=5;
+          mainFrame.levelSet(level5);
+          mainFrame.stageSet(5);
         }
         else if(520<destx && destx<605){
-          mainFrame.gameLevel=level6;
-          mainFrame.stage=6;
+          mainFrame.levelSet(level6);
+          mainFrame.stageSet(6);
         }
         else if(605<destx && destx<680){
-          mainFrame.gameLevel=level7;
-          mainFrame.stage=7;
+          mainFrame.levelSet(level7);
+          mainFrame.stageSet(7);
         }
         else if(680<destx && destx<765){
-          mainFrame.gameLevel=level8;
-          mainFrame.stage=8;
+          mainFrame.levelSet(level8);
+          mainFrame.stageSet(8);
         }
         else if(765<destx && destx<835){
-          mainFrame.gameLevel=level9;
-          mainFrame.stage=9;
+          mainFrame.levelSet(level9);
+          mainFrame.stageSet(9);
         }
         else if(835<destx && destx<900){
-          mainFrame.gameLevel=level10;
-          mainFrame.stage=10;
+          mainFrame.levelSet(level10);
+          mainFrame.stageSet(10);
         }
         if(110<destx && destx<900){
-          mainFrame.kind="Game";
-          mainFrame.change=true;
+          mainFrame.kind("Game");
+          mainFrame.change();
         }
       }
     }
@@ -1601,20 +1668,20 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
 
 
 class GameMaker{ //Class for getting the monsters to be spawned in at the right time, according to the level.
-  public KGame mainFrame;
-  public String[] spawn=new String[25];
-  public int len;
+  private KGame mainFrame;
+  private String[] spawn=new String[25];
+  private int len;
   public int spot=1;
   public int monspawn=0;
-  public int waitTime=1;
-  public int monsterLvl=1;
+  private int waitTime=1;
+  private int monsterLvl=1;
   public int wave=0;
-  public int monsRow=100;
-  public boolean infinite;
-  public boolean money;
-  public int wait=-500;
-  public int max=-500;
-  public String[] types={"z","z","z","z","z","z","z","n","n","k","k","g","g","g","v","v","v","w","w","w","s","s","s","s2","d"};//Strings that stand for all the types of monsters. Used while getting random enemies with endless mode.
+  private int monsRow=100;
+  private boolean infinite;
+  private boolean money;
+  private int wait=-500;
+  private int max=-500;
+  private String[] types={"z","z","z","z","z","z","z","n","n","k","k","g","g","g","v","v","v","w","w","w","s","s","s","s2","d"};//Strings that stand for all the types of monsters. Used while getting random enemies with endless mode.
   public GameMaker(String[] level, KGame game,boolean endless){ //Constructor.
     if(!endless){
       spawn=level;
