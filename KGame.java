@@ -24,7 +24,7 @@ public class KGame extends JFrame{ //Main, public class.
   private boolean[] awards=new boolean[3];//These two arrays are used to keep track of whether or not the player has earned any of the three possible achievements.
   private Image[] trophies=new Image[3];
   private String[] lines=new String[3];//The three possible achievement images will be stored here.
-  private String[] descriptions={"You're on your way! \nCompleted the first level. ","Master of defence! \nFinished the last level. ","Congratulations. \nYou passed the 10th stage of endless. "};//Achievement descriptions.
+  private String[] descriptions={"You're on your way! \nCompleted the first level. ","Master of defence! \nFinished the last level. ","Keep on going! \nYour best endless score so far is: "};//Achievement descriptions.
   private String[] gameLevel={""};  //Will hold Strings that represent which enemy types will be spawned in, or what the level and delay between enemies should be.
   private int stage;
   private boolean endless=false;
@@ -48,7 +48,7 @@ public class KGame extends JFrame{ //Main, public class.
     }
     try{//Try-catch for errors.
       BufferedReader inF = new BufferedReader(new FileReader("record.txt"));
-      for(int k=0; k<3;k++){//Reading from this file to see if the player had previously unlocked any achievements.
+      for(int k=0; k<2;k++){//Reading from this file to see if the player had previously unlocked any achievements.
         String line=inF.readLine();
         if(line.equals("yes")){
           awards[k]=true;
@@ -58,6 +58,14 @@ public class KGame extends JFrame{ //Main, public class.
         }
         lines[k]=line;
       }
+      String line=inF.readLine();
+      if(Integer.parseInt(line)>0){
+        awards[2]=true;//Saving the endless score below. Only giving out a trophy if at least wave 1 has been reached. Default value on record.txt is 0.
+      }
+      else{
+        awards[2]=false;
+      }
+      lines[2]=line;
       inF.close();
     }
     catch(Exception e){
@@ -85,6 +93,11 @@ public class KGame extends JFrame{ //Main, public class.
   }
   public void linesSet(int spot){
     lines[spot]="yes";
+  }
+  public void lastSet(int wavey){
+    if(Integer.parseInt(lines[2])<wavey){//Only recording the new endless score if it is greater than the previous recorded value.
+      lines[2]=Integer.toString(wavey);
+    }
   }
   public String[] descriptions(){
     return descriptions;
@@ -682,7 +695,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           else if(!mainFrame.awards()[1] && mainFrame.stage()==10 && didWon){//When the last level is completed.           
             changed=1;
           }
-          else if(!mainFrame.awards()[2] && mainFrame.stage()==-1){//When the endless mode has been cleared past stage 10.
+          else if(mainFrame.endless()){//In endless mode any wave reached has the chance of being recorded and unlocking or updating an achievement.
             changed=2;
           }
           else{
@@ -694,9 +707,16 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
               outFile.println(mainFrame.lines(k));
             }
             else{//Only changing the file and updating if something has actually changed.
-              outFile.println("yes");
-              mainFrame.linesSet(k);
-              mainFrame.awardsSet(k);
+              if(k==2){
+                outFile.println(game.wave);//The third line of record.txt is different because it stores the highest endless wave reached, so it is treated differently.
+                mainFrame.awardsSet(k);
+                mainFrame.lastSet(game.wave);
+              }
+              else{
+                outFile.println("yes");
+                mainFrame.linesSet(k);
+                mainFrame.awardsSet(k);
+              }
             }
           }
           outFile.close();
@@ -1594,7 +1614,12 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
           Font font = new Font("Verdana", Font.BOLD, 17);
           g.setFont(font); //Creating the font and setting its colour.
           g.setColor(Color.black);
-          g.drawString(mainFrame.descriptions()[k],300,380);
+          String added="";
+          if(k==2){
+            added+=mainFrame.lines(k);
+            added+=".";
+          }
+          g.drawString(mainFrame.descriptions()[k]+added,300,380);
         }
       }
     }
