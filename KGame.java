@@ -184,6 +184,8 @@ public class KGame extends JFrame{ //Main, public class.
 }
 
 
+
+
 class GamePanel extends JPanel implements KeyListener{ //Class for drawing and managing the graphics and the game.
   private int money=100;                  //money is used to buy weapons.
   private int destx, desty, selx, sely;   //Variables for keeping track of the mouse's position. The last two are for the mouse's position specifically when it is clicked down.
@@ -298,11 +300,13 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   
+  
   public void addNotify(){ //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
     requestFocus();
     ready = true;
   }
+  
   
   public void move(){                  //Method for moving Kant using WASD and updating the index for his sprites, and for placing down the turrets of the player,a and for some other key controls.
     if (keys[KeyEvent.VK_BACK_SPACE]){ //At any time during an actual game level, the player can quit back to the game menu.
@@ -389,38 +393,14 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   
+  
   public void paintComponent(Graphics g){   //Method for actually drawing all the needed graphics onto the screen.
     if(beginPlay){                  //When the turrets are chosen by the player.
       if(ends){                     //When the actual game level has ended.
-        if(didWon){
-          g.drawImage(won,0,0,1000,700,null);
-        }
-        else{
-          g.drawImage(lost,0,0,1000,700,null);
-          if(mainFrame.endless()){
-            Font font = new Font("Verdana", Font.BOLD, 30);
-            g.setFont(font);
-            g.drawString("You reached wave "+game.wave,510,500);
-            if(game.wave>10){
-              mainFrame.stageSet(-1);
-            }
-          }
-        }
-        if(keys[KeyEvent.VK_ENTER]){  //When the player enters to end the finished game level and return to level select.
-          mainFrame.kind("Level");//Resetting variables so new game levels will be properly new.
-          mainFrame.change();
-          ends=false;
-          didWon=false;
-          mainFrame.Setendless(false);
-        }
-        updateTro();
+        gameOver(g);
         return;
       }
       background(g);
-      g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null); //Drawing the Kant sprites.
-      if(kant.attack){
-        g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
-      }
       if(backx<0){  //For scrolling the screen after turrets are chosen.
         backx+=15;
         return;
@@ -443,18 +423,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       for(Tower turr:turrets){         //Turret drawing and playing the turret shooting sound effects.
         if(turr.shoot(bullets,monsters,coins)){
           if(shotC>0){
-            if(turr.type.equals("Basic")){
-              canS[0].play();
-            }
-            else if(turr.type.equals("Normal")){
-              canS[1].play();
-            }
-            else if(turr.type.equals("Good")){
-              canS[2].play();
-            }
-            else if(turr.type.equals("Great")){
-              canS[3].play();
-            }
+            turretSound(turr);
             shotC-=1;
           }
           if(turr.type.equals("Mine")){
@@ -549,19 +518,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       gameTick();     //Makes the game progress
       monsters.removeAll(endMons); //Removing dead monsters
       if(soundCount<=1){  //Playing the appropriate sound effect for the monsters, depending on how many there are and how loud they are to be.
-        if(volume<1.5 && volume>0.75){
-          monS[3].play();
-        }
-        else if(volume<0.75 && volume>0.5){
-          monS[2].play();
-        }
-        else if(volume<0.5 && volume>0.25){
-          monS[1].play();
-        }
-        else if(volume<0.25 && volume>0){
-          monS[0].play();
-        }
-        soundCount=40;  //Making sure the sound isn't always being played.
+        monsterSound();
       }
       soundCount-=1;
     }
@@ -569,6 +526,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       beforeGame(g);
     }
   }
+  
   
   public void background(Graphics g){
     g.drawImage(background,backx+1000,0,1000,700,null); //Drawing the images that almost always appear on the screen during a game.
@@ -589,18 +547,23 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         countT++;
       }
     }
-    Font font = new Font("Verdana", Font.BOLD, 17);
+    Font font = new Font("Verdana", Font.BOLD, 17);   
     g.drawImage(shovel,900,backx,40,40,null);
     g.drawImage(castle,backx-225,-300,400,1100,null);
     g.setFont(font); //Creating the font and setting its colour.
     g.setColor(Color.black);
-    g.drawString("Coins: "+money,50,25);
+    g.drawString("Coins: "+money,50,25);    //Drawing in the coins and waves
     g.drawString("Wave "+game.wave,50,50);
     g.drawRect(tBox,620,40,40);
     for(int i=0; i<chosenT.size(); i++){
       g.drawImage(turretI[chosenT.get(i).intValue()],100+(i*80),620,40,40,null);//Drawing the chosen turrets for the player to choose from.
     }
+    g.drawImage(kantMoves[picInd-1],kant.x,kant.y,40,40,null); //Drawing the Kant sprites.
+    if(kant.attack){
+      g.drawImage(kantMoves[12],kant.x-10,kant.y-10,65,65,null);       
+    }
   }
+  
   
   public void turrDisplay(Tower turr, Graphics g){
     tmpTurret=turr;
@@ -627,6 +590,39 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     } 
   }
   
+  
+  public void turretSound(Tower turr){         //Plays the sound for the turrets
+    if(turr.type.equals("Basic")){
+      canS[0].play();
+    }
+    else if(turr.type.equals("Normal")){
+      canS[1].play();
+    }
+    else if(turr.type.equals("Good")){
+      canS[2].play();
+    }
+    else if(turr.type.equals("Great")){
+      canS[3].play();
+    }    
+  }
+  
+  
+  public void monsterSound(){      //Plays the sounds for the monsters
+    if(volume<1.5 && volume>0.75){
+      monS[3].play();
+    }
+    else if(volume<0.75 && volume>0.5){
+      monS[2].play();
+    }
+    else if(volume<0.5 && volume>0.25){
+      monS[1].play();
+    }
+    else if(volume<0.25 && volume>0){
+      monS[0].play();
+    }
+    soundCount=40;  //Making sure the sound isn't always being played.
+  }
+  
   public void gameTick(){ //Loads in the game from gameMaker and removes things from ALists
     timer+=game.time();  //Timer updated to see if monsters should be spawned or not.
     if(timer>game.monspawn){
@@ -644,6 +640,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       volume=1;
     } 
   }
+  
   
   public void beforeGame(Graphics g){
     if(chosenT.size()==5){    //Turret selection.
@@ -686,6 +683,35 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
     }
   }
   
+  
+  public void gameOver(Graphics g){        //For when the game ends
+    if(didWon){
+      g.drawImage(won,0,0,1000,700,null);  //Drawing the appropriate loser/winner image
+    }
+    else{
+      g.drawImage(lost,0,0,1000,700,null);
+      if(mainFrame.endless()){
+        Font font = new Font("Verdana", Font.BOLD, 30);
+        g.setFont(font);
+        g.drawString("You reached wave "+game.wave,525,500);
+        if(game.wave>10){
+          mainFrame.stageSet(-1);
+        }
+      }
+    }
+    
+    
+    if(keys[KeyEvent.VK_ENTER]){  //When the player enters to end the finished game level and return to level select.
+      mainFrame.kind("Level");//Resetting variables so new game levels will be properly new.
+      mainFrame.change();
+      ends=false;
+      didWon=false;
+      mainFrame.Setendless(false);
+    }
+    updateTro();
+  }
+  
+  
   public void updateTro(){//Method for seeing if the player unlocked any of the achievements after a level.
     try{//Try-catch in case of error where the file cannot be found.
           int changed;//This is the index of the boolean and status that has changed.
@@ -725,6 +751,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           System.out.println(e);
         }
   }
+  
   public void keyTyped(KeyEvent e) { //Below, listeners for the mouse, some of which are used to update important variables.
   }
   
@@ -747,6 +774,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       desty=e.getY();
     }
   }
+  
   class clickListener implements MouseListener{ //Class for checking for some of the user's mouse inputs.
     public void mouseEntered(MouseEvent e) {
     } //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
@@ -817,6 +845,8 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
 }
 
 
+
+
 class Kant{ //Class for the player-controlled character.
   public int x;
   public int y;
@@ -827,6 +857,8 @@ class Kant{ //Class for the player-controlled character.
     y=placey;
     picCount=0;
   }
+  
+  
   public int move(int mx,int my,int ind){ //Moving the character.
     attack=false;
     if(mx>x){
@@ -902,6 +934,8 @@ class Kant{ //Class for the player-controlled character.
 }
 
 
+
+
 class Tower{ //Class for the turrets. This class is also used for the canons, spikes, mines, and coin-producing defences, too.
   public int x;
   public int y;
@@ -974,6 +1008,7 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
     mainFrame=m;
   }
   
+  
   public boolean shoot(ArrayList<Bullet> bs, ArrayList<Monster> ms,ArrayList<Coin> cs){//Method for shooting out a bullet or a coin.
     if(cooldown<=0){ //When the cooldown has finished, a coin may be added if the type is Gold.
       if(type.equals("Gold")){
@@ -1009,6 +1044,8 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
       return false;
     }
   }
+  
+  
   public boolean damage(int hurt){ //Method for damaging the defence.
     health-=hurt;
     if (health<=0){
@@ -1019,6 +1056,7 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
     }
   }
   
+  
   public void levelUp(){  //Method for leveling up the defence.
     if(level<4){
       maxhealth+=maxhealth/2; //Stats are improved by 150% by doing so.
@@ -1028,6 +1066,8 @@ class Tower{ //Class for the turrets. This class is also used for the canons, sp
     }
   }
 }
+
+
 
 
 class Bullet{ //Class for the bullets and projectiles in the game fired by the defences.
@@ -1049,6 +1089,8 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
     }
     types[5]=new ImageIcon("explosion.png").getImage(); //One image is for the mine's explosion effect.
   }
+  
+  
   public int move(ArrayList<Monster> ms,Graphics g,ArrayList<Bullet> tb,int money){ //Method for making the bullet move.
     int ind=0;  //Below, drawing the right image for the bullet.
     if(type.equals("Basic")){
@@ -1117,6 +1159,8 @@ class Bullet{ //Class for the bullets and projectiles in the game fired by the d
 }
 
 
+
+
 class Samurai{ //Class for the samurai heros that the player does not control.
   public int x;
   public int y;
@@ -1135,6 +1179,7 @@ class Samurai{ //Class for the samurai heros that the player does not control.
     maxhealth=health;
     damage=3;
   }
+  
   
   public void drawSam(Graphics g, ArrayList<Monster> monsters, Image[]samwalk, Image[]samwalkb, Image[]samatk, int selx, int sely){//Method for drawing the samurai and its actions.
     String tmpA=action;
@@ -1200,6 +1245,7 @@ class Samurai{ //Class for the samurai heros that the player does not control.
     }
   }
   
+  
   public boolean damage(int hurt){ //Method for damaging the samurai.
     health-=hurt;
     if(health<=0){
@@ -1219,6 +1265,8 @@ class Samurai{ //Class for the samurai heros that the player does not control.
 }
 
 
+
+
 class Coin{ //Class for the coins that the player can click on to collect and gain money.
   public int x;
   public int y;
@@ -1229,6 +1277,8 @@ class Coin{ //Class for the coins that the player can click on to collect and ga
     y=(int)(Math.random()*(sy+20-sy+20+1)+sy-20);
     val=vall;
   }
+  
+  
   public void draw(Graphics g,Image[] i){
     g.drawImage(i[indy],x,y,20,20,null); //Drawing the coin in its movements.
     indy+=1;
@@ -1237,6 +1287,8 @@ class Coin{ //Class for the coins that the player can click on to collect and ga
     }
   }
 }
+
+
 
 
 class Monster{  //Class for the monster enemies.
@@ -1340,6 +1392,7 @@ class Monster{  //Class for the monster enemies.
     }
   }
   
+  
   public void floorEnd(){//Method for checking if a monster has passed the defences and defeated the player.
     if(x<10){
       speed=0;//Getting the monster off-screen, to be removed.
@@ -1347,6 +1400,7 @@ class Monster{  //Class for the monster enemies.
       mainFrame.SetHealth(false);//Will end the game because of this.
     }
   }
+  
   
   public void monsterDraw(Graphics g,ArrayList<Tower> turrets, ArrayList<Samurai>sams){//Method for drawing the monster's actions.
     floorEnd();
@@ -1416,26 +1470,7 @@ class Monster{  //Class for the monster enemies.
       }
     }
     if(select){     //For drawing the monster when they are selected to be seen with information near the top of the screen.
-      g.drawImage(mPicL[picCount/5],200,20,40,40,null);
-      int barNum=(maxhp/2)/300+1;   //Determining the number of hp bars. Each one is 300 pixels long.
-      for(int i=0; i<barNum; i++){  //Drawing the health-bars, both the border and the actual amount.
-        if(i+1==barNum){
-          g.drawRect(250,20+(20*i),(maxhp/2)%300,10);  //Drawing the bars stacked on each other.
-        }
-        else{
-          g.drawRect(250,20+(20*i),300,10);
-        }
-      }
-      barNum=(hp/2)/300+1;         //Repeating the process except with filled rectangles.
-      for(int i=0; i<barNum; i++){
-        if(i+1==barNum){
-          g.fillRect(250,20+(20*i),(hp/2)%300,10); //The bar is drawn to the remainder of 300.
-        }
-        else{
-          g.fillRect(250,20+(20*i),300,10);
-        }
-      }
-      g.drawString("Level "+level,180,80);
+      selectDisplay(g);
     }
     picCount+=1;
     if(picCount/5==listLen){
@@ -1451,6 +1486,31 @@ class Monster{  //Class for the monster enemies.
       }
     }
   }
+  
+  
+  public void selectDisplay(Graphics g){    //Displays the monsters stats when selected
+    g.drawImage(mPicL[picCount/5],200,20,40,40,null);
+    int barNum=(maxhp/2)/300+1;   //Determining the number of hp bars. Each one is 300 pixels long.
+    for(int i=0; i<barNum; i++){  //Drawing the health-bars, both the border and the actual amount.
+      if(i+1==barNum){
+        g.drawRect(250,20+(20*i),(maxhp/2)%300,10);  //Drawing the bars stacked on each other.
+      }
+      else{
+        g.drawRect(250,20+(20*i),300,10);
+      }
+    }
+    barNum=(hp/2)/300+1;         //Repeating the process except with filled rectangles.
+    for(int i=0; i<barNum; i++){
+      if(i+1==barNum){
+        g.fillRect(250,20+(20*i),(hp/2)%300,10); //The bar is drawn to the remainder of 300.
+      }
+      else{
+        g.fillRect(250,20+(20*i),300,10);
+      }
+    }
+    g.drawString("Level "+level,180,80);
+  }
+  
   
   public boolean damage(int hurt,String typeT){ //Method for hurting the monsters. Will return true if the monster is killed.
     if(type.equals("vampire")){    //Hurt depends on type. Vampire cant be hurt by basic.
@@ -1474,6 +1534,8 @@ class Monster{  //Class for the monster enemies.
 }
 
 
+
+
 class Sound{    //Sound class. Used for sound-effects.
   File wavFile;
   AudioClip sound;
@@ -1487,6 +1549,8 @@ class Sound{    //Sound class. Used for sound-effects.
     sound.play();
   }
 }
+
+
 
 
 class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas except that it is not for a game's level and has reduced features.
@@ -1508,11 +1572,14 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
     rulePic=new ImageIcon("rules.png").getImage();
     credits=new ImageIcon("credits.png").getImage();
   }
+  
+  
   public void addNotify() {    //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
     requestFocus();
     ready = true;
   }
+  
   
   public void paintComponent(Graphics g){   //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(screen,0,0,1000,700,null);  //Drawing the base image and the rules or the credits if selected.
@@ -1523,6 +1590,7 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
       g.drawImage(credits,0,0,1000,700,null);
     }
   }
+  
   
   class clickListener implements MouseListener{  //Class for checking for the user's mouse inputs.
     public void mouseEntered(MouseEvent e) {
@@ -1569,6 +1637,8 @@ class Menu extends JPanel{ //Class for the menu. Same as the GamePanel clas exce
 }
 
 
+
+
 class Level extends JPanel{  //Class for the level-select screen. Very similar to the menu.
   private String[] level1={"100","-100","z","z","z","z","z","z","z","z","n","-500","z","z","z","z","z","z","n","k","k","z","z","n","k","k","z","z","s","w","v","s2","w","v","-500","2","z","z","z","d","k","k","n","w","s","v","s","z","z","d","k","k","w","s","v"};
   private String[] level2={"100","-100","z","z","z","z","z","k","k","z","z","w","z","z","-500","s","s","z","z","z","n","k","k","g","w","s","s","2","z","z","z","n","g","v","v","w","z","z","z","z","w","s","s2","v","-500","z","z","z","z","n","w","3","d","k","g","k","w","w"};
@@ -1594,11 +1664,14 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
     levelSelect=new ImageIcon("LevelSelect.png").getImage();
     endBo=new ImageIcon("endlessBo.png").getImage();
   }
+  
+  
   public void addNotify() {  //Method for notifying, seeing if the graphics are ready.
     super.addNotify();
     requestFocus();
     ready = true;
   }
+  
   
   public void paintComponent(Graphics g){ //Method for actually drawing all the needed graphics onto the screen.
     g.drawImage(levelSelect,0,0,1000,700,null);
@@ -1624,6 +1697,7 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
       }
     }
   }
+  
   
   class clickListener implements MouseListener{ //Class for checking for the user's mouse inputs.
     public void mouseEntered(MouseEvent e) {}   //The following methods all check for some aspect of the user's mouse input. Names and purposes are self-explanatory.
@@ -1692,6 +1766,8 @@ class Level extends JPanel{  //Class for the level-select screen. Very similar t
 }
 
 
+
+
 class GameMaker{ //Class for getting the monsters to be spawned in at the right time, according to the level.
   private KGame mainFrame;
   private String[] spawn=new String[25];
@@ -1726,6 +1802,8 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
       }
     }
   }
+  
+  
   public ArrayList<Monster> loadLevel(ArrayList<Monster> monsters){ //Method for spawning in the monsters.
     if(monspawn==0){      //Getting time between monster spawns.
       monspawn=Integer.parseInt((spawn[0]));
@@ -1789,6 +1867,8 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
     }
     return monsters;
   }
+  
+  
   public int time(){ //Method for timing the wave increases.
     if(waitTime<1){
       int tmp=waitTime;
@@ -1798,6 +1878,8 @@ class GameMaker{ //Class for getting the monsters to be spawned in at the right 
     }
     return waitTime;
   } 
+  
+  
   public static int randint(int low, int high){   // Gets a random integer between a set range.
     return (int)(Math.random()*(high-low+1)+low);
   }
