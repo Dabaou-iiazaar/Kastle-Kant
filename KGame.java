@@ -1,4 +1,4 @@
-//Adam Gaisinsky and Yang Li. FSE. Kant's Kastle, a tower-defence style game with a unique twist.
+//Adam Gaisinsky and Yang Li. KGame.java. Kant's Kastle, a tower-defence style game with a unique twist.
 // Plays similarly to PvZ and has 10 levels and an endless mode.
 // There are 11 unique weapons and 9 different types of enemies.
 // Drag, drop, control, and upgrade your weapons to keep the monsters away!
@@ -419,25 +419,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
           g.drawImage(turretI[mouseIndex],destx-20,desty-20,40,40,null);
         }
       }
-      int shotC=1;//Making sure the sound effects are not being played to often or at the same time.
-      for(Tower turr:turrets){         //Turret drawing and playing the turret shooting sound effects.
-        if(turr.shoot(bullets,monsters,coins)){
-          if(shotC>0){
-            turretSound(turr);
-            shotC-=1;
-          }
-          if(turr.type.equals("Mine")){
-            trashT.add(turr);  //Single-use mine is to be removed.
-            explosion.play();
-          }
-        }
-        if(turr.x<=selx && selx<=turr.x+40){ //When a turret that is in the field is clicked on to see its properties and stats.
-          if(turr.y<=sely && sely<=turr.y+40){
-            turrDisplay(turr,g);
-          }
-        }
-        g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);//Actually drawing the turret.
-      }
+      defenceSounds(g);//Getting sound-effects to be played for active defences.
       for(Bullet bull:bullets){ //Moving the bullets.
         money=bull.move(monsters,g,trashB,money);
       }
@@ -500,21 +482,7 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
         tmpMon.select=false;
         tmpMon=null; //When no monster is selected for information-viewing.
       }
-      if(tmpTurret!=null){
-        if(200<selx && selx<350){
-          if(50<sely && sely<75){
-            for(Tower t:turrets){
-              if(t==tmpTurret){  //Checking to see if the selected turret is to be upgraded.
-                if(money>tmpTurret.ucost*tmpTurret.level){
-                  money-=tmpTurret.ucost*tmpTurret.level;
-                  t.levelUp();
-                }
-              }
-            }
-            tmpTurret=null;
-          }
-        }
-      }
+      defenceUpgrade();//Seeing if a turret should be upgraded. To be upgraded, the turret must be selected.
       gameTick();     //Makes the game progress
       monsters.removeAll(endMons); //Removing dead monsters
       if(soundCount<=1){  //Playing the appropriate sound effect for the monsters, depending on how many there are and how loud they are to be.
@@ -526,8 +494,44 @@ class GamePanel extends JPanel implements KeyListener{ //Class for drawing and m
       beforeGame(g);
     }
   }
-  
-  
+  public void defenceUpgrade(){
+    if(tmpTurret!=null){//If there is a turret selected, possibly needing to be upgraded.
+        if(200<selx && selx<350){
+          if(50<sely && sely<75){
+            for(Tower t:turrets){
+              if(t==tmpTurret){  //Checking to see if the selected turret is to be upgraded.
+                if(money>tmpTurret.ucost*tmpTurret.level){
+                  money-=tmpTurret.ucost*tmpTurret.level;
+                  t.levelUp();
+                }
+              }
+            }
+            tmpTurret=null;//Now the turret is no longer selected.
+          }
+        }
+      }
+  }
+  public void defenceSounds(Graphics g){
+    int shotC=1;//Making sure the sound effects are not being played to often or at the same time.
+    for(Tower turr:turrets){         //Turret drawing and playing the turret shooting sound effects.
+      if(turr.shoot(bullets,monsters,coins)){
+        if(shotC>0){
+          turretSound(turr);
+          shotC-=1;
+        }
+        if(turr.type.equals("Mine")){
+          trashT.add(turr);  //Single-use mine is to be removed.
+          explosion.play();
+        }
+      }
+      if(turr.x<=selx && selx<=turr.x+40){ //When a turret that is in the field is clicked on to see its properties and stats.
+        if(turr.y<=sely && sely<=turr.y+40){
+          turrDisplay(turr,g);
+        }
+      }
+      g.drawImage(turretI[turr.indy],turr.x,turr.y,40,40,null);//Actually drawing the turret.
+    }
+  }
   public void background(Graphics g){
     g.drawImage(background,backx+1000,0,1000,700,null); //Drawing the images that almost always appear on the screen during a game.
     int countT=0;      //Keeping track of which type of grass tile is supposed to be drawn. ALternates form the darker variety to the lighter, or vice-versa.
